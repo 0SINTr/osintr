@@ -1,18 +1,28 @@
-from crewai_tools import SerperDevTool
+from langchain_community.utilities import SerpAPIWrapper
+from langchain_core.tools import Tool
 
 def google_search_function(target):
-    print(f"Running search for target: {target}")
+    print(f"\n\nRunning search for target: {target}")
+    if not isinstance(target, str):
+        print("Error: target is not a string.")
+        return None
     
-    # Initialize the tool for Internet searching capabilities
-    tool = SerperDevTool(
-        search_url='https://google.serper.dev/search',
-        n_results=50,
-    )
+    params = {
+    "engine": "google",
+    }
+    search = SerpAPIWrapper(params=params)
 
     try:
-        result = tool.run(search_query=target)  # Pass the query to the SerpAPIWrapper's search method
+        result = search.run(target)  # Pass the query to the SerpAPIWrapper's search method
         return result
     except Exception as e:
         # Handle any errors that occur during the search
         print(f"Error during Google search: {str(e)}")
         return None
+    
+# Wrap the function into a Tool object
+GoogleSearchTool = Tool.from_function(
+    func=google_search_function,
+    name="Google Search Tool",
+    description="Search for the target using Google and return the results."
+)

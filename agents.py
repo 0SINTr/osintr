@@ -1,6 +1,6 @@
 from crewai import Agent
 from langchain_openai import ChatOpenAI
-from tools.google import google_search_function
+from tools.google import GoogleSearchTool
 from dotenv import load_dotenv
 
 # Import the environment keys
@@ -11,8 +11,8 @@ OpenAIGPT4o = ChatOpenAI(model_name="gpt-4o")
 # Define Researcher Agent
 researcher = Agent(
     role="OSINT Researcher",
-    goal="Gather comprehensive data on {target}.",
-    tools=[google_search_function],
+    goal="Gather comprehensive data on {target} using the provided tools. Perform the search on the exact string matching the {target} and do not add other search terms.",
+    tools=[GoogleSearchTool],
     memory=True,
     verbose=True,
     backstory="You are an expert in online investigations and OSINT tasks, skilled at using a variety of OSINT tools and techniques to uncover relevant information that others might miss.",
