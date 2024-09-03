@@ -1,4 +1,4 @@
 .env
-.venv/
+.venv
 __pycache__/
 osint_report.md

@@ -1,11 +1,13 @@
 from crewai import Task
+from tools.google import GoogleSearchTool
 from agents import researcher, analyst, report_writer
 
 # Define Research Task
 research_task = Task(
-    description="Conduct an in-depth OSINT investigation on {target} using the provided tools. Perform the search on the exact string matching the {target} and do not add other search terms.",
+    description="Conduct an in-depth OSINT investigation on {target} using the provided tool. Perform the search on the exact string matching {target} and DO NOT ADD OTHER SEARCH TERMS OR VARIATIONS.",
     expected_output="A comprehensive dataset including all relevant details about {target} gathered from Google search results.",
     agent=researcher,
+    tools=[GoogleSearchTool],
     async_execution=False,
 )
 

@@ -9,6 +9,7 @@ def google_search_function(target):
     
     params = {
     "engine": "google",
+    "tbs":"li:1"
     }
     search = SerpAPIWrapper(params=params)
 

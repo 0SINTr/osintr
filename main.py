@@ -8,13 +8,13 @@ if __name__ == "__main__":
 
     if target_type == "1":
         target = input("Enter the Email Address: ")
-        query = f'"{target}"'
+        query = f'{target}'
     elif target_type == "2":
         target = input("Enter Username: ")
-        query = f'"{target}"'
+        query = f'{target}'
     elif target_type == "3":
         target = input("Enter Phone No.: ")
-        query = f'"{target}"'
+        query = f'{target}'
     
     print("Target:", target)  # Verify the target input
 

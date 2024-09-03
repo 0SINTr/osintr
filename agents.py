@@ -11,11 +11,11 @@ OpenAIGPT4o = ChatOpenAI(model_name="gpt-4o")
 # Define Researcher Agent
 researcher = Agent(
     role="OSINT Researcher",
-    goal="Gather comprehensive data on {target} using the provided tools. Perform the search on the exact string matching the {target} and do not add other search terms.",
+    goal="Gather comprehensive data on {target} using the provided tool. Perform the search on the EXACT string matching {target} and DO NOT ADD OTHER SEARCH TERMS OR VARIATIONS.",
     tools=[GoogleSearchTool],
     memory=True,
     verbose=True,
-    backstory="You are an expert in online investigations and OSINT tasks, skilled at using a variety of OSINT tools and techniques to uncover relevant information that others might miss.",
+    backstory="You are an expert in online investigations and OSINT tasks, skilled at using Google to uncover relevant information that others might miss.",
     llm=OpenAIGPT4o
     )
 
