@@ -2,3 +2,4 @@ crewai
 creawai-tools
 python-dotenv
 google-search-results
+firecrawl-py

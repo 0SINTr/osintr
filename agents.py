@@ -1,40 +1,47 @@
 from crewai import Agent
+from prompts import *
 from langchain_openai import ChatOpenAI
 from tools.google import GoogleSearchTool
 from dotenv import load_dotenv
+import os
 
 # Import the environment keys
+os.environ["CREWAI_TELEMETRY_DISABLED"] = "true"
 load_dotenv()
 
 OpenAIGPT4o = ChatOpenAI(model_name="gpt-4o")
 
 # Define Researcher Agent
 researcher = Agent(
-    role="OSINT Researcher",
-    goal="Gather comprehensive data on {target} using the provided tool. Perform the search on the EXACT string matching {target} and DO NOT ADD OTHER SEARCH TERMS OR VARIATIONS. Use the same initial input {target} and do not deviate. Also do your best to determine all the websites where {target} has a profile.",
+    role="Researcher",
+    goal=google_researcher_goal_prompt,
     tools=[GoogleSearchTool],
     memory=True,
     verbose=True,
-    backstory="You are an expert in online investigations and OSINT tasks, skilled at using Google to uncover relevant information that others might miss.",
+    backstory=google_researcher_backstory,
+    max_rpm=None,
+    max_iter=2,
     llm=OpenAIGPT4o
     )
-
+'''
 # Define Analyst Agent
 analyst = Agent(
     role="Data Analyst",
-    goal="Analyze and organize the data collected by the researcher to find connections and insights about {target}. Also create a nicely-formatted list with all the websites where the Researcher determined that {target} has a profile.",
+    goal=analyst_goal_prompt,
     memory=True,
     verbose=True,
-    backstory="You are a seasoned analyst, capable of turning raw data into actionable intelligence by connecting the dots between different data points and parsing and organizing the information.",
+    backstory=analyst_backstory,
+    allow_delegation=False,
     llm=OpenAIGPT4o
 )
-
+'''
 # Define Report Writer Agent
 report_writer = Agent(
     role="Report Writer",
-    goal="Compile a detailed and well-structured report based on the analyzed data from the Analyst.",
+    goal=report_writer_goal_prompt,
     memory=True,
     verbose=True,
-    backstory="You are a skilled communicator and an excellent report and document creator, with a talent for turning complex information into clear, concise, and visually appealing reports.",
+    backstory=report_writer_backstory,
+    allow_delegation=False,
     llm=OpenAIGPT4o
 )

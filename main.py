@@ -1,6 +1,6 @@
 from crewai import Crew, Process
-from agents import researcher, analyst, report_writer
-from tasks import research_task, analysis_task, report_writing_task
+from agents import researcher, report_writer
+from tasks import research_task, report_writing_task
 
 # Capture the input from the user
 if __name__ == "__main__":
@@ -20,8 +20,8 @@ if __name__ == "__main__":
 
     # Create the Crew with the agents and tasks
     crew = Crew(
-        agents=[researcher, analyst, report_writer],
-        tasks=[research_task, analysis_task, report_writing_task],
+        agents=[researcher, report_writer],
+        tasks=[research_task, report_writing_task],
         process=Process.sequential,  # Ensure tasks are executed in order
         verbose=True,
     )

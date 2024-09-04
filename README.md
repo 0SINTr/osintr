@@ -1,15 +1,26 @@
-# Osint Crew
+# 0SINTr Intro
 
-Welcome to the Osint Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+Welcome to the 0SINTr project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+
+NOTE!
+This tool is not meant to perform a full OSINT investigation, but rather to easily build a foundation for the OSINT process.
+
+API KEYS!
+You need to get a SerperDev key (https://serper.dev/) and add it to a .env file in the root folder of the project as SERPER_API_KEY=<your_key_here>
+You need to get an OpenAI key (https://openai.com/) and add it to the .env file in the root folder of the project as OPENAI_API_KEY=<your_key_here>
+Also add OPENAI_MODEL_NAME=<model> (e.g. gpt-4o) to the .env file.
 
 ## Installation
 
-Ensure you have Python >=3.10 <=3.13 installed on your system. 
+Ensure you have Python >=3.10 installed on your system. 
 
 First, if you haven't already, install CrewAI:
 
-```bash
+```bash | cmd
 pip install crewai crewai-tools
+pip install python-dotenv
+pip install google-search-results
+pip install langchain-ollama
 ```
 
 ### Customizing
@@ -27,8 +38,13 @@ To kickstart your crew of AI agents and begin task execution, run this from the 
 ```bash
 $ crewai run
 ```
+or, from VSCode:
 
-This command initializes the OSINT Crew, assembling the agents and assigning them tasks as defined in your configuration.
+```bash
+$ python main.py
+```
+
+This is how you initialize the OSINT Crew, assembling the agents and assigning them tasks as defined in your configuration.
 
 ## Understanding Your Crew
 
