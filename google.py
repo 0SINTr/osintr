@@ -2,7 +2,7 @@ from langchain_community.utilities import GoogleSerperAPIWrapper
 from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
 from requests.exceptions import HTTPError
-from colorama import Fore, Style
+from colorama import Fore, Style, init
 import pandas as pd
 import requests
 import time
@@ -58,7 +58,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
         with open(dir_path + '/google_search.json', 'w') as outfile:
             json.dump(unique_json_data, outfile)
         
-        print(Fore.GREEN + f"\n  |--- Search DONE. Check {dir_path}\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Search DONE. Check folder " + Style.BRIGHT + f"{dir_path}\n" + Style.RESET_ALL)
 
     except Exception as e:
         # Handle any errors that occur during the search
@@ -80,7 +80,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
         links.append(entry['link'])
 
     print(Style.BRIGHT + Fore.MAGENTA + "|---> Starting to scrape." + Style.RESET_ALL)
-    print("  |--- Forbidden URLs will be added to " + Style.BRIGHT + "noScrapeLinks.txt\n" + Style.RESET_ALL)
+    print(Fore.MAGENTA + "\n  |--- Forbidden URLs will be added to " + Style.BRIGHT + "noScrapeLinks.txt\n" + Style.RESET_ALL)
 
     # Initialize the Firecrawl scraper
     for index, url in enumerate(links):
@@ -126,7 +126,7 @@ def extract_image_urls(md_file_path):
     # Compiling a list of 2 URLs
     urls = [image_url, source_url]
 
-    # Extract email addresses. Adding {3,} to avoid @2x style notations for image sizes
+    # Extract email addresses from .md files. Adding {3,} to avoid @2x style notations for image sizes
     emails = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
 
     return urls, emails
@@ -169,7 +169,7 @@ def process_md_files(directory, save_directory):
             all_emails.append(email)
 
     # Iterate over all found image URLs
-    print(Style.BRIGHT + Fore.CYAN + "|---> Saving screenshots." + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.CYAN + "|---> Saving screenshots.\n" + Style.RESET_ALL)
     for url_pair in all_urls:
         file_no = 1
         save_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no) + ".png")
@@ -179,7 +179,7 @@ def process_md_files(directory, save_directory):
             save_bkp_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no + 1) + ".png")
             download_image(url_pair[0], save_bkp_path)
 
-    # Iterate over all founf email addresses
+    # Iterate over all found email addresses
     filtered_email_list = []
     for email in all_emails:
         if type(email) is list:
@@ -188,19 +188,36 @@ def process_md_files(directory, save_directory):
         else:
             filtered_email_list.append(email)
 
+    # Extract email addresses from .json file
+    with open(os.path.dirname(os.path.dirname(save_directory)) + '/google_search.json', 'r') as f:
+        content = f.read()
+    
+    emails_from_json = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
+    filtered_email_list += emails_from_json
+
+    # Writing the email addresses to a .txt file
     if len(filtered_email_list) > 0:
         for email in set(filtered_email_list):
             with open(os.path.dirname(save_directory) + '/EmailAddresses.txt', 'a') as f:
                     f.write(email + '\n')
+        
+        # Print out the email addresses
+        print(Style.BRIGHT + Fore.YELLOW + "\n|---> Email addresses found:\n" + Style.RESET_ALL)
+        for email in set(filtered_email_list):
+            print(f"    |- {email}")
+        print("\n")
     else:
+        print(Style.BRIGHT + Fore.RED + "|---> No email addresses found:" + Style.RESET_ALL)
         with open(os.path.dirname(save_directory) + '/EmailAddresses.txt', 'w') as f:
             f.write('No email addresses found.')
+        print("\n")
 
 # Load API keys from .env
 load_dotenv()
 
 # Run the Google search function
-target = input(Style.BRIGHT + Fore.BLUE + "\n|---> Enter target [Username | Email Address | Phone No.]: " + Style.RESET_ALL)
+init() # For colorama
+target = input(Style.BRIGHT + Fore.CYAN + "\n|---> Enter target [Username | Email Address | Phone No.]: " + Style.RESET_ALL)
 target_verbatim = target
 target_intext = 'intext:' + '"' + target + '"'
 target_inurl = 'inurl:' + '"' + target + '"'

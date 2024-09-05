@@ -1,25 +1,16 @@
 from crewai import Task
 from prompts import *
-from google import GoogleSearchTool
-from agents import researcher, report_writer
+from agents import analyst, report_writer
 
-# Define Research Task
-research_task = Task(
-    description=google_research_task_description,
-    expected_output=google_research_task_output,
-    agent=researcher,
-    tools=[GoogleSearchTool],
-    async_execution=False,
-)
-'''
+
 # Define Analysis Task
 analysis_task = Task(
-    description=analysis_task_description,
-    expected_output=analysis_task_output,
+    description=data_analyst_task_description,
+    expected_output=data_analyst_task_output,
     agent=analyst,
     async_execution=False,
 )
-'''
+
 # Define Report Writing Task
 report_writing_task = Task(
     description=report_writing_task_description,
