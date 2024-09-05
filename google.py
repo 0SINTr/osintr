@@ -7,6 +7,7 @@ import time
 import json
 import sys
 import os
+import re
 
 # Function to perform the Google search and scrape each page related to the target
 def google_search_function(target):
@@ -55,7 +56,7 @@ def google_search_function(target):
     for index, url in enumerate(links):
         try:
             scraper = FirecrawlApp()
-            scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'html', 'screenshot'], 'waitFor':2000, 'timeout':10000})
+            scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'html', 'screenshot'], 'waitFor':3000, 'timeout':10000})
 
             # Write the scrape results to separate files
             with open(scraped_path + '/scrape' + str(index + 1) + '.md', 'w', encoding='utf-8') as outfile:
@@ -72,7 +73,7 @@ def google_search_function(target):
 
     return scraped_path
 
-# Function to extract image URLs from a markdown file
+# Function to extract image URLs and email addresses from a markdown file
 def extract_image_urls(md_file_path):
     with open(md_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -83,9 +84,18 @@ def extract_image_urls(md_file_path):
     image_url = res['screenshot']
     if str(image_url).startswith('http'):
         #print(f"Extracted URLs from {md_file_path}: {image_url}")
-        return image_url
-    else:
-        return None
+        image_url = image_url
+    
+    # Getting the source URL from metdata
+    source_url = res['metadata']['sourceURL']
+
+    # Compiling a list of 2 URLs
+    urls = [image_url, source_url]
+
+    # Extract email addresses. Adding {3,} to avoid @2x style notations for image sizes
+    emails = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
+
+    return urls, emails
 
 # Download the page screenshot and save it
 def download_image(image_url, save_path):
@@ -104,18 +114,46 @@ def process_md_files(directory, save_directory):
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
 
-    # Iterate over all .md files in the directory
-    all_screenshot_urls = []
+    # Iterate over all .md files in the directory and extract image URLs and email addresses
+    all_emails = []
+    all_urls = []
     for md_file_name in os.listdir(directory):
         if str(md_file_name).endswith('.md'):
+            # Extract image URLs
             md_file_path = os.path.join(directory, md_file_name)
-            image_url = extract_image_urls(md_file_path)
-            all_screenshot_urls.append(image_url)
+            extraction_result = extract_image_urls(md_file_path)
+            image_url = extraction_result[0][0]
+            source_url = extraction_result[0][1]
+            domain_pattern = r"(https?://)?(www\d?\.)?(?P<domain>[\w\.-]+\.\w+)(/\S*)?"
+            match = re.match(domain_pattern, source_url)
+            source_url = match.group('domain')
+            all_urls.append([image_url, str(source_url).replace('.','_')])
+
+            # Extract email addresses
+            email = extract_image_urls(md_file_path)[1]
+            all_emails.append(email)
 
     # Iterate over all found image URLs
-    for i, image_url in enumerate(all_screenshot_urls):
-        save_path = os.path.join(save_directory, "screenshot" + str(i) + ".png")
-        download_image(image_url, save_path)
+    for url_pair in all_urls:
+        save_path = os.path.join(save_directory, "ss_" + url_pair[1] + ".png")
+        download_image(url_pair[0], save_path)
+
+    # Iterate over all founf email addresses
+    filtered_email_list = []
+    for email in all_emails:
+        if type(email) is list:
+            for item in email:
+                filtered_email_list.append(item)
+        else:
+            filtered_email_list.append(email)
+
+    if len(filtered_email_list) > 0:
+        for email in set(filtered_email_list):
+            with open(os.path.dirname(save_directory) + '/EmailAddresses.txt', 'a') as f:
+                    f.write(email + '\n')
+    else:
+        with open(os.path.dirname(save_directory) + '/EmailAddresses.txt', 'w') as f:
+            f.write('No email addresses found.')
 
 # Load API keys from .env
 load_dotenv()
