@@ -52,11 +52,7 @@ Ensure you have Python >=3.10 installed on your system.
 Requirements in **requirements.txt**.
 First, if you haven't already, install CrewAI:
 
-`pip install crewai crewai-tools`
-`pip install python-dotenv`
-`pip install google-search-results`
-`pip install firecrawl-py`
-`pip install colorama`
+`pip install crewai crewai-tools python-dotenv google-search-results firecrawl-py colorama`
 
 
 ### Customizing
