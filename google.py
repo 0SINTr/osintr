@@ -2,6 +2,8 @@ from langchain_community.utilities import GoogleSerperAPIWrapper
 from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
 from requests.exceptions import HTTPError
+from colorama import Fore, Style
+import pandas as pd
 import requests
 import time
 import json
@@ -10,34 +12,61 @@ import os
 import re
 
 # Function to perform the Google search and scrape each page related to the target
-def google_search_function(target):
-    print(f"\nRunning search for target: {target}")
+def google_search_function(target_verbatim, target_intext, target_inurl):
+    print(Fore.CYAN + f"\n  |--- Running search for target: {target}" + Style.RESET_ALL)
     
     # Check if osint_data directory exists, if not create it for the specified target
     dir_path = "osint_data_" + ''.join(char for char in str(target) if char.isalnum())
     if not os.path.exists(path=dir_path):
         os.makedirs(dir_path)
 
-    # Perform a verbatim Google search (tbs value) and return 20 results (in line with Firecrawl's Hobby paid plan of 20 scrapes/min)
-    search = GoogleSerperAPIWrapper(tbs="li:1", k=20)
+    # Perform a verbatim Google search (tbs value) and return the results
+    search_verbatim = GoogleSerperAPIWrapper(tbs="li:1", k=20)
+    search_intext = GoogleSerperAPIWrapper(k=20)
+    search_inurl = GoogleSerperAPIWrapper(k=20)
 
     try:
-        # Pass the query to the SerpAPIWrapper's search method
-        results = search.results(target)
+        all_search_results = []
 
-        # Create and save the JSON file with initial search results
+        # Pass the query to the SerpAPIWrapper's verbatim search method
+        results_verbatim = search_verbatim.results(target_verbatim)
+        if results_verbatim:
+            for result in results_verbatim['organic']:
+                all_search_results.append(result)
+
+        # Pass the query to the SerpAPIWrapper's intext search method
+        results_intext = search_intext.results(target_intext)
+        if results_intext:
+            for result in results_intext['organic']:
+                all_search_results.append(result)
+
+        # Pass the query to the SerpAPIWrapper's inurl search method
+        results_inurl = search_inurl.results(target_inurl)
+        if results_inurl:
+            for result in results_inurl['organic']:
+                all_search_results.append(result)
+
+        # Removing duplicates
+        df = pd.DataFrame(all_search_results)
+        df_unique = df.drop_duplicates('title')
+        unique_json_data = df_unique.to_dict(orient='records')
+
+        print(Fore.CYAN + "\n  |--- Removing duplicates from search results.\n" + Style.RESET_ALL)
+        print(Fore.CYAN + f"  |--- Total duplicates removed: {len(all_search_results)-len(unique_json_data)}, Final items: {len(unique_json_data)}" + Style.RESET_ALL)
+
+        # Create and save the JSON file with unique search results
         with open(dir_path + '/google_search.json', 'w') as outfile:
-            json.dump(results['organic'], outfile)
+            json.dump(unique_json_data, outfile)
         
-        print(f"\nDONE. Check {dir_path}.\n")
+        print(Fore.GREEN + f"\n  |--- Search DONE. Check {dir_path}\n" + Style.RESET_ALL)
 
     except Exception as e:
         # Handle any errors that occur during the search
-        print(f"Error during Google search: {str(e)}")
-        sys.exit("\nQuitting.")
+        print(Fore.RED + f"  |--- Error during Google search: {str(e)}" + Style.RESET_ALL)
+        sys.exit(Fore.RED + "\n  |--- Quitting." + Style.RESET_ALL)
     
-    # Introducing sleep for 5 seconds
-    time.sleep(5)
+    # Introducing sleep for 3 seconds
+    time.sleep(3)
 
     # Creating new directory for scraping results
     scraped_path = dir_path + '/scraped'
@@ -47,10 +76,11 @@ def google_search_function(target):
     # Extracting all the links from search results
     links = []
     noScrape_links = []
-    for entry in results['organic']:
+    for entry in unique_json_data:
         links.append(entry['link'])
 
-    print("Starting to scrape.\nForbidden URLs will be added to noScrapeLinks.txt\n")
+    print(Style.BRIGHT + Fore.MAGENTA + "|---> Starting to scrape." + Style.RESET_ALL)
+    print("  |--- Forbidden URLs will be added to " + Style.BRIGHT + "noScrapeLinks.txt\n" + Style.RESET_ALL)
 
     # Initialize the Firecrawl scraper
     for index, url in enumerate(links):
@@ -62,7 +92,10 @@ def google_search_function(target):
             with open(scraped_path + '/scrape' + str(index + 1) + '.md', 'w', encoding='utf-8') as outfile:
                 outfile.write(str(scrape_result))
 
-            print('- scrape' + str(index + 1) + '.md DONE.')
+            print('    |- File scrape' + str(index + 1) + '.md DONE.')
+
+            # Introducing sleep for 3 seconds
+            time.sleep(3)
 
         except HTTPError as e:
             # Write un-scrapeable links to a txt file and continue
@@ -70,7 +103,8 @@ def google_search_function(target):
             with open(dir_path + '/noScrapeLinks.txt', 'a') as f:
                 f.write(url + '\n')
             continue
-
+    
+    print('\n')
     return scraped_path
 
 # Function to extract image URLs and email addresses from a markdown file
@@ -81,8 +115,8 @@ def extract_image_urls(md_file_path):
         res = eval(content)
 
     # Getting and checking the image URL
-    image_url = res['screenshot']
-    if str(image_url).startswith('http'):
+    image_url = res.get('screenshot')
+    if image_url and str(image_url).startswith('http'):
         #print(f"Extracted URLs from {md_file_path}: {image_url}")
         image_url = image_url
     
@@ -104,9 +138,10 @@ def download_image(image_url, save_path):
         response.raise_for_status()  # Check if the request was successful
         with open(save_path, 'wb') as file:
             file.write(response.content)
-        print(f"Image saved as {save_path}")
+        print("    |- Image saved as: " + Fore.YELLOW + f"{save_path}" + Style.RESET_ALL)
     except requests.exceptions.RequestException as e:
-        print(f"Failed to retrieve image {image_url}. Error: {e}")
+        #print(f"Failed to retrieve image {image_url}. Error: {e}")
+        pass
 
 # Process all .md files in the scraped directory
 def process_md_files(directory, save_directory):
@@ -134,9 +169,15 @@ def process_md_files(directory, save_directory):
             all_emails.append(email)
 
     # Iterate over all found image URLs
+    print(Style.BRIGHT + Fore.CYAN + "|---> Saving screenshots." + Style.RESET_ALL)
     for url_pair in all_urls:
-        save_path = os.path.join(save_directory, "ss_" + url_pair[1] + ".png")
-        download_image(url_pair[0], save_path)
+        file_no = 1
+        save_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no) + ".png")
+        if not os.path.exists(save_path):
+            download_image(url_pair[0], save_path)
+        else:
+            save_bkp_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no + 1) + ".png")
+            download_image(url_pair[0], save_bkp_path)
 
     # Iterate over all founf email addresses
     filtered_email_list = []
@@ -159,7 +200,11 @@ def process_md_files(directory, save_directory):
 load_dotenv()
 
 # Run the Google search function
-md_directory = google_search_function("Mihai Catalin Teodosiu")
+target = input(Style.BRIGHT + Fore.BLUE + "\n|---> Enter target [Username | Email Address | Phone No.]: " + Style.RESET_ALL)
+target_verbatim = target
+target_intext = 'intext:' + '"' + target + '"'
+target_inurl = 'inurl:' + '"' + target + '"'
+md_directory = google_search_function(target_verbatim, target_intext, target_inurl)
 
 # Defining the firectories to pass to process_md_files()
 directory = md_directory
