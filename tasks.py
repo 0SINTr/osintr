@@ -1,6 +1,6 @@
 from crewai import Task
 from prompts import *
-from tools.google import GoogleSearchTool
+from google import GoogleSearchTool
 from agents import researcher, report_writer
 
 # Define Research Task

@@ -1,7 +1,7 @@
 from crewai import Agent
 from prompts import *
 from langchain_openai import ChatOpenAI
-from tools.google import GoogleSearchTool
+from google import GoogleSearchTool
 from dotenv import load_dotenv
 import os
 
