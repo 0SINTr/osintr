@@ -17,8 +17,7 @@ You need to provide a **Username** or **Email Address** at the prompt. This is t
 * If the search term was a username or email address, the app checks breaches and pastes for that account
 * Optionally, the app can collect information via the OSINT.Industries API if you own an API key
 
-**How is this information analyzed?
-**
+**How is this information analyzed?**
 [enter_text]
 
 **API KEYS**

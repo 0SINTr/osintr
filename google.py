@@ -103,6 +103,10 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
             with open(dir_path + '/google/noScrapeLinks.txt', 'a') as f:
                 f.write(url + '\n')
             continue
+
+        except Exception as e:
+            print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + url + Style.RESET_ALL)
+            continue
     
     return scraped_path
 
