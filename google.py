@@ -76,13 +76,14 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
     links = []
     noScrape_links = []
     for entry in unique_json_data:
-        links.append(entry['link'])
+        if 'gov' not in entry['link']:
+            links.append(entry['link'])
 
     print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
     print(Fore.MAGENTA + "\n  |--- Forbidden URLs will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
 
     # Initialize the Firecrawl scraper
-    for index, url in enumerate(links[::5]):
+    for index, url in enumerate(links):
         try:
             scraper = FirecrawlApp()
             scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'html', 'screenshot'], 'waitFor':3000, 'timeout':10000})
