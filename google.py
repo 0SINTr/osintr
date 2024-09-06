@@ -1,7 +1,6 @@
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
-from requests.exceptions import HTTPError
 from colorama import Fore, Style, init
 import pandas as pd
 import requests
@@ -18,7 +17,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
     # Check if osint_data directory exists, if not create it for the specified target
     dir_path = "osint_data_" + ''.join(char for char in str(target) if char.isalnum())
     if not os.path.exists(path=dir_path):
-        os.makedirs(dir_path)
+        os.makedirs(dir_path + '/google/')
 
     # Perform a verbatim Google search (tbs value) and return the results
     search_verbatim = GoogleSerperAPIWrapper(tbs="li:1", k=20)
@@ -55,7 +54,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
         print(Fore.CYAN + f"  |--- Total duplicates removed: {len(all_search_results)-len(unique_json_data)}, Final items: {len(unique_json_data)}" + Style.RESET_ALL)
 
         # Create and save the JSON file with unique search results
-        with open(dir_path + '/google_search.json', 'w') as outfile:
+        with open(dir_path + '/google/google_search.json', 'w') as outfile:
             json.dump(unique_json_data, outfile)
         
         print(Fore.GREEN + "\n  |--- Search DONE. Check folder " + Style.BRIGHT + f"{dir_path}\n" + Style.RESET_ALL)
@@ -69,7 +68,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
     time.sleep(3)
 
     # Creating new directory for scraping results
-    scraped_path = dir_path + '/scraped'
+    scraped_path = dir_path + '/google/scraped'
     if not os.path.exists(path=scraped_path):
         os.makedirs(scraped_path)
 
@@ -80,10 +79,10 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
         links.append(entry['link'])
 
     print(Style.BRIGHT + Fore.MAGENTA + "|---> Starting to scrape." + Style.RESET_ALL)
-    print(Fore.MAGENTA + "\n  |--- Forbidden URLs will be added to " + Style.BRIGHT + "noScrapeLinks.txt\n" + Style.RESET_ALL)
+    print(Fore.MAGENTA + "\n  |--- Forbidden URLs will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
 
     # Initialize the Firecrawl scraper
-    for index, url in enumerate(links):
+    for index, url in enumerate(links[::5]):
         try:
             scraper = FirecrawlApp()
             scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'html', 'screenshot'], 'waitFor':3000, 'timeout':10000})
@@ -97,10 +96,10 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
             # Introducing sleep for 3 seconds
             time.sleep(3)
 
-        except HTTPError as e:
+        except requests.exceptions.HTTPError as e:
             # Write un-scrapeable links to a txt file and continue
             noScrape_links.append(url)
-            with open(dir_path + '/noScrapeLinks.txt', 'a') as f:
+            with open(dir_path + '/google/noScrapeLinks.txt', 'a') as f:
                 f.write(url + '\n')
             continue
     
@@ -189,7 +188,7 @@ def process_md_files(directory, save_directory):
             filtered_email_list.append(email)
 
     # Extract email addresses from .json file
-    with open(os.path.dirname(os.path.dirname(save_directory)) + '/google_search.json', 'r') as f:
+    with open(os.path.dirname(save_directory) + '/google_search.json', 'r') as f:
         content = f.read()
     
     emails_from_json = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
@@ -198,7 +197,7 @@ def process_md_files(directory, save_directory):
     # Writing the email addresses to a .txt file
     if len(filtered_email_list) > 0:
         for email in set(filtered_email_list):
-            with open(os.path.dirname(save_directory) + '/EmailAddresses.txt', 'a') as f:
+            with open(os.path.dirname(save_directory) + '/emailAddresses.txt', 'a') as f:
                     f.write(email + '\n')
         
         # Print out the email addresses
@@ -208,7 +207,7 @@ def process_md_files(directory, save_directory):
         print("\n")
     else:
         print(Style.BRIGHT + Fore.RED + "|---> No email addresses found:" + Style.RESET_ALL)
-        with open(os.path.dirname(save_directory) + '/EmailAddresses.txt', 'w') as f:
+        with open(os.path.dirname(save_directory) + '/emailAddresses.txt', 'w') as f:
             f.write('No email addresses found.')
         print("\n")
 
@@ -217,7 +216,7 @@ load_dotenv()
 
 # Run the Google search function
 init() # For colorama
-target = input(Style.BRIGHT + Fore.CYAN + "\n|---> Enter target [Username | Email Address | Phone No.]: " + Style.RESET_ALL)
+target = input(Style.BRIGHT + Fore.CYAN + "\n|---> Enter target [Username | Email Address]: " + Style.RESET_ALL)
 target_verbatim = target
 target_intext = 'intext:' + '"' + target + '"'
 target_inurl = 'inurl:' + '"' + target + '"'
@@ -225,7 +224,7 @@ md_directory = google_search_function(target_verbatim, target_intext, target_inu
 
 # Defining the firectories to pass to process_md_files()
 directory = md_directory
-save_directory = md_directory + '/screenshots'
+save_directory = os.path.dirname(md_directory) + '/screenshots'
 
 # Process all .md files in the specified directory
 process_md_files(directory, save_directory)
