@@ -1,5 +1,5 @@
 from crewai import Agent
-from prompts import *
+from ai_logic.prompts import *
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import os

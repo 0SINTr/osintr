@@ -1,6 +1,6 @@
 from crewai import Task
-from prompts import *
-from agents import analyst, report_writer
+from ai_logic.prompts import *
+from ai_logic.agents import analyst, report_writer
 
 
 # Define Analysis Task

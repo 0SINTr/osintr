@@ -1,6 +1,6 @@
 from crewai import Crew, Process
-from agents import analyst, report_writer
-from tasks import analysis_task, report_writing_task
+from ai_logic.agents import analyst, report_writer
+from ai_logic.tasks import analysis_task, report_writing_task
 
 # Capture the input from the user
 if __name__ == "__main__":
