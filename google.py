@@ -57,7 +57,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
         with open(dir_path + '/google/google_search.json', 'w') as outfile:
             json.dump(unique_json_data, outfile)
         
-        print(Fore.GREEN + "\n  |--- Search DONE. Check folder " + Style.BRIGHT + f"{dir_path}\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Search DONE. Check folder " + Style.BRIGHT + f"{dir_path}" + Style.RESET_ALL)
 
     except Exception as e:
         # Handle any errors that occur during the search
@@ -78,7 +78,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
     for entry in unique_json_data:
         links.append(entry['link'])
 
-    print(Style.BRIGHT + Fore.MAGENTA + "|---> Starting to scrape." + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
     print(Fore.MAGENTA + "\n  |--- Forbidden URLs will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
 
     # Initialize the Firecrawl scraper
@@ -103,7 +103,6 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
                 f.write(url + '\n')
             continue
     
-    print('\n')
     return scraped_path
 
 # Function to extract image URLs and email addresses from a markdown file
@@ -168,7 +167,7 @@ def process_md_files(directory, save_directory):
             all_emails.append(email)
 
     # Iterate over all found image URLs
-    print(Style.BRIGHT + Fore.CYAN + "|---> Saving screenshots.\n" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.CYAN + "\n\n|---> Saving screenshots.\n" + Style.RESET_ALL)
     for url_pair in all_urls:
         file_no = 1
         save_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no) + ".png")
@@ -201,15 +200,67 @@ def process_md_files(directory, save_directory):
                     f.write(email + '\n')
         
         # Print out the email addresses
-        print(Style.BRIGHT + Fore.YELLOW + "\n|---> Email addresses found:\n" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Email addresses found:\n" + Style.RESET_ALL)
         for email in set(filtered_email_list):
             print(f"    |- {email}")
-        print("\n")
+
     else:
-        print(Style.BRIGHT + Fore.RED + "|---> No email addresses found:" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
         with open(os.path.dirname(save_directory) + '/emailAddresses.txt', 'w') as f:
             f.write('No email addresses found.')
-        print("\n")
+
+def search_breaches(target):
+    print(Style.BRIGHT + Fore.RED + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
+    url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
+    headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
+    response = requests.get(url + target + "?truncateResponse=false" + "?includeUnverified=true", headers=headers)
+
+    if response.status_code == 200:
+        breach_data = response.json()
+
+        # Create new directory 
+        dir_path = "osint_data_" + ''.join(char for char in str(target) if char.isalnum())
+        if os.path.exists(path=dir_path):
+            os.makedirs(dir_path + '/leaks/')
+
+        # Write JSON data to directory
+        with open(dir_path + '/leaks/breaches.json', 'w') as outfile:
+            json.dump(breach_data, outfile)
+
+        print(Fore.RED + "\n  |--- Breached data added to " + Style.BRIGHT + "/leaks/breaches.json" + Style.RESET_ALL)
+
+    elif response.status_code == 404:
+        print(Fore.GREEN + "\n  |--- No breached data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
+
+    else:
+        print('    |- Error code: ' + str(response.status_code))
+
+def search_pastes(target):
+    print(Style.BRIGHT + Fore.RED + "\n\n|---> Checking for pastes: " + Style.RESET_ALL)
+    time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
+    url = "https://haveibeenpwned.com/api/v3/pasteaccount/"
+    headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
+    response = requests.get(url + target, headers=headers)
+
+    if response.status_code == 200:
+        paste_data = response.json()
+
+        # Check leaks directory 
+        dir_path = "osint_data_" + ''.join(char for char in str(target) if char.isalnum())
+        if os.path.exists(path=dir_path) and not os.path.exists(path=dir_path + '/leaks/'):
+            os.makedirs(dir_path + '/leaks/')
+
+        # Write JSON data to directory
+        with open(dir_path + '/leaks/pastes.json', 'w') as outfile:
+            json.dump(paste_data, outfile)
+
+        print(Fore.RED + "\n  |--- Paste data added to " + Style.BRIGHT + "/leaks/pastes.json\n" + Style.RESET_ALL)
+
+    elif response.status_code == 404:
+        print(Fore.GREEN + "\n  |--- No paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+
+    else:
+        print('    |- Error code: ' + str(response.status_code))
 
 # Load API keys from .env
 load_dotenv()
@@ -228,3 +279,7 @@ save_directory = os.path.dirname(md_directory) + '/screenshots'
 
 # Process all .md files in the specified directory
 process_md_files(directory, save_directory)
+
+# Run the data leak detection functions
+search_breaches(target)
+search_pastes(target)
