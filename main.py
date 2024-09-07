@@ -16,12 +16,11 @@ import sys
 import os
 import re
 
+
 # Function to perform the Google search and scrape each page related to the target
-def google_search_function(target_verbatim, target_intext, target_inurl, path):
-    print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for target: {target_verbatim}" + Style.RESET_ALL)
-    
+def google_search_function(target_verbatim, target_intext, target_intitleurl, outputDir):
     # Check if osint_data directory exists, if not create it for the specified target
-    dir_path = path + "/osint_data_" + ''.join(char for char in str(target_verbatim) if char.isalnum())
+    dir_path = outputDir + "/osint_data_" + ''.join(char for char in str(target_verbatim) if char.isalnum())
     if not os.path.exists(path=dir_path):
         os.makedirs(dir_path + '/google/')
 
@@ -46,7 +45,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl, path):
                 all_search_results.append(result)
 
         # Pass the query to the SerpAPIWrapper's inurl search method
-        results_inurl = search_inurl.results(target_inurl)
+        results_inurl = search_inurl.results(target_intitleurl)
         if results_inurl:
             for result in results_inurl['organic']:
                 all_search_results.append(result)
@@ -126,6 +125,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl, path):
 
     return scraped_path
 
+
 # Function to extract image URLs and email addresses from a markdown file
 def extract_image_urls(md_file_path):
     with open(md_file_path, 'r', encoding='utf-8') as file:
@@ -150,6 +150,7 @@ def extract_image_urls(md_file_path):
 
     return urls, emails
 
+
 # Download the page screenshot and save it
 def download_image(image_url, save_path):
     try:
@@ -161,6 +162,7 @@ def download_image(image_url, save_path):
     except requests.exceptions.RequestException as e:
         #print(f"Failed to retrieve image {image_url}. Error: {e}")
         pass
+
 
 # Process all .md files in the scraped directory
 def process_md_files(directory, save_directory):
@@ -186,17 +188,20 @@ def process_md_files(directory, save_directory):
             # Extract email addresses
             email = extract_image_urls(md_file_path)[1]
             all_emails.append(email)
-    
+
     # Iterate over all found image URLs
     print(Style.BRIGHT + Fore.BLUE + "\n\n|---> Saving screenshots.\n" + Style.RESET_ALL)
-    for url_pair in all_urls:
-        file_no = 1
-        save_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no) + ".png")
-        if not os.path.exists(save_path):
-            download_image(url_pair[0], save_path)
-        else:
-            save_bkp_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no + 1) + ".png")
-            download_image(url_pair[0], save_bkp_path)
+    if len(all_urls) > 0:
+        for url_pair in all_urls:
+            file_no = 1
+            save_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no) + ".png")
+            if not os.path.exists(save_path):
+                download_image(url_pair[0], save_path)
+            else:
+                save_bkp_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no + 1) + ".png")
+                download_image(url_pair[0], save_bkp_path)
+    else:
+        print(Fore.BLUE + "  |--- No screenshots taken.\n" + Style.RESET_ALL)
 
     # Iterate over all found email addresses
     filtered_email_list = []
@@ -233,6 +238,7 @@ def process_md_files(directory, save_directory):
         with open(os.path.dirname(save_directory) + '/emailAddresses.txt', 'w') as f:
             f.write('No email addresses found.')
 
+
 def search_breaches(target):
     print(Style.BRIGHT + Fore.RED + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
     url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
@@ -258,6 +264,7 @@ def search_breaches(target):
 
     else:
         print('    |- Error code: ' + str(response.status_code))
+
 
 def search_pastes(target):
     print(Style.BRIGHT + Fore.RED + "\n\n|---> Checking for pastes: " + Style.RESET_ALL)
@@ -286,6 +293,7 @@ def search_pastes(target):
     else:
         print('    |- Error code: ' + str(response.status_code))
 
+
 def main():
     parser = argparse.ArgumentParser(description='Run 0sintr with the following arguments.')
     parser.add_argument('-t', '--target', help='Target email address or username', required=True)
@@ -310,7 +318,7 @@ def main():
 
     # -o argument logic
     if args.output is not None:
-        output_dir = args.output
+        outputDir = args.output
     else:
         parser.print_usage()
 
@@ -324,8 +332,18 @@ def main():
         # Running the Google search function
         target_verbatim = target
         target_intext = f"intext:\"{target}\""
-        target_inurl = f"intext:\"{target}\""
-        md_directory = google_search_function(target_verbatim, target_intext, target_inurl, output_dir)
+        target_inurl = f"inurl:\"{target}\""
+        target_intitle = f"intitle:\"{target}\""
+
+        # For email addresses, use verbatim, intext and intitle
+        if validate_email(target):
+            print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for email address: {target_verbatim}" + Style.RESET_ALL)
+            print(Fore.CYAN + "  |--- Search modes: verbatim, intext, intitle" + Style.RESET_ALL)
+            md_directory = google_search_function(target_verbatim, target_intext, target_intitle, outputDir)
+        else:
+            print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for username: {target_verbatim}" + Style.RESET_ALL)
+            print(Fore.CYAN + "  |--- Search modes: verbatim, intext, inurl" + Style.RESET_ALL)
+            md_directory = google_search_function(target_verbatim, target_intext, target_inurl, outputDir)
 
         # Defining the directories to pass to process_md_files()
         directory = md_directory
@@ -341,7 +359,7 @@ def main():
         if validate_email(target):
             search_pastes(target)
         else:
-            print(Fore.YELLOW + "\n\n|---> Since you provided a username, I will check pastes for " + Style.BRIGHT + "username@gmail.com" + Style.RESET_ALL)
+            print(Fore.YELLOW + "\n\n|---> Since you provided a username, I will check pastes for " + Style.BRIGHT + f"{target}@gmail.com" + Style.RESET_ALL)
             search_pastes(target + "@gmail.com")
 
     else:
