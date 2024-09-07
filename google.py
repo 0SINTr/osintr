@@ -80,7 +80,7 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
             links.append(entry['link'])
 
     print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
-    print(Fore.MAGENTA + "\n  |--- Forbidden URLs will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
+    print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
 
     # Initialize the Firecrawl scraper
     for index, url in enumerate(links):
@@ -108,6 +108,16 @@ def google_search_function(target_verbatim, target_intext, target_inurl):
             print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + url + Style.RESET_ALL)
             continue
     
+    # Checking unscrapeable URLs
+    with open(dir_path + '/google/noScrapeLinks.txt', 'r') as f:
+        un_links = f.readlines()
+    
+    if len(un_links) == 0:
+        print(Fore.MAGENTA + "\n  |--- All links scraped successfully.\n" + Style.RESET_ALL)
+    else:
+        print(Fore.MAGENTA + "\n  |--- Unscrapeable links added to " + Style.BRIGHT + "noScrapeLinks.txt.\n" + Style.RESET_ALL)
+        print(Fore.MAGENTA + "\n  |--- Suggestion! Check the URLs manually to collect relevant data.\n" + Style.RESET_ALL)
+
     return scraped_path
 
 # Function to extract image URLs and email addresses from a markdown file
@@ -209,6 +219,9 @@ def process_md_files(directory, save_directory):
         for email in set(filtered_email_list):
             print(f"    |- {email}")
 
+        print(Fore.YELLOW + "\n  |--- Email addresses added to " + Style.BRIGHT + "emailAddresses.txt.\n" + Style.RESET_ALL)
+        print(Fore.YELLOW + "\n  |--- Suggestion! Check the file and re-run 0SINTr for relevant addresses.\n" + Style.RESET_ALL)
+
     else:
         print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
         with open(os.path.dirname(save_directory) + '/emailAddresses.txt', 'w') as f:
@@ -272,7 +285,20 @@ load_dotenv()
 
 # Run the Google search function
 init() # For colorama
-target = input(Style.BRIGHT + Fore.CYAN + "\n|---> Enter target [Username | Email Address]: " + Style.RESET_ALL)
+
+# Confirming user input
+while True:
+    target = input(Style.BRIGHT + Fore.CYAN + "\n|---> Enter target [Username | Email Address]: " + Style.RESET_ALL)
+    yn = input(Fore.CYAN + "\n  |--- Are you sure this is the correct target? " + Style.BRIGHT + f"{target}" + Style.RESET_ALL + " (y/N): ")
+
+    if yn == "y" or yn == "Y":
+        break
+    elif yn == "n" or yn == "N":
+        continue
+    else:
+        print(Fore.RED + "\n  |--- Invalid option. Try again." + Style.RESET_ALL)
+        continue
+
 target_verbatim = target
 target_intext = 'intext:' + '"' + target + '"'
 target_inurl = 'inurl:' + '"' + target + '"'
