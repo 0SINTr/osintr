@@ -338,11 +338,11 @@ def main():
         # For email addresses, use verbatim, intext and intitle
         if validate_email(target):
             print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for email address: {target_verbatim}" + Style.RESET_ALL)
-            print(Fore.CYAN + "  |--- Search modes: verbatim, intext, intitle" + Style.RESET_ALL)
+            print(Fore.CYAN + "\n  |--- Search modes: verbatim, intext, intitle" + Style.RESET_ALL)
             md_directory = google_search_function(target_verbatim, target_intext, target_intitle, outputDir)
         else:
             print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for username: {target_verbatim}" + Style.RESET_ALL)
-            print(Fore.CYAN + "  |--- Search modes: verbatim, intext, inurl" + Style.RESET_ALL)
+            print(Fore.CYAN + "\n  |--- Search modes: verbatim, intext, inurl" + Style.RESET_ALL)
             md_directory = google_search_function(target_verbatim, target_intext, target_inurl, outputDir)
 
         # Defining the directories to pass to process_md_files()
@@ -416,7 +416,7 @@ def main():
     print(Style.BRIGHT + Fore.GREEN + "\n\n|---> Starting the AI analysis, please wait. This may take a while." + Style.RESET_ALL)
     #results = crew.kickoff()
 
-    print(Fore.GREEN + "\n\n  |--- DONE. Check " + Style.BRIGHT + "OSINT_REPORT.md" + Style.RESET_ALL)
+    print(Fore.GREEN + "\n\n  |--- DONE. Check " + Style.BRIGHT + "OSINT_REPORT.md\n" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
