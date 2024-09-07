@@ -9,6 +9,7 @@ Welcome to the **0SINTr** project! This tool is designed to help you set up a mu
 0SINTr performs two main tasks:
 
 **1. Data Collection**
+
 You first need to provide a **Username** or **Email Address** at the prompt (see all required options below). This is the **target** of the OSINT investigation. Make sure you create and populate a **.env** file as described below prior to running the tool.
 
 **The app is going to automatically:**
@@ -24,6 +25,7 @@ You first need to provide a **Username** or **Email Address** at the prompt (see
 * Optionally, the app can collect information via the OSINT.Industries API if you own an API key and the key is in .env
 
 **2. Data Analysis**
+
 Most OSINTers are way too focused on the data harvesting phase, neglecting the processing and analysis of the information. Traditionally, this has been done manually for the most part or with the help of isolated automation scripts here and there. With the rapid rise of AI and LLMs, we can now use these new technologies to build teams of AI agents, each with its own goals and tasks, working together to perform various tasks for us.
 
 **The app is going to automatically:**
@@ -63,11 +65,25 @@ After the tools above generate their output during execution, I've added the opt
 ### Installation
 
 Ensure you have Python >=3.10 installed on your system. 
-Requirements in **requirements.txt**.
-First, if you haven't already, install CrewAI:
 
-`pip install 0sintr`
+`git clone https://github.com/mihpy/0SINTr.git`
+`cd 0SINTr`
+`python setup.py install`
 
+### How To Use It
+
+`main.py [-h] -t TARGET -a {remote,local} -o OUTPUT
+
+Run 0sintr with the following arguments.
+
+options:
+  -h, --help            show this help message and exit
+  -t TARGET, --target TARGET
+                        Target email address or username
+  -a {remote,local}, --ai {remote,local}
+                        Remote or local analysis, options: remote - OpenAI-gpt (latest) OR local - Ollama-llama (latest)
+  -o OUTPUT, --output OUTPUT
+                        Directory to save results, full path`
 
 ### Customizing
 
