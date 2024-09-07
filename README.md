@@ -24,7 +24,17 @@ You first need to provide a **Username** or **Email Address** at the prompt (see
 * Optionally, the app can collect information via the OSINT.Industries API if you own an API key and the key is in .env
 
 **2. Data Analysis**
-[enter_text]
+Most OSINTers are way too focused on the data harvesting phase, neglecting the processing and analysis of the information. Traditionally, this has been done manually for the most part or with the help of isolated automation scripts here and there. With the rapid rise of AI and LLMs, we can now use these new technologies to build teams of AI agents, each with its own goals and tasks, working together to perform various tasks for us.
+
+**The app is going to automatically:**
+* As soon as Phase 1 is over and the data is stored locally, the Analysts (crewAI agents) start working at once to analyze the information we collected in the .md, .json (or other) files regardin our target. See the docs at the bottom of this page to learn how everything works behind the scenes.
+* Each agent has a clear goal, a specific task, an expected output, a set of tools and specific settings assigned in the main() function.
+* After defining the Agents and Tasks inside main(), as well as all the inputs inside prompts.py, 0SINTr then assembles the crew of agents anf kicks off the analysis process. Depending on whether you choose to use a remote model (e.g. gpt-4o) or a local model (e.g. llama-3.1 via Ollama), this task may take more or less time.
+* For now, the default remote model is OpenAI's gpt-4o, and the default local model is llama3.1:70b via Ollama. These were just my personal preferences at the time of building this app. They may change over time as the space evolves. You can change these settings from the .env file and inside main(). I will find a better way to handle the available LLMs in upcoming releases.
+* The AI crew is going to analyze all the data stored in the osint_ directory and will try to build a profile or digital footprint summary of the target, including any patterns or connection that a human analyst might miss, provided that sufficient or meaningful data has been collected.
+* In the end, the Report Writer agent is going to gather the data from the Analyst(s) and assemble everything into a nicely-formatted report.
+
+With time, as I add more data sources and available models, the final report is going to show a more accurate profile of the target.
 
 **API KEYS**
 - You need to get an OpenAI key (https://openai.com/) and add it to the .env file in the root folder of 0SINTr.
@@ -86,7 +96,7 @@ After collecting the data, the app initializes the OSINT Crew, assembling the ag
 The OSINT Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `tasks.py`, leveraging their collective skills to achieve complex objectives. The `agents.py` file outlines the capabilities and configurations of each agent in your crew, whilst `prompts.py` contains all the prompts and instructions for your crew members. The prompts provided by default with the app are the ones that woked best for me at the time of the latest test.
 
 ### Planned upgrades
-- Adding support for more LLMs (Claude, Phi-3, Mistral)
+- Adding support for more LLMs (Claude, Phi-3, Mistral, Reflection)
 - Integrating more data sources from reliable API providers
 - Adding support for name and phone number searchs
 
