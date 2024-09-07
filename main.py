@@ -267,7 +267,7 @@ def search_breaches(target):
 
 
 def search_pastes(target):
-    print(Style.BRIGHT + Fore.RED + "\n\n|---> Checking for pastes: " + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.RED + "\n|---> Checking for pastes: " + Style.RESET_ALL)
     time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
     url = "https://haveibeenpwned.com/api/v3/pasteaccount/"
     headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
