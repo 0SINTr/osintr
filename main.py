@@ -274,7 +274,7 @@ def search_pastes(target):
     response = requests.get(url + target, headers=headers)
 
     if response.status_code == 200:
-        paste_data = response.json()
+        paste_data = response.json() 
 
         # Check leaks directory 
         dir_path = "osint_data_" + ''.join(char for char in str(target) if char.isalnum())
