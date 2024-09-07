@@ -72,18 +72,7 @@ Ensure you have Python >=3.10 installed on your system.
 
 ### How To Use It
 
-`main.py [-h] -t TARGET -a {remote,local} -o OUTPUT
-
-Run 0sintr with the following arguments.
-
-options:
-  -h, --help            show this help message and exit
-  -t TARGET, --target TARGET
-                        Target email address or username
-  -a {remote,local}, --ai {remote,local}
-                        Remote or local analysis, options: remote - OpenAI-gpt (latest) OR local - Ollama-llama (latest)
-  -o OUTPUT, --output OUTPUT
-                        Directory to save results, full path`
+`main.py [-h] -t TARGET -a {remote,local} -o OUTPUT`
 
 ### Customizing
 
