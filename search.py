@@ -3,6 +3,7 @@ from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
 from colorama import Fore, Style, init
 import pandas as pd
+import argparse
 import requests
 import time
 import json
@@ -283,8 +284,8 @@ def search_pastes(target):
 # Load API keys from .env
 load_dotenv()
 
-# Run the Google search function
-init() # For colorama
+# Initializing colorama
+init()
 
 # Confirming user input
 while True:
@@ -299,12 +300,13 @@ while True:
         print(Fore.RED + "\n  |--- Invalid option. Try again." + Style.RESET_ALL)
         continue
 
+# Running the Google search function
 target_verbatim = target
 target_intext = 'intext:' + '"' + target + '"'
 target_inurl = 'inurl:' + '"' + target + '"'
 md_directory = google_search_function(target_verbatim, target_intext, target_inurl)
 
-# Defining the firectories to pass to process_md_files()
+# Defining the directories to pass to process_md_files()
 directory = md_directory
 save_directory = os.path.dirname(md_directory) + '/screenshots'
 
@@ -314,3 +316,9 @@ process_md_files(directory, save_directory)
 # Run the data leak detection functions
 search_breaches(target)
 search_pastes(target)
+
+def main():
+    parser = argparse.ArgumentParser()
+    requiredArgs = parser.add_argument_group('Required arguments')
+    requiredArgs.add_argument('-t', '--target', help='Target username or email address', required=True)
+    requiredArgs.add_argument('-a', '--aienv', help='Remote or local analysis\nremote: OpenAI-gpt. local: Ollama-llama', required=True)

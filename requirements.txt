@@ -5,4 +5,6 @@ google-search-results
 firecrawl-py
 requests
 pandas
+setuptools
+argparse
 colorama
