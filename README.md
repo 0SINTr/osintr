@@ -4,7 +4,7 @@ Welcome to the **0SINTr** project! This tool is designed to help you set up a mu
 
 **NOTE!** This tool is not meant to perform a full OSINT investigation, but rather to easily build a foundation for the OSINT process. The tool helps you quickly create a digital footprint of the target by leveraging advanced Google searches and breach data, as well as optional data sources such as OSINT.Industries (more to come).
 
-------------
+---
 
 
 ### Workflow
