@@ -79,7 +79,7 @@ The OSINT Crew is composed of multiple AI agents, each with unique roles, goals,
 ### Support
 
 For support, questions, or feedback regarding **crewAI** and all the APIs:
-- Visit the [documentation](https://docs.crewai.com)
+- Visit the [crewAI documentation](https://docs.crewai.com)
 - Read more about the [crewAI Tools](https://docs.crewai.com/core-concepts/Tools/)
 - Langchain tools [documentation](https://docs.crewai.com/core-concepts/Using-LangChain-Tools/)
 - Reach out through the [GitHub repository](https://github.com/joaomdmoura/crewai)
