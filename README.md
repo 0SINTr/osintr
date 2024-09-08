@@ -49,10 +49,10 @@ Once data is collected, the AI agents (crewAI) automatically analyze the informa
 
 ## API Keys
 
-Running the Data Analysis phase via remote or local LLM depends on the items you enter into the `.env` file.
+Running the **Data Analysis** phase via **remote** or **local** LLM depends on the items you enter into the `.env` file.
 0SINTr automatically detects your `.env` settings and runs the AI crew accordingly.
 
-To use 0SINTr with a remote LLM such as GPT-4o, you need the following items in your `.env` file in the root folder of 0SINTr.  
+**To use 0SINTr with a remote LLM such as GPT-4o, you need the following items in your `.env` file in the root folder of 0SINTr.  **
 ```plaintext
 OPENAI_API_KEY=<your_key_here>
 OPENAI_MODEL_NAME=gpt-4o
@@ -61,7 +61,7 @@ FIRECRAWL_API_KEY=<your_key_here>
 HIBP_API_KEY=<your_key_here>
 ``` 
 
-To use 0SINTr with a local LLM such as llama3.1, you need the following items in your `.env` file in the root folder of 0SINTr.  
+**To use 0SINTr with a local LLM such as llama3.1, you need the following items in your `.env` file in the root folder of 0SINTr.  ** 
 ```plaintext
 OPENAI_API_KEY=NA
 OPENAI_API_BASE=http://localhost:11434
