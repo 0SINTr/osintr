@@ -77,7 +77,7 @@ API Keys:
 - **OpenAI**: [Get your key here](https://openai.com/)
 - **SerperDev**: [Get your key here](https://serper.dev/)
 - **Firecrawl**: [Get your key here](https://www.firecrawl.dev/)
-- **HaveIBeenPwned (HIBP)**: [Get your key here](https://haveibeenpwned.com/)
+- **HaveIBeenPwned**: [Get your key here](https://haveibeenpwned.com/)
 
 ---
 
