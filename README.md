@@ -3,7 +3,7 @@
 
 Welcome to the **0SINTr** project! This tool helps you set up a multi-agent OSINT AI system with ease, leveraging the flexible framework provided by crewAI. The goal is to enable agents to collaborate effectively on complex tasks, maximizing their collective intelligence and data analysis capabilities.
 
-> **Note:** This tool is not designed for a full OSINT investigation but rather to build a foundation for the OSINT process by quickly creating a digital footprint of the target via advanced Google searches and breach data.
+> **Note:** This tool is not designed for a full OSINT investigation but rather to build a foundation for the OSINT process by quickly creating a digital footprint of the target via advanced Google searches, breach and paste data, and optional data sources.
 
 ---
 
