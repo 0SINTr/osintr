@@ -1,7 +1,5 @@
 .env
 *.pyc
 .venv/
-osint*
 __pycache__/
 .gitattributes
-.DS_Store
