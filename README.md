@@ -94,7 +94,7 @@ Optionally, you can collect data from **OSINT.Industries** via their API. Add th
 - **Firecrawl**: 500 free credits; $19/mo for 3,000 page scrapes.
 - **HIBP**: Pwned1 plan for $3.95/mo, 10 email searches/minute.
 
-Expect a rough monthly cost of $23 for Firecrawl and HIBP, with variable OpenAI and SerperDev costs based on usage. Probably ~$50/mo for regular OSINT tasks or CTFs. If you opt for OSINT.Industries API too, costs jump to ~$100/mo. Sorry, but speed, reliability and efficiency have a price.
+Expect a rough monthly cost of $23 for Firecrawl and HIBP, with variable OpenAI and SerperDev costs based on usage. Probably ~$50/mo for regular OSINT tasks. If you opt for the OSINT.Industries API too, costs jump to ~$100/mo. Speed, reliability and efficiency have a price.
 
 ---
 
