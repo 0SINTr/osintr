@@ -7,13 +7,15 @@ import os
 
 if os.getenv("OPENAI_MODEL_NAME") == 'gpt-4o':
     load_dotenv()
-    OpenAIGPT4o = ChatOpenAI(model_name=os.getenv("OPENAI_MODEL_NAME"))
-    llm = OpenAIGPT4o
+    llm = ChatOpenAI(
+        model_name=os.getenv("OPENAI_MODEL_NAME")
+        )
 elif os.getenv("OPENAI_MODEL_NAME") == 'llama3.1':
     os.environ["OPENAI_API_KEY"] = "NA"
     llm = ChatOllama(
         model = "llama3.1",
-        base_url = "http://localhost:11434")
+        base_url = "http://localhost:11434"
+        )
 
 # Define Analyst Agent
 analyst = Agent(

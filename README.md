@@ -49,19 +49,35 @@ Once data is collected, the AI agents (crewAI) automatically analyze the informa
 
 ## API Keys
 
-To use 0SINTr, you need the following API keys:
+Running the Data Analysis phase via remote or local LLM depends on the items you enter into the `.env` file.
+0SINTr automatically detects your `.env` settings and runs the AI crew accordingly.
 
+To use 0SINTr with a remote LLM such as GPT-4o, you need the following items in your `.env` file in the root folder of 0SINTr.  
+```plaintext
+OPENAI_API_KEY=<your_key_here>
+OPENAI_MODEL_NAME=gpt-4o
+SERPER_API_KEY=<your_key_here>
+FIRECRAWL_API_KEY=<your_key_here>
+HIBP_API_KEY=<your_key_here>
+``` 
+
+To use 0SINTr with a local LLM such as llama3.1, you need the following items in your `.env` file in the root folder of 0SINTr.  
+```plaintext
+OPENAI_API_KEY=NA
+OPENAI_API_BASE=http://localhost:11434
+OPENAI_MODEL_NAME=llama3.1
+SERPER_API_KEY=<your_key_here>
+FIRECRAWL_API_KEY=<your_key_here>
+HIBP_API_KEY=<your_key_here>
+```
+
+**Note** that for llama3.1 you don't need an API key, but a placeholder for `OPENAI_API_KEY` (e.g. NA).
+
+API Keys:
 - **OpenAI**: [Get your key here](https://openai.com/)
 - **SerperDev**: [Get your key here](https://serper.dev/)
 - **Firecrawl**: [Get your key here](https://www.firecrawl.dev/)
 - **HaveIBeenPwned (HIBP)**: [Get your key here](https://haveibeenpwned.com/)
-
-Add these to your `.env` file in the root folder of 0SINTr.  
-`SERPER_API_KEY=<your_key_here>`  
-`FIRECRAWL_API_KEY=<your_key_here>`  
-`HIBP_API_KEY=<your_key_here>`  
-`OPENAI_API_KEY=<your_key_here>`  
-`OPENAI_MODEL_NAME=gpt-4o`  
 
 ---
 
@@ -104,17 +120,7 @@ python setup.py install
 
 ## Customizing
 
-Add your `OPENAI_API_KEY` and other API keys in the `.env` file:
-
-```plaintext
-OPENAI_API_KEY=<your_key_here>
-OPENAI_MODEL_NAME=gpt-4o
-SERPER_API_KEY=<your_key_here>
-FIRECRAWL_API_KEY=<your_key_here>
-HIBP_API_KEY=<your_key_here>
-```
-
-Customize tasks and outputs in `ai_logic/prompts.py` for agents and crew configuration.
+Customize agents, tasks and prompts in `0sintr/<filename>.py` for agents, tasks and prompts configuration.
 
 ---
 
