@@ -53,7 +53,7 @@ To use 0SINTr, you need the following API keys:
 - **Firecrawl**: [Get your key here](https://www.firecrawl.dev/)
 - **HaveIBeenPwned (HIBP)**: [Get your key here](https://haveibeenpwned.com/)
 
-Add these to your `.env` file in the root folder of 0SINTr.
+Add these to your `.env` file in the root folder of 0SINTr.  
 `SERPER_API_KEY=<your_key_here>`  
 `FIRECRAWL_API_KEY=<your_key_here>`  
 `HIBP_API_KEY=<your_key_here>`  
