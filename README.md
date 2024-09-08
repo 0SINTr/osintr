@@ -7,6 +7,12 @@ Welcome to the **0SINTr** project! This tool helps you set up a multi-agent OSIN
 
 ---
 
+## Why 0SINTr?
+
+The app directly interacts with high-quality APIs and services at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
+
+---
+
 ## Workflow
 
 0SINTr performs two primary tasks:
@@ -51,6 +57,12 @@ Add these to your `.env` file in the root folder of 0SINTr.
 
 ---
 
+## Optional Feature
+
+Optionally, you can collect data from **OSINT.Industries** via their API. Add the key in `.env` as `OSIND_API_KEY=<your_key_here>`. This functionality is optional and triggered at runtime.
+
+---
+
 ## Costs
 
 - **OpenAI**: Pay-as-you-go; queries cost a few cents.
@@ -59,18 +71,6 @@ Add these to your `.env` file in the root folder of 0SINTr.
 - **HIBP**: Pwned1 plan for $3.95/mo, 10 email searches/minute.
 
 Expect a rough monthly cost of $23 for Firecrawl and HIBP, with variable OpenAI and SerperDev costs based on usage.
-
----
-
-## Why 0SINTr?
-
-The app directly interacts with high-quality APIs and services at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
-
----
-
-## Optional Feature
-
-Optionally, you can collect data from **OSINT.Industries** via their API. Add the key in `.env` as `OSIND_API_KEY=<your_key_here>`. This functionality is optional and triggered at runtime.
 
 ---
 
