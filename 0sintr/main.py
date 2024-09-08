@@ -6,7 +6,7 @@ from langchain_ollama import ChatOllama
 from colorama import Fore, Style, init
 from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
-from ai_logic.prompts import *
+from prompts import *
 import pandas as pd
 import argparse
 import requests
