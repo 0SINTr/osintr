@@ -19,7 +19,7 @@ The app directly interacts with high-quality APIs and LLMs at a low cost, bypass
 
 ### 1. Data Collection
 
-You provide a **Username** or **Email Address** at the prompt. This is the **target** of the OSINT investigation. Ensure you create and populate a `.env` file as described below before running the tool.
+You provide a **Username** or **Email Address** for the **-t** argument (see below). This is the **target** of the OSINT investigation. Ensure you create and populate a `.env` file as described below before running the tool.
 
 **Automated tasks include:**
 - Perform verbatim search, intext, inurl, and intitle search on Google.
@@ -71,7 +71,7 @@ FIRECRAWL_API_KEY=<your_key_here>
 HIBP_API_KEY=<your_key_here>
 ```
 
-**Note** that for llama3.1 you don't need an API key, but a placeholder for `OPENAI_API_KEY` (e.g. NA).
+**Note** that for llama3.1 you don't need an actual API key, but a placeholder for `OPENAI_API_KEY` (e.g. NA).
 
 API Keys:
 - **OpenAI**: [Get your key here](https://openai.com/)
@@ -89,7 +89,7 @@ Optionally, you can collect data from **OSINT.Industries** via their API. Add th
 
 ## Costs
 
-- **OpenAI**: Pay-as-you-go; queries cost a few cents.
+- **OpenAI**: Pay-as-you-go; queries cost a few cents each.
 - **SerperDev**: 2,500 free queries, then pay-as-you-go (50k queries for $50).
 - **Firecrawl**: 500 free credits; $19/mo for 3,000 page scrapes. 
 - **HIBP**: Pwned1 plan for $3.95/mo, 10 email searches/minute.
