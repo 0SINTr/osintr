@@ -5,17 +5,21 @@ from dotenv import load_dotenv
 from prompts import *
 import os
 
-if os.getenv("OPENAI_MODEL_NAME") == 'gpt-4o':
-    load_dotenv()
-    llm = ChatOpenAI(
-        model_name=os.getenv("OPENAI_MODEL_NAME")
-        )
-elif os.getenv("OPENAI_MODEL_NAME") == 'llama3.1':
-    os.environ["OPENAI_API_KEY"] = "NA"
-    llm = ChatOllama(
-        model = "llama3.1",
-        base_url = "http://localhost:11434"
-        )
+load_dotenv()
+# Discover the LLM to use based on .env data
+try:
+    if os.getenv("OPENAI_MODEL_NAME") == 'gpt-4o':
+        llm = ChatOpenAI(
+            model_name=os.getenv("OPENAI_MODEL_NAME")
+            )
+    elif os.getenv("OPENAI_MODEL_NAME") == 'llama3.1':
+        os.environ["OPENAI_API_KEY"] = "NA"
+        llm = ChatOllama(
+            model = "llama3.1",
+            base_url = "http://localhost:11434"
+            )
+except NameError as e:
+    print(e)
 
 # Define Analyst Agent
 analyst = Agent(

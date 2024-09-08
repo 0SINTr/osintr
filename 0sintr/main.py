@@ -1,12 +1,13 @@
 from research import research
+from colorama import Fore, Style
 from crewai import Crew, Process
 from agents import analyst, report_writer
 from tasks import analysis_task, report_writing_task
 
 # Perform research and assemble the crew for analysis
 def main():
-    # Run the Reasearch phase
-    research()
+    # Run the Reasearch phase and return the target
+    target = research()
 
     # Create the Crew with the agents and tasks
     crew = Crew(
@@ -16,10 +17,10 @@ def main():
         verbose=True,
     )
 
-    # Run the Data Analysis phase
-    crew.kickoff()
+    # Run the Data Analysis phase on the target
+    crew.kickoff(inputs={'target': target})
 
-    print("~~~ \nCrew work is DONE. Check for report.")
+    print(Fore.GREEN + "\n\n  |--- DONE. Check " + Style.BRIGHT + "OSINT_REPORT.md\n" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()

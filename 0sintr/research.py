@@ -347,7 +347,7 @@ def research():
     # Kick off the crew process
     print(Style.BRIGHT + Fore.GREEN + "\n\n|---> Starting the AI analysis, please wait. This may take a while." + Style.RESET_ALL)
 
-    print(Fore.GREEN + "\n\n  |--- DONE. Check " + Style.BRIGHT + "OSINT_REPORT.md\n" + Style.RESET_ALL) 
+    return target
 
 if __name__ == "__main__":
     research()
