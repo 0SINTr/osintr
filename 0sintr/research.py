@@ -2,6 +2,7 @@ from langchain_community.utilities import GoogleSerperAPIWrapper
 from email_validator import validate_email
 from colorama import Fore, Style, init
 from firecrawl import FirecrawlApp
+from dotenv import load_dotenv
 import pandas as pd
 import argparse
 import requests
@@ -234,7 +235,7 @@ def process_md_files(directory, save_directory):
             f.write('No email addresses found.')
 
 
-def search_breaches(target):
+def search_breaches(target, directory):
     print(Style.BRIGHT + Fore.RED + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
     url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
     headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
@@ -244,7 +245,7 @@ def search_breaches(target):
         breach_data = response.json()
 
         # Create new directory 
-        dir_path = "osint_data_" + ''.join(char for char in str(target) if char.isalnum())
+        dir_path = directory + "/osint_data_" + ''.join(char for char in str(target) if char.isalnum())
         if os.path.exists(path=dir_path):
             os.makedirs(dir_path + '/leaks/')
 
@@ -254,25 +255,34 @@ def search_breaches(target):
 
         print(Fore.RED + "\n  |--- Breached data added to " + Style.BRIGHT + "/leaks/breaches.json" + Style.RESET_ALL)
 
+    elif response.status_code == 401:
+        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
+
     elif response.status_code == 404:
         print(Fore.GREEN + "\n  |--- No breached data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
+
+    elif response.status_code == 429:
+        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
 
     else:
         print('    |- Error code: ' + str(response.status_code))
 
 
-def search_pastes(target):
+def search_pastes(target, directory):
     print(Style.BRIGHT + Fore.RED + "\n|---> Checking for pastes: " + Style.RESET_ALL)
     time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
     url = "https://haveibeenpwned.com/api/v3/pasteaccount/"
-    headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
+    headers = {
+        "user-agent": "python-requests/2.32.3", 
+        "hibp-api-key": os.getenv("HIBP_API_KEY")
+    } 
     response = requests.get(url + target, headers=headers)
 
     if response.status_code == 200:
         paste_data = response.json() 
 
         # Check leaks directory 
-        dir_path = "osint_data_" + ''.join(char for char in str(target) if char.isalnum())
+        dir_path = directory + "/osint_data_" + ''.join(char for char in str(target) if char.isalnum())
         if os.path.exists(path=dir_path) and not os.path.exists(path=dir_path + '/leaks/'):
             os.makedirs(dir_path + '/leaks/')
 
@@ -282,12 +292,64 @@ def search_pastes(target):
 
         print(Fore.RED + "\n  |--- Paste data added to " + Style.BRIGHT + "/leaks/pastes.json\n" + Style.RESET_ALL)
 
+    elif response.status_code == 401:
+        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
+
     elif response.status_code == 404:
         print(Fore.GREEN + "\n  |--- No paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+
+    elif response.status_code == 429:
+        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
 
     else:
         print('    |- Error code: ' + str(response.status_code))
 
+
+def osint_industries(target, directory):
+    print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking OSINT.Industries for data: " + Style.RESET_ALL)
+    time.sleep(1) # Introducing sleep for 1 second
+    if validate_email(target):
+        target_type = 'email'
+    else:
+        target_type = 'username'
+
+    url = "https://api.osint.industries/v2/request"
+    headers = {
+        'accept': 'application/json',
+        'api-key': os.getenv("OSIND_API_KEY"),
+    }
+    params = {
+        'type': target_type,
+        'query': target,
+    }
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        osind_data = response.json() 
+
+        # Check leaks directory 
+        dir_path = directory + "/osint_data_" + ''.join(char for char in str(target) if char.isalnum())
+        if os.path.exists(path=dir_path) and not os.path.exists(path=dir_path + '/osint_ind/'):
+            os.makedirs(dir_path + '/osint_ind/')
+
+        # Write JSON data to directory
+        with open(dir_path + '/osint_ind/pastes.json', 'w') as outfile:
+            json.dump(osind_data, outfile)
+
+        print(Fore.RED + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/pastes.json\n" + Style.RESET_ALL)
+
+    elif response.status_code == 401:
+        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits. Check your key and try again." + Style.RESET_ALL)
+        print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
+    
+    elif response.status_code == 404:
+        print(Fore.RED + "\n  |--- No data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+
+    elif response.status_code == 429:
+        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
+
+    else:
+        print('    |- Error code: ' + str(response.status_code))
 
 def research():
     parser = argparse.ArgumentParser(description='Run 0sintr with the following arguments.')
@@ -331,15 +393,23 @@ def research():
         # Process all .md files in the specified directory
         process_md_files(directory, save_directory)
 
-        # Run the data leak detection functions
-        search_breaches(target)
+        # Run the data leak detection functions, first is breach detection
+        search_breaches(target, outputDir)
 
         # Differentiating between email addresses and usernames for paste checking
         if validate_email(target):
-            search_pastes(target)
+            search_pastes(target, outputDir)
         else:
             print(Fore.YELLOW + "\n\n|---> Since you provided a username, I will check pastes for " + Style.BRIGHT + f"{target}@gmail.com" + Style.RESET_ALL)
-            search_pastes(target + "@gmail.com")
+            search_pastes(target + "@gmail.com", outputDir)
+
+        # Running the OSINT.Industries data collection, as an option
+        load_dotenv()
+        if os.getenv["OSIND_API_KEY"] is not None:
+            osint_industries(target, outputDir)
+        else:
+            print(Style.BRIGHT + Fore.RED + "\n|---> No OSINT.Industries API key found." + Style.RESET_ALL)
+            print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
 
     else:
         parser.print_usage()

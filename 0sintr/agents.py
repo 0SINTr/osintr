@@ -13,7 +13,7 @@ try:
             model_name=os.getenv("OPENAI_MODEL_NAME")
             )
     elif os.getenv("OPENAI_MODEL_NAME") == 'llama3.1':
-        os.environ["OPENAI_API_KEY"] = "NA"
+        os.getenv["OPENAI_API_KEY"]
         llm = ChatOllama(
             model = "llama3.1",
             base_url = "http://localhost:11434"
