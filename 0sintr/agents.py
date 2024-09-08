@@ -1,9 +1,14 @@
+import os
 from crewai import Agent
 from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
 from dotenv import load_dotenv
 from prompts import *
-import os
+from crewai_tools import (
+    DirectorySearchTool,
+    JSONSearchTool,
+    MDXSearchTool
+)
 
 load_dotenv()
 # Discover the LLM to use based on .env data
@@ -21,13 +26,38 @@ try:
 except NameError as e:
     print(e)
 
-# Define Analyst Agent
-analyst = Agent(
-    role="Data Analyst",
-    goal=data_analyst_goal_prompt,
+# Define Google Data Analyst Agent
+google_analyst = Agent(
+    role="Google Data Analyst",
+    goal=google_data_analyst_goal,
+    tools=[DirectorySearchTool,MDXSearchTool]
     memory=True,
     verbose=True,
-    backstory=data_analyst_backstory,
+    backstory=google_data_analyst_backstory,
+    allow_delegation=False,
+    llm=llm
+)
+
+# Define HIBP Data Analyst Agent
+hibp_analyst = Agent(
+    role="HIBP Data Analyst",
+    goal=hibp_data_analyst_goal,
+    tools=[DirectorySearchTool,JSONSearchTool],
+    memory=True,
+    verbose=True,
+    backstory=hibp_data_analyst_backstory,
+    allow_delegation=False,
+    llm=llm
+)
+
+# Define OSINT.Industries Data Analyst Agent
+osind_analyst = Agent(
+    role="OSINT.Industries Data Analyst",
+    goal=osind_data_analyst_goal,
+    tools=[DirectorySearchTool,JSONSearchTool],
+    memory=True,
+    verbose=True,
+    backstory=osind_data_analyst_backstory,
     allow_delegation=False,
     llm=llm
 )
