@@ -1,7 +1,7 @@
 
 # 0SINTr
 
-Welcome to the **0SINTr** project! This tool helps you set up a multi-agent OSINT AI system with ease, leveraging the flexible framework provided by crewAI. The goal is to enable agents to collaborate effectively on complex tasks, maximizing their collective intelligence and data analysis capabilities.
+Welcome to the **0SINTr** project!  This tool helps you set up a multi-agent OSINT AI system with ease, leveraging the flexible framework provided by crewAI. The goal is to enable agents to collaborate effectively on complex tasks, maximizing their collective intelligence and data analysis capabilities.
 
 > **Note:** This tool is not designed for a full OSINT investigation but rather to build a foundation for the OSINT process by quickly creating a digital footprint of the target via advanced Google searches, breach and paste data, and optional data sources.
 
@@ -9,7 +9,7 @@ Welcome to the **0SINTr** project! This tool helps you set up a multi-agent OSIN
 
 ## Why 0SINTr?
 
-The app directly interacts with high-quality APIs and services at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
+The app directly interacts with high-quality APIs and LLMs at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
 
 ---
 
@@ -120,7 +120,7 @@ python setup.py install
 
 ## Understanding Your AI Crew
 
-The OSINT Crew is composed of multiple AI agents, each with unique roles and tasks. Tasks are defined in `tasks.py`, and agent configurations are outlined in `agents.py`. Prompts for the crew are found in `prompts.py`.
+The OSINT crew is composed of multiple AI agents, each with unique roles and tasks. Tasks are defined in `tasks.py`, and agent configurations are outlined in `agents.py`. Prompts for the crew are found in `prompts.py`.
 
 ---
 

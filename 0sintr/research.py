@@ -347,7 +347,7 @@ def research():
     # Kick off the crew process
     print(Style.BRIGHT + Fore.GREEN + "\n\n|---> Starting the AI analysis, please wait. This may take a while." + Style.RESET_ALL)
 
-    return target
+    return target, md_directory, os.path.dirname(os.path.dirname(save_directory))
 
 if __name__ == "__main__":
     research()
