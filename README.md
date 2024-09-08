@@ -129,8 +129,8 @@ The OSINT Crew is composed of multiple AI agents, each with unique roles and tas
 ## Planned Upgrades
 
 - Support for additional LLMs (Claude, Phi-3, Mistral, Reflection)
-- More data sources from API providers
-- Name and phone number search capabilities
+- More data sources from quality API providers
+- Phone number and company search capabilities
 
 ---
 
