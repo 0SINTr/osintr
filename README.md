@@ -113,23 +113,7 @@ python setup.py install
 ## Usage
 
 ```bash
-0sintr [-h] -t TARGET -a {remote,local} -o OUTPUT
-```
-
----
-
-## Customizing
-
-Customize agents, tasks and prompts in `0sintr/<filename>.py` for agents, tasks and prompts configuration.
-
----
-
-## Running the Tool
-
-To start the data collection and analysis process:
-
-```bash
-python main.py
+0sintr [-h] -t TARGET -o OUTPUT
 ```
 
 ---
