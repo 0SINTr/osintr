@@ -52,7 +52,7 @@ hibp_analyst = Agent(
 
 # Define OSINT.Industries Data Analyst Agent
 osind_analyst = Agent(
-    role="OSINT.Industries Data Analyst",
+    role="OSINT Industries Data Analyst",
     goal=osind_data_analyst_goal,
     tools=[DirectorySearchTool,JSONSearchTool],
     memory=True,
