@@ -10,22 +10,21 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 google_analyst_task_description = '''
 Search {directory} for .md files using the dir_tool. If there are no .md files in the directory, then tell me about it and do nothing.
 Create two lists in your memory: MarkdownList for storing data extracted from the Markdown key of each file, and HTMLList for storing data extracted from the HTML key of each file.
-For EACH .md file in {directory} read its contents using the md_tool and carefully search for the following information. Keep in mind that the goal is to extract as much relevant information as possible.
+For EACH .md file in {directory} read its contents using the file_tool and carefully search for the following information. Keep in mind that the goal is to extract as much relevant information as possible.
 - From the value corresponding to the 'markdown' key extract any relevant URLs, email addresses, usernames, addresses, locations and personal or professional information related to {target} and add them to MarkdownList.
 - From the value corresponding to the 'html' key extract any relevant links, email addresses, locations and personal or professional information related to {target} and add them to HTMLList.
-Review and filter the data, discarding duplicates and irrelevant information, while focusing on actual intelligence related to {target}.
 Once you finish going through ALL the .md files inside {directory} and building the MarkdownList and HTMLList, make both lists available to the Curator.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
 google_analyst_task_output = '''
-A comprehensive dataset about {target} containing all the relevant links, email addresses, locations and personal or professional information related to {target}
+Return the MarkdownList and HTMLList lists.
 '''
 
 
 # HIBP Data Analysis
 hibp_data_analyst_goal = '''
-Your primary objective is to analyze the data stored in each .json file inside the /leaks/ directory under {top_directory}.
+Your primary objective is to analyze the data stored in each .json file inside the leaks directory under {top_directory}.
 '''
 
 hibp_data_analyst_backstory = '''
@@ -35,10 +34,10 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 hibp_analyst_task_description = '''
 Search the leaks directory under {top_directory} for two JSON files named breaches.json and pastes.json using the dir_tool.
 These two files contain information about data breaches and pastes where {target} was found.
-For each of the two JSON files read its contents using the json_tool.
+For each of the two JSON files read its contents using the file_tool.
 - Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach.
 - Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach.
-- Compile the two lists into a well-organized dataset and pass it to the Curator for further analysis.
+- Compile the two lists into a well-organized dataset, store it in your memory as BreachSet and pass it to the Curator for further analysis.
 Based on your own reasoning, choose the most optimal format for this dataset.
 Once you finish going through all the files inside the leaks directory and building the resulting dataset, make the dataset available to the Curator.
 If you don't find any data at all in both of these files, then your conclusion should be that {target} was not a victim of breaches or pastes.
@@ -46,7 +45,7 @@ If necessary, identify any unclear parts or ambiguities in this task description
 '''
 
 hibp_analyst_task_output = '''
-A comprehensive, but well-organized list of breaches and pastes where {target} has been a victim, along with a short conclusion.
+Return the BreachSet dataset.
 '''
 
 
@@ -62,18 +61,17 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 osind_analyst_task_description = '''
 Check if there's an osint_ind directory under {top_directory} using the dir_tool. If not, then tell me about it and do nothing.
 If you find the osint_ind directory under {top_directory}, search for a JSON file named osind.json using the dir_tool.
-Read the content of osind.json using the json_tool and create a dictionary-like structure in your memory called OSINDDict.
+Read the content of osind.json using the file_tool and create a dictionary-like structure in your memory called OSINDDict.
 For EACH entry from the osind.json file, keep in mind that the goal is to extract as much relevant information as possible, as follows:
 - Get the value of the 'schemaModule' key in OSINDDict and use it as a key of OSINDDict. If any duplicates occur, find out a way to keep all of them inside OSINDDict.
 - Extract all URLs, email addresses, locations, addresses, first names, last names or usernames residing as values for the keys nested under the 'spec_format' key.
 - If you cannot find any URLs, email addresses, locations, addresses, first names, last names or usernames nested under the 'spec_format' key, keep the respective 'schemaModule' key and assign it the value "Registered".
-Review and filter the data, discarding duplicates and irrelevant information, while focusing on actual intelligence related to {target}.
 Once you finish going through the entire osind.json file and building the OSINDDict, make OSINDDict available to the Curator.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
 osind_analyst_task_output = '''
-A comprehensive, but refined dataset about {target}.
+Return the OSINDDict dataset.
 '''
 
 

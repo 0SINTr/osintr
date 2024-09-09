@@ -1,5 +1,6 @@
 .env
 *.pyc
+db/
 .venv/
 __pycache__/
 .gitattributes

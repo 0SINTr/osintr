@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 from prompts import *
 from crewai_tools import (
     DirectoryReadTool,
-    MDXSearchTool,
-    JSONSearchTool
+    FileReadTool
 )
 
 # Load env variables
@@ -15,8 +14,7 @@ load_dotenv()
 
 # Instatiate tools
 dir_tool = DirectoryReadTool()
-md_tool = MDXSearchTool()
-json_tool = JSONSearchTool()
+file_tool = FileReadTool()
 
 # Discover the LLM to use based on .env data
 try:
@@ -37,7 +35,7 @@ except NameError as e:
 google_analyst = Agent(
     role="Google Data Analyst",
     goal=google_data_analyst_goal,
-    tools=[dir_tool,md_tool],
+    tools=[dir_tool,file_tool],
     memory=True,
     verbose=True,
     backstory=google_data_analyst_backstory,
@@ -49,7 +47,7 @@ google_analyst = Agent(
 hibp_analyst = Agent(
     role="HIBP Data Analyst",
     goal=hibp_data_analyst_goal,
-    tools=[dir_tool,json_tool],
+    tools=[dir_tool,file_tool],
     memory=True,
     verbose=True,
     backstory=hibp_data_analyst_backstory,
@@ -61,7 +59,7 @@ hibp_analyst = Agent(
 osind_analyst = Agent(
     role="OSINT Industries Data Analyst",
     goal=osind_data_analyst_goal,
-    tools=[dir_tool,json_tool],
+    tools=[dir_tool,file_tool],
     memory=True,
     verbose=False,
     backstory=osind_data_analyst_backstory,
