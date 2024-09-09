@@ -125,6 +125,6 @@ Also include practical recommendations for further areas of exploration or addit
 '''
 
 report_writing_task_output = '''
-A polished, well-organized report in Markdown format named OSINT_REPORT.md saved in {top_directory}.
+A polished, well-organized report in Markdown format named OSINT_REPORT.md saved under {top_directory}.
 Do not add the triple tick marks at the beginning or end of the file. Also do not say what type it is in the first line. 
 '''

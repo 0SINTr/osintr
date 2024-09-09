@@ -11,7 +11,6 @@ import sys
 import os
 import re
 
-
 # Function to perform the Google search and scrape each page related to the target
 def google_search_function(target_verbatim, target_intext, target_intitleurl, outputDir):
     # Check if osint_data directory exists, if not create it for the specified target
@@ -86,7 +85,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
                 links.append(entry['link'])
 
         print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
-        print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
+        print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
 
         # Initialize the Firecrawl scraper
         for index, url in enumerate(links):
@@ -112,20 +111,21 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
 
             except Exception as e:
                 print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + url + Style.RESET_ALL)
+                with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'a') as f:
+                    f.write(url + '\n')
                 continue
         
-        # Checking unscrapeable URLs
-        with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'r') as f:
-            un_links = f.readlines()
-        
-        if len(un_links) == 0:
-            print(Fore.MAGENTA + "\n  |--- All links scraped successfully.\n" + Style.RESET_ALL)
-        else:
+        # Checking scraped and unscrapeable URLs
+        if len(links) > 0 and len(noScrape_links) > 0:
+            print(Fore.MAGENTA + "\n  |--- Scraping DONE, but not for all links.\n" + Style.RESET_ALL)
             print(Fore.MAGENTA + "\n  |--- Unscrapeable links added to " + Style.BRIGHT + "noScrapeLinks.txt.\n" + Style.RESET_ALL)
-            print(Fore.MAGENTA + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.MAGENTA + "Check the URLs manually to collect relevant data.\n" + Style.RESET_ALL)
+            print(Fore.MAGENTA + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.MAGENTA + "Check the URLs manually to collect data.\n" + Style.RESET_ALL)
+        elif len(links) > 0 and len(noScrape_links) == 0:
+            print(Fore.MAGENTA + "\n  |--- All links scraped successfully.\n" + Style.RESET_ALL)
+        elif len(links) == 0:
+            print(Fore.RED + "\n  |--- No links to scrape.\n" + Style.RESET_ALL)
 
         return scraped_path
-
 
 # Function to extract image URLs and email addresses from a markdown file
 def extract_image_urls(md_file_path):
@@ -148,9 +148,7 @@ def extract_image_urls(md_file_path):
 
     # Extract email addresses from .md files. Adding {3,} to avoid @2x style notations for image sizes
     emails = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
-
     return urls, emails
-
 
 # Download the page screenshot and save it
 def download_image(image_url, save_path):
@@ -163,7 +161,6 @@ def download_image(image_url, save_path):
     except requests.exceptions.RequestException as e:
         #print(f"Failed to retrieve image {image_url}. Error: {e}")
         pass
-
 
 # Process all .md files in the scraped directory
 def process_md_files(directory, save_directory):
@@ -239,7 +236,6 @@ def process_md_files(directory, save_directory):
         with open(os.path.join(os.path.dirname(save_directory), 'emailAddresses.txt'), 'w') as f:
             f.write('No email addresses found.')
 
-
 def search_breaches(target, directory):
     print(Style.BRIGHT + Fore.RED + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
     url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
@@ -270,7 +266,6 @@ def search_breaches(target, directory):
 
     else:
         print('    |- Error code: ' + str(response.status_code))
-
 
 def search_pastes(target, directory):
     print(Style.BRIGHT + Fore.RED + "\n|---> Checking for pastes: " + Style.RESET_ALL)
@@ -306,7 +301,6 @@ def search_pastes(target, directory):
 
     else:
         print('    |- Error code: ' + str(response.status_code))
-
 
 def osint_industries(target, directory):
     print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking OSINT.Industries for data: " + Style.RESET_ALL)
@@ -358,7 +352,6 @@ def osint_industries(target, directory):
 
     else:
         print('    |- Error code: ' + str(response.status_code))
-
 
 def check(user_input):
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
