@@ -18,7 +18,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
     if not os.path.exists(path=dir_path):
         os.makedirs(os.path.join(dir_path, 'google'))
     else:
-        print(Style.BRIGHT + Fore.RED + "\n\n|---> Directory already exists. Delete it or change path." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.RED + "\n\n|---> Directory already exists. Delete it or change path.\n" + Style.RESET_ALL)
         sys.exit()
 
     # Perform a verbatim Google search (tbs value) and return the results
