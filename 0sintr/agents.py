@@ -10,6 +10,11 @@ from crewai_tools import (
     MDXSearchTool
 )
 
+# Instatiate tools
+dir_tool = DirectorySearchTool()
+md_tool = MDXSearchTool()
+json_tool = JSONSearchTool()
+
 # Discover the LLM to use based on .env data
 load_dotenv()
 try:
@@ -30,7 +35,7 @@ except NameError as e:
 google_analyst = Agent(
     role="Google Data Analyst",
     goal=google_data_analyst_goal,
-    tools=[DirectorySearchTool,MDXSearchTool],
+    tools=[dir_tool,md_tool],
     memory=True,
     verbose=True,
     backstory=google_data_analyst_backstory,
@@ -42,7 +47,7 @@ google_analyst = Agent(
 hibp_analyst = Agent(
     role="HIBP Data Analyst",
     goal=hibp_data_analyst_goal,
-    tools=[DirectorySearchTool,JSONSearchTool],
+    tools=[dir_tool,json_tool],
     memory=True,
     verbose=True,
     backstory=hibp_data_analyst_backstory,
@@ -54,7 +59,7 @@ hibp_analyst = Agent(
 osind_analyst = Agent(
     role="OSINT Industries Data Analyst",
     goal=osind_data_analyst_goal,
-    tools=[DirectorySearchTool,JSONSearchTool],
+    tools=[dir_tool,json_tool],
     memory=True,
     verbose=True,
     backstory=osind_data_analyst_backstory,
