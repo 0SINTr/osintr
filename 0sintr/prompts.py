@@ -35,8 +35,8 @@ hibp_analyst_task_description = '''
 Search the leaks directory under {top_directory} for two JSON files named breaches.json and pastes.json using the dir_tool.
 These two files contain information about data breaches and pastes where {target} was found.
 For each of the two JSON files read its contents using the file_tool.
-- Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach.
-- Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach.
+- Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach. Include only the Title, Breach Date, Description and Logo for each breach found.
+- Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach. Include only the Source, Id and Date for each paste found.
 - Compile the two lists into a well-organized dataset, store it in your memory as BreachSet and pass it to the Curator for further analysis.
 Based on your own reasoning, choose the most optimal format for this dataset.
 Once you finish going through all the files inside the leaks directory and building the resulting dataset, make the dataset available to the Curator.
@@ -61,7 +61,7 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 osind_analyst_task_description = '''
 Check if there's an osint_ind directory under {top_directory} using the dir_tool. If not, then tell me about it and do nothing.
 If you find the osint_ind directory under {top_directory}, search for a JSON file named osind.json using the dir_tool.
-Read the content of osind.json using the file_tool and create a dictionary-like structure in your memory called OSINDDict.
+Read the contents of osind.json using the file_tool and create a dictionary-like structure in your memory called OSINDDict.
 For EACH entry from the osind.json file, keep in mind that the goal is to extract as much relevant information as possible, as follows:
 - Get the value of the 'schemaModule' key in OSINDDict and use it as a key of OSINDDict. If any duplicates occur, find out a way to keep all of them inside OSINDDict.
 - Extract all URLs, email addresses, locations, addresses, first names, last names or usernames residing as values for the keys nested under the 'spec_format' key.
@@ -86,7 +86,7 @@ You are a world-class data analyst, capable of complex analysis, reasoning and r
 
 curator_task_description = '''
 It is crucial to wait for the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst to finish their tasks.
-Collect all the datasets provided by the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst, and organize the information as follows:
+Collect MarkdownList and HTMLList provided by the Google Data Analyst, BreachSet provided by the HIBP Data Analyst and OSINDDict provided by the OSINT Industries Data Analyst, and organize the information as follows:
 - Introductory section about who the {target} and what are all the data sources that have been used by the Analysts.
 - A section with all the information in the MarkdownList and HTMLList lists provided by the Google Data Analyst, structured and organized into relevant sub-sections.
 - A section with all the information in the dataset provided by the HIBP Data Analyst, structured and organized into relevant sub-sections.

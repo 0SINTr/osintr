@@ -19,6 +19,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         os.makedirs(os.path.join(dir_path, 'google'))
     else:
         print(Style.BRIGHT + Fore.RED + "\n\n|---> Directory already exists. Delete it or change path." + Style.RESET_ALL)
+        sys.exit()
 
     # Perform a verbatim Google search (tbs value) and return the results
     search_verbatim = GoogleSerperAPIWrapper(tbs="li:1", k=20)
@@ -240,7 +241,7 @@ def process_md_files(directory, save_directory):
             f.write('No email addresses found.')
 
 def search_breaches(target, directory):
-    print(Style.BRIGHT + Fore.RED + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
     url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
     headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
     response = requests.get(url + target + "?truncateResponse=false" + "?includeUnverified=true", headers=headers)
@@ -271,7 +272,7 @@ def search_breaches(target, directory):
         print('    |- Error code: ' + str(response.status_code))
 
 def search_pastes(target, directory):
-    print(Style.BRIGHT + Fore.RED + "\n|---> Checking for pastes: " + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking for pastes: " + Style.RESET_ALL)
     time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
     url = "https://haveibeenpwned.com/api/v3/pasteaccount/"
     headers = {

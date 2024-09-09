@@ -1,3 +1,4 @@
+import os
 from research import research
 from colorama import Fore, Style
 from agents import google_analyst, hibp_analyst, osind_analyst, report_writer
