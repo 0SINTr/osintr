@@ -10,8 +10,8 @@ from crewai_tools import (
     MDXSearchTool
 )
 
-load_dotenv()
 # Discover the LLM to use based on .env data
+load_dotenv()
 try:
     if os.getenv("OPENAI_MODEL_NAME") == 'gpt-4o':
         llm = ChatOpenAI(

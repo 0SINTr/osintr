@@ -57,7 +57,8 @@ You are a seasoned analyst, capable of turning raw data into actionable intellig
 '''
 
 osind_analyst_task_description = '''
-Search the /osint_ind directory under {top_directory} for a JSON file named osind.json using the DirectorySearchTool.
+Check if there's a /osint_ind directory under {top_directory} using the DirectorySearchTool. If not, then tell me about it and do nothing.
+If you find the /osint_ind directory under {top_directory}, search for a JSON file named osind.json using the DirectorySearchTool.
 Read the content of osind.json using the JSONSearchTool and carefully analyze all the information about {target}.
 Review and filter the data, discarding duplicates and irrelevant information, while focusing on actual intelligence related to {target}.
 For every entry in osind.json, make note of:
@@ -124,6 +125,6 @@ Also include practical recommendations for further areas of exploration or addit
 '''
 
 report_writing_task_output = '''
-A polished, well-organized report in Markdown format saved in {top_directory}.
+A polished, well-organized report in Markdown format named OSINT_REPORT.md saved in {top_directory}.
 Do not add the triple tick marks at the beginning or end of the file. Also do not say what type it is in the first line. 
 '''
