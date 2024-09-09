@@ -9,7 +9,7 @@ You are a seasoned analyst, capable of turning raw data into actionable intellig
 
 google_analyst_task_description = '''
 Search {directory} for .md files using the dir_tool. If there are no .md files in the directory, then tell me about it and do nothing.
-For every .md file in {directory} read its contents using the file_tool and carefully analyze all the information about {target}.
+For every .md file in {directory} read its contents using the md_tool and carefully analyze all the information about {target}.
 Review and filter the data, discarding duplicates and irrelevant information, while focusing on actual intelligence related to {target}.
 You are capable of complex reasoning and reflection, so do your best to extract meaningful data about {target} from each .md file.
 Compile the results of your work into a well-organized dataset and pass them to the Curator for further analysis.
@@ -34,7 +34,7 @@ You are a seasoned analyst, capable of turning raw data into actionable intellig
 hibp_analyst_task_description = '''
 Search the leaks directory under {top_directory} for two JSON files named breaches.json and pastes.json using the dir_tool.
 These two files contain information about data breaches and pastes where {target} was found.
-For each of the two JSON files read its contents using the file_tool.
+For each of the two JSON files read its contents using the json_tool.
 Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach.
 Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach.
 Compile the two lists into a well-organized dataset and pass it to the Curator for further analysis.
@@ -59,7 +59,7 @@ You are a seasoned analyst, capable of turning raw data into actionable intellig
 osind_analyst_task_description = '''
 Check if there's a osint_ind directory under {top_directory} using the dir_tool. If not, then tell me about it and do nothing.
 If you find the osint_ind directory under {top_directory}, search for a JSON file named osind.json using the dir_tool.
-Read the content of osind.json using the file_tool and carefully analyze all the information about {target}.
+Read the content of osind.json using the json_tool and carefully analyze all the information about {target}.
 Review and filter the data, discarding duplicates and irrelevant information, while focusing on actual intelligence related to {target}.
 For every entry in osind.json, make note of:
 - The 'module' value which represents a service where {target} has a profile or account.

@@ -3,18 +3,20 @@ from crewai import Task
 from prompts import *
 from crewai_tools import (
     DirectoryReadTool,
-    FileReadTool
+    MDXSearchTool,
+    JSONSearchTool
 )
 
 # Instatiate tools
 dir_tool = DirectoryReadTool()
-file_tool = FileReadTool()
+md_tool = MDXSearchTool()
+json_tool = JSONSearchTool()
 
 # Define the Google Data Analysis Task
 google_analysis_task = Task(
     description=google_analyst_task_description,
     expected_output=google_analyst_task_output,
-    tools=[dir_tool,file_tool],
+    tools=[dir_tool,md_tool],
     agent=google_analyst,
     async_execution=True,
 )
@@ -23,7 +25,7 @@ google_analysis_task = Task(
 hibp_analysis_task = Task(
     description=hibp_analyst_task_description,
     expected_output=hibp_analyst_task_output,
-    tools=[dir_tool,file_tool],
+    tools=[dir_tool,json_tool],
     agent=hibp_analyst,
     async_execution=True,
 )
@@ -32,7 +34,7 @@ hibp_analysis_task = Task(
 osind_analysis_task = Task(
     description=osind_analyst_task_description,
     expected_output=osind_analyst_task_output,
-    tools=[dir_tool,file_tool],
+    tools=[dir_tool,json_tool],
     agent=osind_analyst,
     async_execution=True,
 )

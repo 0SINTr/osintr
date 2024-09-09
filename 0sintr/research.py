@@ -75,7 +75,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         print(Fore.RED + "\n  |--- No Google results found for " + Style.BRIGHT + f"{target_verbatim}" + Style.RESET_ALL)
         return scraped_path
     else:
-        print(Fore.GREEN + "\n  |--- Search DONE. Check folder " + Style.BRIGHT + f"{dir_path}" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Search DONE. All data goes to " + Style.BRIGHT + f"{dir_path}" + Style.RESET_ALL)
 
         # Extracting all the links from search results
         links = []
@@ -83,6 +83,9 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         for entry in unique_json_data:
             if 'gov' not in entry['link']:
                 links.append(entry['link'])
+            else:
+                with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'a') as f:
+                    f.write(entry['link'] + '\n')
 
         print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
         print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
@@ -119,11 +122,11 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         if len(links) > 0 and len(noScrape_links) > 0:
             print(Fore.MAGENTA + "\n  |--- Scraping DONE, but not for all links.\n" + Style.RESET_ALL)
             print(Fore.MAGENTA + "\n  |--- Unscrapeable links added to " + Style.BRIGHT + "noScrapeLinks.txt.\n" + Style.RESET_ALL)
-            print(Fore.MAGENTA + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.MAGENTA + "Check the URLs manually to collect data.\n" + Style.RESET_ALL)
+            print(Fore.MAGENTA + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.MAGENTA + "Check the URLs manually to collect data." + Style.RESET_ALL)
         elif len(links) > 0 and len(noScrape_links) == 0:
             print(Fore.MAGENTA + "\n  |--- All links scraped successfully.\n" + Style.RESET_ALL)
         elif len(links) == 0:
-            print(Fore.RED + "\n  |--- No links to scrape.\n" + Style.RESET_ALL)
+            print(Fore.RED + "  |--- No links to scrape." + Style.RESET_ALL)
 
         return scraped_path
 

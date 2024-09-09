@@ -6,22 +6,26 @@ from dotenv import load_dotenv
 from prompts import *
 from crewai_tools import (
     DirectoryReadTool,
-    FileReadTool
+    MDXSearchTool,
+    JSONSearchTool
 )
+
+# Load env variables
+load_dotenv()
 
 # Instatiate tools
 dir_tool = DirectoryReadTool()
-file_tool = FileReadTool()
+md_tool = MDXSearchTool()
+json_tool = JSONSearchTool()
 
 # Discover the LLM to use based on .env data
-load_dotenv()
 try:
     if os.getenv("OPENAI_MODEL_NAME") == 'gpt-4o':
         llm = ChatOpenAI(
             model_name=os.getenv("OPENAI_MODEL_NAME")
             )
     elif os.getenv("OPENAI_MODEL_NAME") == 'llama3.1':
-        os.environ["OPENAI_API_KEY"]
+        os.getenv("OPENAI_API_KEY")
         llm = ChatOllama(
             model = "llama3.1",
             base_url = "http://localhost:11434"
@@ -33,7 +37,7 @@ except NameError as e:
 google_analyst = Agent(
     role="Google Data Analyst",
     goal=google_data_analyst_goal,
-    tools=[dir_tool,file_tool],
+    tools=[dir_tool,md_tool],
     memory=True,
     verbose=True,
     backstory=google_data_analyst_backstory,
@@ -45,7 +49,7 @@ google_analyst = Agent(
 hibp_analyst = Agent(
     role="HIBP Data Analyst",
     goal=hibp_data_analyst_goal,
-    tools=[dir_tool,file_tool],
+    tools=[dir_tool,json_tool],
     memory=True,
     verbose=True,
     backstory=hibp_data_analyst_backstory,
@@ -57,9 +61,9 @@ hibp_analyst = Agent(
 osind_analyst = Agent(
     role="OSINT Industries Data Analyst",
     goal=osind_data_analyst_goal,
-    tools=[dir_tool,file_tool],
+    tools=[dir_tool,json_tool],
     memory=True,
-    verbose=True,
+    verbose=False,
     backstory=osind_data_analyst_backstory,
     allow_delegation=False,
     llm=llm
