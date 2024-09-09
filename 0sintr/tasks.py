@@ -1,5 +1,5 @@
+from agents import google_analyst, hibp_analyst, osind_analyst, report_writer, curator
 from crewai import Task
-from agents import google_analyst, hibp_analyst, osind_analyst, report_writer
 from prompts import *
 from crewai_tools import (
     DirectorySearchTool,

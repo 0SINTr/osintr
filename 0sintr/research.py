@@ -333,10 +333,10 @@ def osint_industries(target, directory):
             os.makedirs(dir_path + '/osint_ind/')
 
         # Write JSON data to directory
-        with open(dir_path + '/osint_ind/pastes.json', 'w') as outfile:
+        with open(dir_path + '/osint_ind/osind.json', 'w') as outfile:
             json.dump(osind_data, outfile)
 
-        print(Fore.RED + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/pastes.json\n" + Style.RESET_ALL)
+        print(Fore.RED + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/osind.json\n" + Style.RESET_ALL)
 
     elif response.status_code == 400:
         print(Fore.RED + "\n  |--- Bad Request. Invalid query value." + Style.RESET_ALL)

@@ -62,6 +62,17 @@ osind_analyst = Agent(
     llm=llm
 )
 
+# Define Curator Agent
+curator = Agent(
+    role="Curator",
+    goal=curator_goal,
+    memory=True,
+    verbose=True,
+    backstory=curator_backstory,
+    allow_delegation=False,
+    llm=llm
+)
+
 # Define Report Writer Agent
 report_writer = Agent(
     role="Report Writer",
