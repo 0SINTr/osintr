@@ -5,15 +5,13 @@ from langchain_ollama import ChatOllama
 from dotenv import load_dotenv
 from prompts import *
 from crewai_tools import (
-    DirectorySearchTool,
-    JSONSearchTool,
-    MDXSearchTool
+    DirectoryReadTool,
+    FileReadTool
 )
 
 # Instatiate tools
-dir_tool = DirectorySearchTool()
-md_tool = MDXSearchTool()
-json_tool = JSONSearchTool()
+dir_tool = DirectoryReadTool()
+file_tool = FileReadTool()
 
 # Discover the LLM to use based on .env data
 load_dotenv()
@@ -23,7 +21,7 @@ try:
             model_name=os.getenv("OPENAI_MODEL_NAME")
             )
     elif os.getenv("OPENAI_MODEL_NAME") == 'llama3.1':
-        os.getenv["OPENAI_API_KEY"]
+        os.environ["OPENAI_API_KEY"]
         llm = ChatOllama(
             model = "llama3.1",
             base_url = "http://localhost:11434"
@@ -35,7 +33,7 @@ except NameError as e:
 google_analyst = Agent(
     role="Google Data Analyst",
     goal=google_data_analyst_goal,
-    tools=[dir_tool,md_tool],
+    tools=[dir_tool,file_tool],
     memory=True,
     verbose=True,
     backstory=google_data_analyst_backstory,
@@ -47,7 +45,7 @@ google_analyst = Agent(
 hibp_analyst = Agent(
     role="HIBP Data Analyst",
     goal=hibp_data_analyst_goal,
-    tools=[dir_tool,json_tool],
+    tools=[dir_tool,file_tool],
     memory=True,
     verbose=True,
     backstory=hibp_data_analyst_backstory,
@@ -59,7 +57,7 @@ hibp_analyst = Agent(
 osind_analyst = Agent(
     role="OSINT Industries Data Analyst",
     goal=osind_data_analyst_goal,
-    tools=[dir_tool,json_tool],
+    tools=[dir_tool,file_tool],
     memory=True,
     verbose=True,
     backstory=osind_data_analyst_backstory,
