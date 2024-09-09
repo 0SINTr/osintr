@@ -13,7 +13,7 @@ Create two lists in your memory: MarkdownList for storing data extracted from th
 For EACH .md file in {directory} read its contents using the file_tool and carefully search for the following information. Keep in mind that the goal is to extract as much relevant information as possible.
 - From the value corresponding to the 'markdown' key extract any relevant URLs, email addresses, usernames, addresses, locations and personal or professional information related to {target} and add them to MarkdownList.
 - From the value corresponding to the 'html' key extract any relevant links, email addresses, locations and personal or professional information related to {target} and add them to HTMLList.
-Once you finish going through ALL the .md files inside {directory} and building the MarkdownList and HTMLList, make both lists available to the Curator.
+Once you finish going through ALL the .md files inside {directory} and building the MarkdownList and HTMLList lists, make both lists available to the Curator.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
@@ -94,18 +94,18 @@ Collect all the datasets provided by the Google Data Analyst, the HIBP Data Anal
 - A section where you use your full data analysis capabilities and reasoning to look for connections between the data points, such as cross-referencing usernames across platforms, matching email addresses with possible profiles, and identifying recurring websites. You are capable of complex reasoning and reflection, so do your best to extract all meaningful data and add it to this section. If you detect that you made a mistake in your reasoning at any point, correct yourself before concluding your analysis.
 - Final section containing a summary with conclusions and highlights about {target} based on your analysis and reasoning.
 My job depends on the quality of your work, so do your best to provide a comprehensive and professional analysis, leaving no stone unturned.
-Once you finish the entire task, make the results available to the Curator.
+Once you finish the entire task, make the results available to the Report Writer.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
 curator_task_output = '''
-A comprehensive and meaningful analysis about {target}.
+A comprehensive analysis with all the specified sections.
 '''
 
 
 # Report Writing
 report_writer_goal_prompt = '''
-Create a final report based on the analysis provided by the Curator.
+Create a final report based on the output provided by the Curator.
 '''
 
 report_writer_backstory = '''
@@ -114,10 +114,11 @@ You are a skilled communicator and an excellent report writer, with a talent for
 
 report_writing_task_description = '''
 Use ALL the data provided by the Curator and compile a comprehensive and professional report in a well-organized and structured way.
+Do NOT summarize or omit any of the information provided by the Curator, just organize it as best as possible.
 The report should be in Markdown format and visually appealing, ready to be delivered to a client or to the authorities.
 '''
 
 report_writing_task_output = '''
-A polished, well-organized report in Markdown format named OSINT_REPORT.md. Do not save it in the current folder, but under the {top_directory} directory.
+A polished, well-organized report in Markdown format named OSINT_REPORT.md. Save it in the same directory where the leaks directory resides.
 Do not add the triple tick marks at the beginning or end of the file. Also do not say what type it is in the first line. 
 '''
