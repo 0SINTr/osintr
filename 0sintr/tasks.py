@@ -39,7 +39,7 @@ curator_task = Task(
     description=curator_task_description,
     expected_output=curator_task_output,
     agent=curator,
-    context=[google_analysis_task, hibp_analysis_task, osind_analysis_task]
+    context=[google_analysis_task, hibp_analysis_task, osind_analysis_task],
     async_execution=False,
 )
 
