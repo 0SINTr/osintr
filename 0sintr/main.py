@@ -1,7 +1,7 @@
 from research import research
 from colorama import Fore, Style
-from agents import analyst, report_writer
-from tasks import analysis_task, report_writing_task
+from agents import google_analyst, hibp_analyst, osind_analyst, report_writer
+from tasks import google_analysis_task, hibp_analysis_task, osind_analysis_task, report_writing_task
 from crewai import Crew, Process
 
 # Perform research and assemble the crew for analysis
@@ -14,8 +14,8 @@ def main():
 
     # Create the Crew with the agents and tasks
     crew = Crew(
-        agents=[analyst, report_writer],
-        tasks=[analysis_task, report_writing_task],
+        agents=[google_analyst, hibp_analyst, osind_analyst, report_writer],
+        tasks=[google_analysis_task, hibp_analysis_task, osind_analysis_task, report_writing_task],
         process=Process.sequential,  # Ensure tasks are executed in order
         verbose=True,
     )
