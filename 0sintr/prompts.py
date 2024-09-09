@@ -1,24 +1,25 @@
 # Google Data Analysis
 google_data_analyst_goal = '''
-Your primary objective is to analyze the data stored in each .md file inside {directory}, filter out irrelevant information and extract critical details that can be used to create a coherent profile of {target}.
+Your primary objective is to analyze the data stored in each .md file inside {directory}.
 '''
 
 google_data_analyst_backstory = '''
-You are a seasoned analyst, capable of turning raw data into actionable intelligence by connecting the dots between different data points and organizing the information.
+You are a seasoned data scraper, capable of turning raw data into organized and structured information.
 '''
 
 google_analyst_task_description = '''
 Search {directory} for .md files using the dir_tool. If there are no .md files in the directory, then tell me about it and do nothing.
-For every .md file in {directory} read its contents using the md_tool and carefully analyze all the information about {target}.
+Create two lists in your memory: MarkdownList for storing data extracted from the Markdown key of each file, and HTMLList for storing data extracted from the HTML key of each file.
+For EACH .md file in {directory} read its contents using the md_tool and carefully search for the following information. Keep in mind that the goal is to extract as much relevant information as possible.
+- From the value corresponding to the 'markdown' key extract any relevant URLs, email addresses, usernames, addresses, locations and personal or professional information related to {target} and add them to MarkdownList.
+- From the value corresponding to the 'html' key extract any relevant links, email addresses, locations and personal or professional information related to {target} and add them to HTMLList.
 Review and filter the data, discarding duplicates and irrelevant information, while focusing on actual intelligence related to {target}.
-You are capable of complex reasoning and reflection, so do your best to extract meaningful data about {target} from each .md file.
-Compile the results of your work into a well-organized dataset and pass them to the Curator for further analysis.
-If you detect that you made a mistake in your reasoning at any point, correct yourself before concluding your analysis and tell me about it.
+Once you finish going through ALL the .md files inside {directory} and building the MarkdownList and HTMLList, make both lists available to the Curator.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
 google_analyst_task_output = '''
-A comprehensive, but refined dataset about {target}.
+A comprehensive dataset about {target} containing all the relevant links, email addresses, locations and personal or professional information related to {target}
 '''
 
 
@@ -28,47 +29,46 @@ Your primary objective is to analyze the data stored in each .json file inside t
 '''
 
 hibp_data_analyst_backstory = '''
-You are a seasoned analyst, capable of turning raw data into actionable intelligence by connecting the dots between different data points and organizing the information.
+You are a seasoned data scraper, capable of turning raw data into organized and structured information.
 '''
 
 hibp_analyst_task_description = '''
 Search the leaks directory under {top_directory} for two JSON files named breaches.json and pastes.json using the dir_tool.
 These two files contain information about data breaches and pastes where {target} was found.
 For each of the two JSON files read its contents using the json_tool.
-Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach.
-Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach.
-Compile the two lists into a well-organized dataset and pass it to the Curator for further analysis.
+- Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach.
+- Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach.
+- Compile the two lists into a well-organized dataset and pass it to the Curator for further analysis.
+Based on your own reasoning, choose the most optimal format for this dataset.
+Once you finish going through all the files inside the leaks directory and building the resulting dataset, make the dataset available to the Curator.
 If you don't find any data at all in both of these files, then your conclusion should be that {target} was not a victim of breaches or pastes.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
 hibp_analyst_task_output = '''
-A comprehensive, but well-organized list of breaches and pastes, along with a short conclusion.
+A comprehensive, but well-organized list of breaches and pastes where {target} has been a victim, along with a short conclusion.
 '''
 
 
 # OSINT.Industries Data Analysis
 osind_data_analyst_goal = '''
-Your primary objective is to analyze the data stored in each .json file inside the /leaks/ directory under {top_directory}, filter out irrelevant information and extract critical details that can be used to create a coherent profile of {target}.
+Your primary objective is to analyze the data stored inside osind.json file inside the osint_ind directory under {top_directory}.
 '''
 
 osind_data_analyst_backstory = '''
-You are a seasoned analyst, capable of turning raw data into actionable intelligence by connecting the dots between different data points and organizing the information.
+You are a seasoned data scraper, capable of turning raw data into organized and structured information.
 '''
 
 osind_analyst_task_description = '''
-Check if there's a osint_ind directory under {top_directory} using the dir_tool. If not, then tell me about it and do nothing.
+Check if there's an osint_ind directory under {top_directory} using the dir_tool. If not, then tell me about it and do nothing.
 If you find the osint_ind directory under {top_directory}, search for a JSON file named osind.json using the dir_tool.
-Read the content of osind.json using the json_tool and carefully analyze all the information about {target}.
+Read the content of osind.json using the json_tool and create a dictionary-like structure in your memory called OSINDDict.
+For EACH entry from the osind.json file, keep in mind that the goal is to extract as much relevant information as possible, as follows:
+- Get the value of the 'schemaModule' key in OSINDDict and use it as a key of OSINDDict. If any duplicates occur, find out a way to keep all of them inside OSINDDict.
+- Extract all URLs, email addresses, locations, addresses, first names, last names or usernames residing as values for the keys nested under the 'spec_format' key.
+- If you cannot find any URLs, email addresses, locations, addresses, first names, last names or usernames nested under the 'spec_format' key, keep the respective 'schemaModule' key and assign it the value "Registered".
 Review and filter the data, discarding duplicates and irrelevant information, while focusing on actual intelligence related to {target}.
-For every entry in osind.json, make note of:
-- The 'module' value which represents a service where {target} has a profile or account.
-- The 'link' and/or 'image_url' and/or 'small_image_url' and/or 'profile_url' and/or 'picture_url' and/or 'photo' and/or 'image' values for every module, if any.
-- The date and location for every review, rating, places, photos the user posted on Google.
-You need to assemble all of this information and any other data you consider relevant about {target} from within osind.json.
-You are capable of complex reasoning and reflection, so do your best to extract all meaningful data about {target} from the osind.json file.
-Compile the results of your work into a well-organized dataset and pass them to the Curator for further analysis.
-If you detect that you made a mistake in your reasoning at any point, correct yourself before concluding your analysis and tell me about it.
+Once you finish going through the entire osind.json file and building the OSINDDict, make OSINDDict available to the Curator.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
@@ -79,38 +79,35 @@ A comprehensive, but refined dataset about {target}.
 
 # Curator Data Analysis
 curator_goal = '''
-Your goal is to gather the outputs from the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst and create a comprehensive profile of {target}'s online presence and activities.
+Your goal is to collect the entire datasets from the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst and organize all the information in an OCD-style manner.
 '''
 
 curator_backstory = '''
-You are a world-class investigative AI system, capable of complex analysis, reasoning and reflection, and an expert in turning data coming from multiple sources into actionable intelligence by connecting the dots between different data points and organizing the information.
+You are a world-class data analyst, capable of complex analysis, reasoning and reflection, and an expert in turning data coming from multiple sources into actionable intelligence by organizing the information.
 '''
 
 curator_task_description = '''
-Collect all the data provided by the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst.
-Carefully analyze all the information, review and filter the data, discarding duplicates and irrelevant entries.
-Cross-reference information to identify linked profiles, common usernames, or email associations of {target}.
-From the data provided by the three Analysts, assemble a full list of websites, platforms, and online services where {target} has profiles or accounts.
-In your analysis, include a comprehensive and well-organized list with any locations, maps, location reviews, ratings of places or geographical details to create a profile of {target}'s whereabouts.
-Also compile a list of any data breaches or pastes where {target} was likely a victim of data leaks.
-Highlight any patterns or connections in the data that suggest significant online activities or affiliations of {target}.
-Look for connections between the data points, such as cross-referencing usernames across platforms, matching email addresses with possible profiles, and identifying recurring websites.
-You are capable of complex reasoning and reflection, so do your best to extract all meaningful data about {target} from the osind.json file.
-Add a summary with conclusions and highlights about {target} based on your analysis and reasoning.
-Compile the results of your work into a well-organized dataset and pass it to the Report Writer for the final report.
-My job depends on this, so do your best to provide a comprehensive and professional analysis, leaving no stone unturned.
-If you detect that you made a mistake in your reasoning at any point, correct yourself before concluding your analysis and tell me about it.
+Wait for the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst to finish their tasks.
+Collect all the datasets provided by the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst, and organize the information as follows:
+- Introductory section about who the {target} and what are all the data sources that have been used by the Analysts.
+- A section with all the information in the MarkdownList and HTMLList lists provided by the Google Data Analyst, structured and organized into relevant sub-sections.
+- A section with all the information in the dataset provided by the HIBP Data Analyst, structured and organized into relevant sub-sections.
+- A section with all the information in the OSINDDict dataset provided by the OSINT Industries Data Analyst, structured and organized into relevant sub-sections.
+- A section where you use your full data analysis capabilities and reasoning to look for connections between the data points, such as cross-referencing usernames across platforms, matching email addresses with possible profiles, and identifying recurring websites. You are capable of complex reasoning and reflection, so do your best to extract all meaningful data and add it to this section. If you detect that you made a mistake in your reasoning at any point, correct yourself before concluding your analysis.
+- Final section containing a summary with conclusions and highlights about {target} based on your analysis and reasoning.
+My job depends on the quality of your work, so do your best to provide a comprehensive and professional analysis, leaving no stone unturned.
+Once you finish the entire task, make the results available to the Curator.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
 curator_task_output = '''
-A comprehensive and meaningful dataset about {target}.
+A comprehensive and meaningful analysis about {target}.
 '''
 
 
 # Report Writing
 report_writer_goal_prompt = '''
-Create a final report about {target}'s online presence, activities and profile.
+Create a final report based on the analysis provided by the Curator.
 '''
 
 report_writer_backstory = '''
@@ -118,13 +115,11 @@ You are a skilled communicator and an excellent report writer, with a talent for
 '''
 
 report_writing_task_description = '''
-Based on the analysis provided by the Curator, compile a comprehensive and professional report.
-This report should contain the entire analysis done by the Curator compiled in a well-organized and structured way.
-At the end, the reader should get a summary to understand the investigation's outcomes and the potential implications.
-Also include practical recommendations for further areas of exploration or additional data sources that might yield more information.
+Use ALL the data provided by the Curator and compile a comprehensive and professional report in a well-organized and structured way.
+The report should be in Markdown format and visually appealing, ready to be delivered to a client or to the authorities.
 '''
 
 report_writing_task_output = '''
-A polished, well-organized report in Markdown format named OSINT_REPORT.md saved under {top_directory}.
+A polished, well-organized report in Markdown format named OSINT_REPORT.md. Do not save it in the current folder, but under the {top_directory} directory.
 Do not add the triple tick marks at the beginning or end of the file. Also do not say what type it is in the first line. 
 '''
