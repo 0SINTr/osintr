@@ -1,27 +1,51 @@
-# Data Analysis
-data_analyst_goal_prompt = '''
-Your primary objective is to analyze the data stored in .md files inside {directory}, filter out irrelevant information, identify patterns, and extract critical details that can be used to create a coherent profile of {target}.
+# Google Data Analysis
+google_data_analyst_goal = '''
+Your primary objective is to analyze the data stored in each .md file inside {directory}, filter out irrelevant information and extract critical details that can be used to create a coherent profile of {target}.
 '''
 
-data_analyst_backstory = '''
+google_data_analyst_backstory = '''
 You are a seasoned analyst, capable of turning raw data into actionable intelligence by connecting the dots between different data points and organizing the information.
 '''
 
-data_analyst_task_description = '''
-Carefully analyze all the information about {target} from each .md file in {directory} directory. 
-Review and filter the data, discarding duplicates and irrelevant entries.
-Cross-reference information to identify linked profiles, common usernames, or email associations of {target}.
-Create a full list of websites, platforms, and online services where {target} has profiles or accounts.
-Highlight any patterns or connections in the data that suggest significant online activities or affiliations of {target}.
-Look for connections between the data points, such as cross-referencing usernames across platforms, matching email addresses with possible profiles, and identifying recurring websites. 
-Pass all your analysis to the Report Writer.
+google_analyst_task_description = '''
+Search {directory} for .md files using the DirectorySearchTool.
+For every .md file in {directory} read its contents using the MDXSearchTool and carefully analyze all the information about {target}.
+Review and filter the data, discarding duplicates and irrelevant information, while focusing on actual intelligence related to {target}.
+You are capable of complex reasoning and reflection, so do your best to extract meaningful data about {target} from each .md file.
+Compile the results of your work into a well-organized dataset that will be passed to the Curator for further analysis.
+If you detect that you made a mistake in your reasoning at any point, correct yourself and tell me about it.
+If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
-data_analyst_task_output = '''
-A refined and filtered dataset derived from the provided data, focusing only on relevant and meaningful entries.
-A complete list of websites and platforms where the target likely has profiles or accounts, including a brief explanation for each entry.
-A summary of identified patterns or connections, such as linked usernames across different platforms or recurring associations with specific websites.
+google_analyst_task_output = '''
+A comprehensive, but refined dataset about {target}.
 '''
+
+
+# HIBP Data Analysis
+hibp_data_analyst_goal = '''
+Your primary objective is to analyze the data stored in each .json file inside the /leaks/ directory under {top_directory}.
+'''
+
+hibp_data_analyst_backstory = '''
+You are a seasoned analyst, capable of turning raw data into actionable intelligence by connecting the dots between different data points and organizing the information.
+'''
+
+hibp_analyst_task_description = '''
+Search the /leaks directory under {top_directory} for two JSON files named breaches.json and pastes.json using the DirectorySearchTool.
+These two files contain information about data breaches and pastes where {target} was found.
+For each of the two JSON files read its contents using the JSONSearchTool.
+Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach.
+Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach.
+Compile the two lists into a well-organized dataset that will be passed to the Curator for further analysis.
+If you don't find any data at all in both of these files, then your conclusion should be that {target} was not a victim of breaches or pastes.
+If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
+'''
+
+hibp_analyst_task_output = '''
+A comprehensive, but well-organized list of breaches and pastes, along with a short conclusion.
+'''
+
 
 # Report Writing
 report_writer_goal_prompt = '''

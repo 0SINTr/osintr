@@ -338,6 +338,10 @@ def osint_industries(target, directory):
 
         print(Fore.RED + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/pastes.json\n" + Style.RESET_ALL)
 
+    elif response.status_code == 400:
+        print(Fore.RED + "\n  |--- Bad Request. Invalid query value." + Style.RESET_ALL)
+        print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
+
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits. Check your key and try again." + Style.RESET_ALL)
         print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
@@ -417,6 +421,7 @@ def research():
     # Kick off the crew process
     print(Style.BRIGHT + Fore.GREEN + "\n\n|---> Starting the AI analysis, please wait. This may take a while." + Style.RESET_ALL)
 
+    # Return the target string, md_directory (.../osint_<target>/google/scarpes) and main directory (.../osint_<target>/)
     return target, md_directory, os.path.dirname(os.path.dirname(save_directory))
 
 if __name__ == "__main__":

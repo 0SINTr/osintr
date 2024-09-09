@@ -30,7 +30,7 @@ except NameError as e:
 google_analyst = Agent(
     role="Google Data Analyst",
     goal=google_data_analyst_goal,
-    tools=[DirectorySearchTool,MDXSearchTool]
+    tools=[DirectorySearchTool,MDXSearchTool],
     memory=True,
     verbose=True,
     backstory=google_data_analyst_backstory,

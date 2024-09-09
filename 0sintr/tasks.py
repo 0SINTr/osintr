@@ -7,7 +7,7 @@ from crewai_tools import (
     MDXSearchTool
 )
 
-# Define Google Data Analysis Task
+# Define the Google Data Analysis Task
 google_analysis_task = Task(
     description=google_analyst_task_description,
     expected_output=google_analyst_task_output,
@@ -16,7 +16,7 @@ google_analysis_task = Task(
     async_execution=True,
 )
 
-# Define HIBP Data Analysis Task
+# Define the HIBP Data Analysis Task
 hibp_analysis_task = Task(
     description=hibp_analyst_task_description,
     expected_output=hibp_analyst_task_output,
@@ -25,7 +25,7 @@ hibp_analysis_task = Task(
     async_execution=True,
 )
 
-# Define OSINT.Industries Data Analysis Task
+# Define the OSINT.Industries Data Analysis Task
 osind_analysis_task = Task(
     description=osind_analyst_task_description,
     expected_output=osind_analyst_task_output,
@@ -34,12 +34,20 @@ osind_analysis_task = Task(
     async_execution=True,
 )
 
-# Define Report Writing Task
+# Define the Curator Task
+curator_task = Task(
+    description=curator_task_description,
+    expected_output=curator_task_output,
+    agent=curator,
+    context=[google_analysis_task, hibp_analysis_task, osind_analysis_task]
+    async_execution=False,
+)
+
+# Define the Report Writing Task
 report_writing_task = Task(
     description=report_writing_task_description,
     expected_output=report_writing_task_output,
     agent=report_writer,
-    context=[google_analysis_task, hibp_analysis_task, osind_analysis_task]
     output_file='OSINT_REPORT.md',
     async_execution=False,
 )
