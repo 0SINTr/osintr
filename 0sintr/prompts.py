@@ -85,7 +85,7 @@ You are a world-class data analyst, capable of complex analysis, reasoning and r
 '''
 
 curator_task_description = '''
-Wait for the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst to finish their tasks.
+It is crucial to wait for the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst to finish their tasks.
 Collect all the datasets provided by the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst, and organize the information as follows:
 - Introductory section about who the {target} and what are all the data sources that have been used by the Analysts.
 - A section with all the information in the MarkdownList and HTMLList lists provided by the Google Data Analyst, structured and organized into relevant sub-sections.
