@@ -1,5 +1,4 @@
 from langchain_community.utilities import GoogleSerperAPIWrapper
-from email_validator import validate_email
 from colorama import Fore, Style, init
 from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
@@ -16,9 +15,11 @@ import re
 # Function to perform the Google search and scrape each page related to the target
 def google_search_function(target_verbatim, target_intext, target_intitleurl, outputDir):
     # Check if osint_data directory exists, if not create it for the specified target
-    dir_path = outputDir + "/osint_data_" + ''.join(char for char in str(target_verbatim) if char.isalnum())
+    dir_path = os.path.join(outputDir, "osint_data_" + ''.join(char for char in str(target_verbatim) if char.isalnum()))
     if not os.path.exists(path=dir_path):
-        os.makedirs(dir_path + '/google/')
+        os.makedirs(os.path.join(dir_path, 'google'))
+    else:
+        print(Style.BRIGHT + Fore.RED + "\n\n|---> Directory already exists. Delete it or change path." + Style.RESET_ALL)
 
     # Perform a verbatim Google search (tbs value) and return the results
     search_verbatim = GoogleSerperAPIWrapper(tbs="li:1", k=20)
@@ -55,10 +56,8 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         print(Fore.CYAN + f"  |--- Total duplicates removed: {len(all_search_results)-len(unique_json_data)}, Final items: {len(unique_json_data)}" + Style.RESET_ALL)
 
         # Create and save the JSON file with unique search results
-        with open(dir_path + '/google/google_search.json', 'w') as outfile:
+        with open(os.path.join(dir_path, 'google', 'google_search.json'), 'w') as outfile:
             json.dump(unique_json_data, outfile)
-        
-        print(Fore.GREEN + "\n  |--- Search DONE. Check folder " + Style.BRIGHT + f"{dir_path}" + Style.RESET_ALL)
 
     except Exception as e:
         # Handle any errors that occur during the search
@@ -69,57 +68,63 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
     time.sleep(3)
 
     # Creating new directory for scraping results
-    scraped_path = dir_path + '/google/scraped'
+    scraped_path = os.path.join(dir_path, 'google', 'scraped')
     if not os.path.exists(path=scraped_path):
         os.makedirs(scraped_path)
 
-    # Extracting all the links from search results
-    links = []
-    noScrape_links = []
-    for entry in unique_json_data:
-        if 'gov' not in entry['link']:
-            links.append(entry['link'])
-
-    print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
-    print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
-
-    # Initialize the Firecrawl scraper
-    for index, url in enumerate(links):
-        try:
-            scraper = FirecrawlApp()
-            scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'html', 'screenshot'], 'waitFor':3000, 'timeout':10000})
-
-            # Write the scrape results to separate files
-            with open(scraped_path + '/scrape' + str(index + 1) + '.md', 'w', encoding='utf-8') as outfile:
-                outfile.write(str(scrape_result))
-
-            print('    |- File scrape' + str(index + 1) + '.md DONE.')
-
-            # Introducing sleep for 3 seconds
-            time.sleep(3)
-
-        except requests.exceptions.HTTPError as e:
-            # Write un-scrapeable links to a txt file and continue
-            noScrape_links.append(url)
-            with open(dir_path + '/google/noScrapeLinks.txt', 'a') as f:
-                f.write(url + '\n')
-            continue
-
-        except Exception as e:
-            print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + url + Style.RESET_ALL)
-            continue
-    
-    # Checking unscrapeable URLs
-    with open(dir_path + '/google/noScrapeLinks.txt', 'r') as f:
-        un_links = f.readlines()
-    
-    if len(un_links) == 0:
-        print(Fore.MAGENTA + "\n  |--- All links scraped successfully.\n" + Style.RESET_ALL)
+    if len(all_search_results) == 0:
+        print(Fore.RED + "\n  |--- No Google results found for " + Style.BRIGHT + f"{target_verbatim}" + Style.RESET_ALL)
+        return scraped_path
     else:
-        print(Fore.MAGENTA + "\n  |--- Unscrapeable links added to " + Style.BRIGHT + "noScrapeLinks.txt.\n" + Style.RESET_ALL)
-        print(Fore.MAGENTA + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.MAGENTA + "Check the URLs manually to collect relevant data.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Search DONE. Check folder " + Style.BRIGHT + f"{dir_path}" + Style.RESET_ALL)
 
-    return scraped_path
+        # Extracting all the links from search results
+        links = []
+        noScrape_links = []
+        for entry in unique_json_data:
+            if 'gov' not in entry['link']:
+                links.append(entry['link'])
+
+        print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
+        print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
+
+        # Initialize the Firecrawl scraper
+        for index, url in enumerate(links):
+            try:
+                scraper = FirecrawlApp()
+                scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'html', 'screenshot'], 'waitFor':3000, 'timeout':10000})
+
+                # Write the scrape results to separate files
+                with open(os.path.join(scraped_path, 'scrape' + str(index + 1) + '.md'), 'w', encoding='utf-8') as outfile:
+                    outfile.write(str(scrape_result))
+
+                print('    |- File scrape' + str(index + 1) + '.md DONE.')
+
+                # Introducing sleep for 3 seconds
+                time.sleep(3)
+
+            except requests.exceptions.HTTPError as e:
+                # Write un-scrapeable links to a txt file and continue
+                noScrape_links.append(url)
+                with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'a') as f:
+                    f.write(url + '\n')
+                continue
+
+            except Exception as e:
+                print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + url + Style.RESET_ALL)
+                continue
+        
+        # Checking unscrapeable URLs
+        with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'r') as f:
+            un_links = f.readlines()
+        
+        if len(un_links) == 0:
+            print(Fore.MAGENTA + "\n  |--- All links scraped successfully.\n" + Style.RESET_ALL)
+        else:
+            print(Fore.MAGENTA + "\n  |--- Unscrapeable links added to " + Style.BRIGHT + "noScrapeLinks.txt.\n" + Style.RESET_ALL)
+            print(Fore.MAGENTA + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.MAGENTA + "Check the URLs manually to collect relevant data.\n" + Style.RESET_ALL)
+
+        return scraped_path
 
 
 # Function to extract image URLs and email addresses from a markdown file
@@ -209,7 +214,7 @@ def process_md_files(directory, save_directory):
             filtered_email_list.append(email)
 
     # Extract email addresses from .json file
-    with open(os.path.dirname(save_directory) + '/google_search.json', 'r') as f:
+    with open(os.path.join(os.path.dirname(save_directory), 'google_search.json'), 'r') as f:
         content = f.read()
     
     emails_from_json = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
@@ -218,7 +223,7 @@ def process_md_files(directory, save_directory):
     # Writing the email addresses to a .txt file
     if len(filtered_email_list) > 0:
         for email in set(filtered_email_list):
-            with open(os.path.dirname(save_directory) + '/emailAddresses.txt', 'a') as f:
+            with open(os.path.join(os.path.dirname(save_directory), 'emailAddresses.txt'), 'a') as f:
                     f.write(email + '\n')
         
         # Print out the email addresses
@@ -231,7 +236,7 @@ def process_md_files(directory, save_directory):
 
     else:
         print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
-        with open(os.path.dirname(save_directory) + '/emailAddresses.txt', 'w') as f:
+        with open(os.path.join(os.path.dirname(save_directory), 'emailAddresses.txt'), 'w') as f:
             f.write('No email addresses found.')
 
 
@@ -241,16 +246,15 @@ def search_breaches(target, directory):
     headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
     response = requests.get(url + target + "?truncateResponse=false" + "?includeUnverified=true", headers=headers)
 
+    # Create new directory 
+    dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
+    if os.path.exists(path=dir_path):
+        os.makedirs(os.path.join(dir_path, 'leaks'))
+
     if response.status_code == 200:
         breach_data = response.json()
-
-        # Create new directory 
-        dir_path = directory + "/osint_data_" + ''.join(char for char in str(target) if char.isalnum())
-        if os.path.exists(path=dir_path):
-            os.makedirs(dir_path + '/leaks/')
-
         # Write JSON data to directory
-        with open(dir_path + '/leaks/breaches.json', 'w') as outfile:
+        with open(os.path.join(dir_path, 'leaks', 'breaches.json'), 'w') as outfile:
             json.dump(breach_data, outfile)
 
         print(Fore.RED + "\n  |--- Breached data added to " + Style.BRIGHT + "/leaks/breaches.json" + Style.RESET_ALL)
@@ -278,16 +282,15 @@ def search_pastes(target, directory):
     } 
     response = requests.get(url + target, headers=headers)
 
+    # Check leaks directory 
+    dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
+    if os.path.exists(path=dir_path) and not os.path.exists(path=os.path.join(dir_path, 'leaks')):
+        os.makedirs(os.path.join(dir_path, 'leaks'))
+
     if response.status_code == 200:
         paste_data = response.json() 
-
-        # Check leaks directory 
-        dir_path = directory + "/osint_data_" + ''.join(char for char in str(target) if char.isalnum())
-        if os.path.exists(path=dir_path) and not os.path.exists(path=dir_path + '/leaks/'):
-            os.makedirs(dir_path + '/leaks/')
-
         # Write JSON data to directory
-        with open(dir_path + '/leaks/pastes.json', 'w') as outfile:
+        with open(os.path.join(dir_path, 'leaks', 'pastes.json'), 'w') as outfile:
             json.dump(paste_data, outfile)
 
         print(Fore.RED + "\n  |--- Paste data added to " + Style.BRIGHT + "/leaks/pastes.json\n" + Style.RESET_ALL)
@@ -308,7 +311,9 @@ def search_pastes(target, directory):
 def osint_industries(target, directory):
     print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking OSINT.Industries for data: " + Style.RESET_ALL)
     time.sleep(1) # Introducing sleep for 1 second
-    if validate_email(target):
+
+    is_valid_email = check(target)
+    if is_valid_email:
         target_type = 'email'
     else:
         target_type = 'username'
@@ -324,16 +329,15 @@ def osint_industries(target, directory):
     }
     response = requests.get(url, params=params, headers=headers)
 
+    # Check osint_ind directory 
+    dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
+    if os.path.exists(path=dir_path) and not os.path.exists(path=os.path.join(dir_path, 'osint_ind')):
+        os.makedirs(os.path.join(dir_path, 'osint_ind'))
+
     if response.status_code == 200:
         osind_data = response.json() 
-
-        # Check leaks directory 
-        dir_path = directory + "/osint_data_" + ''.join(char for char in str(target) if char.isalnum())
-        if os.path.exists(path=dir_path) and not os.path.exists(path=dir_path + '/osint_ind/'):
-            os.makedirs(dir_path + '/osint_ind/')
-
         # Write JSON data to directory
-        with open(dir_path + '/osint_ind/osind.json', 'w') as outfile:
+        with open(os.path.join(dir_path, 'osint_ind', 'osind.json'), 'w') as outfile:
             json.dump(osind_data, outfile)
 
         print(Fore.RED + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/osind.json\n" + Style.RESET_ALL)
@@ -355,6 +359,14 @@ def osint_industries(target, directory):
     else:
         print('    |- Error code: ' + str(response.status_code))
 
+
+def check(user_input):
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    if(re.fullmatch(regex, user_input)):
+        return user_input
+    else:
+        return None
+
 def research():
     parser = argparse.ArgumentParser(description='Run 0sintr with the following arguments.')
     parser.add_argument('-t', '--target', help='Target email address or username', required=True)
@@ -363,9 +375,9 @@ def research():
 
     # -o argument logic
     if args.output is not None:
-        outputDir = args.output
+        outputDir = str(args.output).rstrip('/')
     else:
-        parser.print_usage()
+        parser.print_help()
 
     # -t argument logic
     if args.target is not None:
@@ -381,48 +393,59 @@ def research():
         target_intitle = f"intitle:\"{target}\""
 
         # For email addresses, use verbatim, intext and intitle
-        if validate_email(target):
+        is_valid_email = check(target)
+        if is_valid_email:
             print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for email address: {target_verbatim}" + Style.RESET_ALL)
             print(Fore.CYAN + "\n  |--- Search modes: verbatim, intext, intitle" + Style.RESET_ALL)
             md_directory = google_search_function(target_verbatim, target_intext, target_intitle, outputDir)
         else:
-            print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for username: {target_verbatim}" + Style.RESET_ALL)
-            print(Fore.CYAN + "\n  |--- Search modes: verbatim, intext, inurl" + Style.RESET_ALL)
-            md_directory = google_search_function(target_verbatim, target_intext, target_inurl, outputDir)
+            if " " in target:
+                print(Fore.RED + "\n|---> Target format incorrect: " + Style.BRIGHT + f"{target_verbatim}\n" + Style.RESET_ALL)
+                sys.exit()
+            else:
+                print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for username: {target_verbatim}" + Style.RESET_ALL)
+                print(Fore.CYAN + "\n  |--- Search modes: verbatim, intext, inurl" + Style.RESET_ALL)
+                md_directory = google_search_function(target_verbatim, target_intext, target_inurl, outputDir)
 
-        # Defining the directories to pass to process_md_files()
-        directory = md_directory
-        save_directory = os.path.dirname(md_directory) + '/screenshots'
+        if len(os.listdir(md_directory)) == 0:
+            pass
+        else:
+            # Defining the directories to pass to process_md_files()
+            save_directory = os.path.dirname(md_directory) + '/screenshots'
 
-        # Process all .md files in the specified directory
-        process_md_files(directory, save_directory)
+            # Process all .md files in the specified directory
+            process_md_files(md_directory, save_directory)
 
         # Run the data leak detection functions, first is breach detection
         search_breaches(target, outputDir)
 
         # Differentiating between email addresses and usernames for paste checking
-        if validate_email(target):
+        if is_valid_email:
             search_pastes(target, outputDir)
         else:
             print(Fore.YELLOW + "\n\n|---> Since you provided a username, I will check pastes for " + Style.BRIGHT + f"{target}@gmail.com" + Style.RESET_ALL)
             search_pastes(target + "@gmail.com", outputDir)
 
+        time.sleep(1) # Introducing sleep for 1 second
+
         # Running the OSINT.Industries data collection, as an option
         load_dotenv()
-        if os.getenv["OSIND_API_KEY"] is not None:
+        if os.getenv("OSIND_API_KEY") is not None:
             osint_industries(target, outputDir)
         else:
             print(Style.BRIGHT + Fore.RED + "\n|---> No OSINT.Industries API key found." + Style.RESET_ALL)
             print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
 
+        time.sleep(2) # Introducing sleep for 2 seconds
+
     else:
-        parser.print_usage()
+        parser.print_help()
 
     # Kick off the crew process
     print(Style.BRIGHT + Fore.GREEN + "\n\n|---> Starting the AI analysis, please wait. This may take a while." + Style.RESET_ALL)
 
-    # Return the target string, md_directory (.../osint_<target>/google/scarpes) and main directory (.../osint_<target>/)
-    return target, md_directory, os.path.dirname(os.path.dirname(save_directory))
+    # Return the target string, md_directory (.../osint_<target>/google/scrapes) and main directory (.../osint_<target>/)
+    return target, md_directory, os.path.dirname(os.path.dirname(md_directory))
 
 if __name__ == "__main__":
     research()

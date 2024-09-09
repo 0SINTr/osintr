@@ -2,7 +2,6 @@ crewai
 creawai-tools
 python-dotenv
 langchain-ollama
-email-validator
 firecrawl-py
 requests
 pandas
