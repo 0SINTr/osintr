@@ -120,11 +120,11 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         
         # Checking scraped and unscrapeable URLs
         if len(links) > 0 and len(noScrape_links) > 0:
-            print(Fore.MAGENTA + "\n  |--- Scraping DONE, but not for all links.\n" + Style.RESET_ALL)
+            print(Fore.YELLOW + "\n  |--- Scraping DONE, but not for all links.\n" + Style.RESET_ALL)
             print(Fore.MAGENTA + "\n  |--- Unscrapeable links added to " + Style.BRIGHT + "noScrapeLinks.txt.\n" + Style.RESET_ALL)
             print(Fore.MAGENTA + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.MAGENTA + "Check the URLs manually to collect data." + Style.RESET_ALL)
         elif len(links) > 0 and len(noScrape_links) == 0:
-            print(Fore.MAGENTA + "\n  |--- All links scraped successfully.\n" + Style.RESET_ALL)
+            print(Fore.GREEN + "\n  |--- All links scraped successfully.\n" + Style.RESET_ALL)
         elif len(links) == 0:
             print(Fore.RED + "  |--- No links to scrape." + Style.RESET_ALL)
 
@@ -202,7 +202,7 @@ def process_md_files(directory, save_directory):
                 save_bkp_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no + 1) + ".png")
                 download_image(url_pair[0], save_bkp_path)
     else:
-        print(Fore.BLUE + "  |--- No screenshots taken.\n" + Style.RESET_ALL)
+        print(Fore.RED + "  |--- No screenshots taken.\n" + Style.RESET_ALL)
 
     # Iterate over all found email addresses
     filtered_email_list = []
@@ -231,11 +231,11 @@ def process_md_files(directory, save_directory):
         for email in set(filtered_email_list):
             print(f"    |- {email}")
 
-        print(Fore.YELLOW + "\n  |--- Email addresses added to " + Style.BRIGHT + "emailAddresses.txt.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Email addresses added to " + Style.BRIGHT + "emailAddresses.txt.\n" + Style.RESET_ALL)
         print(Fore.YELLOW + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.YELLOW + "Check the file and re-run 0SINTr for relevant addresses.\n" + Style.RESET_ALL)
 
     else:
-        print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.RED + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
         with open(os.path.join(os.path.dirname(save_directory), 'emailAddresses.txt'), 'w') as f:
             f.write('No email addresses found.')
 
@@ -256,13 +256,13 @@ def search_breaches(target, directory):
         with open(os.path.join(dir_path, 'leaks', 'breaches.json'), 'w') as outfile:
             json.dump(breach_data, outfile)
 
-        print(Fore.RED + "\n  |--- Breached data added to " + Style.BRIGHT + "/leaks/breaches.json" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Breached data added to " + Style.BRIGHT + "/leaks/breaches.json" + Style.RESET_ALL)
 
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
 
     elif response.status_code == 404:
-        print(Fore.GREEN + "\n  |--- No breached data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
+        print(Fore.RED + "\n  |--- No breached data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
 
     elif response.status_code == 429:
         print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
@@ -291,13 +291,13 @@ def search_pastes(target, directory):
         with open(os.path.join(dir_path, 'leaks', 'pastes.json'), 'w') as outfile:
             json.dump(paste_data, outfile)
 
-        print(Fore.RED + "\n  |--- Paste data added to " + Style.BRIGHT + "/leaks/pastes.json\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Paste data added to " + Style.BRIGHT + "/leaks/pastes.json\n" + Style.RESET_ALL)
 
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
 
     elif response.status_code == 404:
-        print(Fore.GREEN + "\n  |--- No paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+        print(Fore.RED + "\n  |--- No paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
 
     elif response.status_code == 429:
         print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
@@ -337,7 +337,7 @@ def osint_industries(target, directory):
         with open(os.path.join(dir_path, 'osint_ind', 'osind.json'), 'w') as outfile:
             json.dump(osind_data, outfile)
 
-        print(Fore.RED + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/osind.json\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/osind.json\n" + Style.RESET_ALL)
 
     elif response.status_code == 400:
         print(Fore.RED + "\n  |--- Bad Request. Invalid query value." + Style.RESET_ALL)
