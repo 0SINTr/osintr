@@ -1,7 +1,6 @@
 crewai
 creawai-tools
 python-dotenv
-google-search-results
 langchain-ollama
 email-validator
 firecrawl-py
