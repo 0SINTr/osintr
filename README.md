@@ -78,6 +78,7 @@ HIBP_API_KEY=<your_key_here>
 ## Optional Feature
 
 Optionally, you can collect data from **OSINT.Industries** via their API. Add the key in `.env` as `OSIND_API_KEY=<your_key_here>`. This functionality is optional and triggered at runtime.
+
 ---
 
 ## Costs
