@@ -11,7 +11,7 @@ google_analyst_task_description = '''
 Search {directory} for .md files using the dir_tool. If there are no .md files in the directory, then tell me about it and do nothing.
 For EACH .md file in {directory} read its contents using the MarkdownFileReaderTool, ignore and skip any characters or bytes you can't decode and read the rest of the file. 
 Keep note of each file you already read and make sure you read each file only once.
-Create the following lists in your memory:
+Create the following empty lists in your memory. You're going to append data from each .md file to each of these lists, as described below.
 - Email Addresses
 - Usernames
 - Aliases
@@ -19,14 +19,16 @@ Create the following lists in your memory:
 - Secondary URLs
 - Locations
 
-From each .md file extract the following information:
-- All email addresses, then append them to the Email Addresses list
-- All potential usernames, then append them to the Usernames list
-- Strings similar to {target} that might indicate aliases, then append them to the Aliases list
-- All URLs that are very likely directly related to {target}, then append them to the Main URLs list
-- All the other URLs, append them to the Secondary URLs list
-- All addresses, locations or coordinates, , append them to the Locations list
-Remove duplicates from all lists.
+From EACH .md file:
+- Extract all the email addresses you can find, then append them to the Email Addresses list.
+- Extract all potential usernames you can find, then append them to the Usernames list.
+- Extract all strings similar to {target} that might indicate aliases, including any forms of leetspeak, then append them to the Aliases list.
+- Extract all URLs that are very likely directly related to {target}, then append them to the Main URLs list.
+- Extract all the other URLs, append them to the Secondary URLs list.
+- Extract all addresses, locations or coordinates, , append them to the Locations list.
+
+Read the emailAddresses.txt file from the google directory under {top_directory} using the FileTool and add each email addresses from that file to the Email Addresses list.
+Remove duplicates from each of the lists that you've just populated.
 Once you finish going through ALL the .md files inside {directory} and building the lists, make the lists available to the Curator.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
@@ -48,7 +50,7 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 hibp_analyst_task_description = '''
 Search the leaks directory under {top_directory} for two JSON files named breaches.json and pastes.json using the dir_tool.
 These two files contain information about data breaches and pastes where {target} was found.
-For each of the two JSON files read its contents using the fileTool.
+For each of the two JSON files read its contents using the JSONFileReaderTool.
 - Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach. Include only the Title, Breach Date, Description and Logo for each breach found.
 - Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach. Include only the Source, Id and Date for each paste found.
 Once you finish going through all the files inside the leaks directory and building the resulting dataset, make the lists available to the Curator.
@@ -73,7 +75,7 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 osind_analyst_task_description = '''
 Check if there's an osint_ind directory under {top_directory} using the dir_tool. If not, then tell me about it and do nothing.
 If you find the osint_ind directory under {top_directory}, search for a JSON file named osind.json using the dir_tool.
-Read the contents of osind.json using the fileTool and create a dictionary-like structure in your memory called OSINDDict.
+Read the contents of osind.json using the JSONFileReaderTool and create a dictionary-like structure in your memory called OSINDDict.
 For EACH entry from the osind.json file:
 - Get the value of the 'schemaModule' key in OSINDDict and use it as a key of OSINDDict. If any duplicates occur, find out a clever way to keep all of them inside OSINDDict.
 - Convert the value associated with the 'spec_format' key of each entry into a string, and associate it as a value to the corresponding 'schemaModule' key in OSINDDict.
