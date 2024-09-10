@@ -29,7 +29,7 @@ From EACH .md file:
 
 Read the emailAddresses.txt file from the google directory under {top_directory} using the FileTool and add each email addresses from that file to the Email Addresses list.
 Remove duplicates from each of the lists that you've just populated.
-Once you finish going through ALL the .md files inside {directory} and building the lists, make the lists available to the Curator.
+Once you finish going through ALL the .md files inside {directory}, stop.
 If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
 '''
 
@@ -115,5 +115,5 @@ If necessary, identify any unclear parts or ambiguities in this task description
 '''
 
 curator_task_output = '''
-A polished, well-organized report in Markdown format named OSINT_REPORT.md stored inside {top_directory}.
+A polished, well-organized report in Markdown format named OSINT_REPORT.md.
 '''

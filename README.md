@@ -77,19 +77,17 @@ HIBP_API_KEY=<your_key_here>
 
 ## Optional Feature
 
-Optionally, you can collect data from **OSINT.Industries** via their API. Add the key in `.env` as `OSIND_API_KEY=<your_key_here>`. This functionality is optional and triggered at runtime. [Pricing](https://www.osint.industries/pricing) starts at £19/mo. I made this optional because of costs.
-
+Optionally, you can collect data from **OSINT.Industries** via their API. Add the key in `.env` as `OSIND_API_KEY=<your_key_here>`. This functionality is optional and triggered at runtime.
 ---
 
 ## Costs
 
-- **OpenAI**: Pay-as-you-go; queries cost a few cents each.
-- **Anthropic**: Pay-as-you-go; queries cost a few cents each.
+- **OpenAI**: Pay-as-you-go.
+- **Anthropic**: Pay-as-you-go.
 - **SerperDev**: 2,500 free queries, then pay-as-you-go (50k queries for $50).
 - **Firecrawl**: 500 free credits; $19/mo for 3,000 page scrapes. 
 - **HIBP**: Pwned1 plan for $3.95/mo, 10 email searches/minute.
-
-Expect a rough monthly cost of $23 for Firecrawl and HIBP, with variable OpenAI/Anthropic and SerperDev costs based on usage. Probably ~$50/mo for regular OSINT tasks. If you opt for the OSINT.Industries API too, costs jump to ~$100/mo. Speed, reliability and efficiency have a price.
+- **OSINT.Industries** (optional): Starting at £19/mo.
 
 ---
 
