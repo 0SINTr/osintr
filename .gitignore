@@ -5,3 +5,4 @@ db/
 __pycache__/
 .gitattributes
 .DS_Store
+main_test*

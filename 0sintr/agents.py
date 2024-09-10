@@ -8,6 +8,7 @@ from crewai_tools import (
     DirectoryReadTool,
     FileReadTool
 )
+from mdread import MarkdownFileReaderTool
 
 # Load env variables
 load_dotenv()
@@ -35,7 +36,7 @@ except NameError as e:
 google_analyst = Agent(
     role="Google Data Analyst",
     goal=google_data_analyst_goal,
-    tools=[dir_tool,file_tool],
+    tools=[dir_tool,MarkdownFileReaderTool],
     memory=True,
     verbose=True,
     backstory=google_data_analyst_backstory,

@@ -56,7 +56,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         print(Fore.CYAN + f"  |--- Total duplicates removed: {len(all_search_results)-len(unique_json_data)}, Final items: {len(unique_json_data)}" + Style.RESET_ALL)
 
         # Create and save the JSON file with unique search results
-        with open(os.path.join(dir_path, 'google', 'google_search.json'), 'w') as outfile:
+        with open(os.path.join(dir_path, 'google', 'google_search.json'), 'w', encoding='utf-8') as outfile:
             json.dump(unique_json_data, outfile)
 
     except Exception as e:
@@ -85,17 +85,18 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
             if 'gov' not in entry['link']:
                 links.append(entry['link'])
             else:
-                with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'a') as f:
+                with open(os.path.join(dir_path, 'google', 'links', 'noScrapeLinks.txt'), 'a') as f:
                     f.write(entry['link'] + '\n')
 
         print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
         print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
-
+        
         # Initialize the Firecrawl scraper
         for index, url in enumerate(links):
             try:
-                scraper = FirecrawlApp()
-                scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'html', 'screenshot'], 'waitFor':3000, 'timeout':10000})
+                load_dotenv()
+                scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
+                scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'screenshot@fullPage']})
 
                 # Write the scrape results to separate files
                 with open(os.path.join(scraped_path, 'scrape' + str(index + 1) + '.md'), 'w', encoding='utf-8') as outfile:
@@ -115,6 +116,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
 
             except Exception as e:
                 print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + url + Style.RESET_ALL)
+                print(Fore.RED + str(e) + Style.RESET_ALL)
                 with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'a') as f:
                     f.write(url + '\n')
                 continue
@@ -215,7 +217,7 @@ def process_md_files(directory, save_directory):
             filtered_email_list.append(email)
 
     # Extract email addresses from .json file
-    with open(os.path.join(os.path.dirname(save_directory), 'google_search.json'), 'r') as f:
+    with open(os.path.join(os.path.dirname(save_directory), 'google_search.json'), 'r', encoding='utf-8') as f:
         content = f.read()
     
     emails_from_json = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
@@ -254,7 +256,7 @@ def search_breaches(target, directory):
     if response.status_code == 200:
         breach_data = response.json()
         # Write JSON data to directory
-        with open(os.path.join(dir_path, 'leaks', 'breaches.json'), 'w') as outfile:
+        with open(os.path.join(dir_path, 'leaks', 'breaches.json'), 'w', encoding='utf-8') as outfile:
             json.dump(breach_data, outfile)
 
         print(Fore.GREEN + "\n  |--- Breached data added to " + Style.BRIGHT + "/leaks/breaches.json" + Style.RESET_ALL)
@@ -289,7 +291,7 @@ def search_pastes(target, directory):
     if response.status_code == 200:
         paste_data = response.json() 
         # Write JSON data to directory
-        with open(os.path.join(dir_path, 'leaks', 'pastes.json'), 'w') as outfile:
+        with open(os.path.join(dir_path, 'leaks', 'pastes.json'), 'w', encoding='utf-8') as outfile:
             json.dump(paste_data, outfile)
 
         print(Fore.GREEN + "\n  |--- Paste data added to " + Style.BRIGHT + "/leaks/pastes.json\n" + Style.RESET_ALL)
@@ -335,7 +337,7 @@ def osint_industries(target, directory):
     if response.status_code == 200:
         osind_data = response.json() 
         # Write JSON data to directory
-        with open(os.path.join(dir_path, 'osint_ind', 'osind.json'), 'w') as outfile:
+        with open(os.path.join(dir_path, 'osint_ind', 'osind.json'), 'w', encoding='utf-8') as outfile:
             json.dump(osind_data, outfile)
 
         print(Fore.GREEN + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/osind.json\n" + Style.RESET_ALL)
@@ -405,7 +407,8 @@ def research():
                 md_directory = google_search_function(target_verbatim, target_intext, target_inurl, outputDir)
 
         if len(os.listdir(md_directory)) == 0:
-            pass
+            print(Fore.RED + "\n  |--- No .md files to process." + Style.RESET_ALL)
+            pass  
         else:
             # Defining the directories to pass to process_md_files()
             save_directory = os.path.dirname(md_directory) + '/screenshots'
@@ -426,7 +429,7 @@ def research():
         time.sleep(1) # Introducing sleep for 1 second
 
         # Running the OSINT.Industries data collection, as an option
-        load_dotenv()
+        
         if os.getenv("OSIND_API_KEY") is not None:
             osint_industries(target, outputDir)
         else:
