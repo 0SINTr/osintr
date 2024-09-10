@@ -6,15 +6,16 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 from prompts import *
-from mdread import MarkdownFileReaderTool
-from dirread import DirectoryReadTool
+from tools.mdread import MarkdownFileReaderTool
+from tools.jsonread import JSONFileReaderTool
+from tools.dirread import DirectoryReadTool
 from crewai_tools import FileReadTool
 
 # Load env variables
 load_dotenv()
 
 # Instantiate FileReadTool
-fileTool = FileReadTool()
+FileTool = FileReadTool()
 
 # Discover the LLM to use based on .env data
 try:
@@ -36,7 +37,7 @@ except NameError as e:
 google_analyst = Agent(
     role="Google Data Analyst",
     goal=google_data_analyst_goal,
-    tools=[DirectoryReadTool,MarkdownFileReaderTool],
+    tools=[DirectoryReadTool,MarkdownFileReaderTool,FileTool],
     memory=True,
     verbose=True,
     backstory=google_data_analyst_backstory,
@@ -48,7 +49,7 @@ google_analyst = Agent(
 hibp_analyst = Agent(
     role="HIBP Data Analyst",
     goal=hibp_data_analyst_goal,
-    tools=[DirectoryReadTool,fileTool],
+    tools=[DirectoryReadTool,JSONFileReaderTool],
     memory=True,
     verbose=True,
     backstory=hibp_data_analyst_backstory,
@@ -60,7 +61,7 @@ hibp_analyst = Agent(
 osind_analyst = Agent(
     role="OSINT Industries Data Analyst",
     goal=osind_data_analyst_goal,
-    tools=[DirectoryReadTool,fileTool],
+    tools=[DirectoryReadTool,JSONFileReaderTool],
     memory=True,
     verbose=False,
     backstory=osind_data_analyst_backstory,

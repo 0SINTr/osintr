@@ -48,7 +48,7 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 hibp_analyst_task_description = '''
 Search the leaks directory under {top_directory} for two JSON files named breaches.json and pastes.json using the dir_tool.
 These two files contain information about data breaches and pastes where {target} was found.
-For each of the two JSON files read its contents using the file_tool.
+For each of the two JSON files read its contents using the fileTool.
 - Compile an organized list of all the breaches inside breaches.json, along with a brief context for each breach. Include only the Title, Breach Date, Description and Logo for each breach found.
 - Compile an organized list of all the pastes inside pastes.json, along with a brief context for each breach. Include only the Source, Id and Date for each paste found.
 Once you finish going through all the files inside the leaks directory and building the resulting dataset, make the lists available to the Curator.
@@ -73,7 +73,7 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 osind_analyst_task_description = '''
 Check if there's an osint_ind directory under {top_directory} using the dir_tool. If not, then tell me about it and do nothing.
 If you find the osint_ind directory under {top_directory}, search for a JSON file named osind.json using the dir_tool.
-Read the contents of osind.json using the file_tool and create a dictionary-like structure in your memory called OSINDDict.
+Read the contents of osind.json using the fileTool and create a dictionary-like structure in your memory called OSINDDict.
 For EACH entry from the osind.json file:
 - Get the value of the 'schemaModule' key in OSINDDict and use it as a key of OSINDDict. If any duplicates occur, find out a clever way to keep all of them inside OSINDDict.
 - Convert the value associated with the 'spec_format' key of each entry into a string, and associate it as a value to the corresponding 'schemaModule' key in OSINDDict.

@@ -1,5 +1,3 @@
-# File: src/<project_name>/tools/custom_directory_read_tool.py
-
 import os
 from crewai_tools import tool
 
