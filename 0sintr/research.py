@@ -94,7 +94,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
         
         # Initialize the Firecrawl scraper
-        for index, url in enumerate(links):
+        for index, url in enumerate(links[::5]):
             try:
                 load_dotenv()
                 scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
@@ -237,13 +237,13 @@ def process_md_files(directory, save_directory, target):
             emails = extract_md_data(md_file_path)[1]
             for email in emails:
                 all_emails.append(email)
-            #print(all_emails)
+            print(all_emails, end='\n')
 
             # Extract all URLs
             urls = extract_md_data(md_file_path)[2]
             for url in urls:
                 all_urls.append(url)
-            #print(all_urls)
+            print(all_urls, end='\n')
 
             # Extract leet aliases
             possible_aliases = detect_aliases(target)
@@ -251,6 +251,7 @@ def process_md_files(directory, save_directory, target):
                 for alias in possible_aliases:
                     if any(alias in sub for sub in email) or any(alias in sub for sub in urls):
                         all_aliases.append(alias)
+            print(all_aliases, end='\n')
 
     # Iterate over all found image URLs
     print(Style.BRIGHT + Fore.BLUE + "\n\n|---> Saving screenshots.\n" + Style.RESET_ALL)
