@@ -1,4 +1,4 @@
-from agents import google_analyst, hibp_analyst, osind_analyst, report_writer, curator
+from agents import google_analyst, hibp_analyst, osind_analyst, curator
 from crewai import Task
 from prompts import *
 
@@ -32,14 +32,5 @@ curator_task = Task(
     expected_output=curator_task_output,
     agent=curator,
     context=[google_analysis_task, hibp_analysis_task, osind_analysis_task],
-    async_execution=False,
-)
-
-# Define the Report Writing Task
-report_writing_task = Task(
-    description=report_writing_task_description,
-    expected_output=report_writing_task_output,
-    agent=report_writer,
-    output_file='OSINT_REPORT.md',
     async_execution=False,
 )

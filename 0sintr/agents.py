@@ -81,14 +81,3 @@ curator = Agent(
     allow_delegation=False,
     llm=llm
 )
-
-# Define Report Writer Agent
-report_writer = Agent(
-    role="Report Writer",
-    goal=report_writer_goal_prompt,
-    memory=True,
-    verbose=True,
-    backstory=report_writer_backstory,
-    allow_delegation=False,
-    llm=llm
-)
