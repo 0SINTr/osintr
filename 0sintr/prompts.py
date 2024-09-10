@@ -10,6 +10,7 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 google_analyst_task_description = '''
 Search {directory} for .md files using the dir_tool. If there are no .md files in the directory, then tell me about it and do nothing.
 For EACH .md file in {directory} read its contents using the MarkdownFileReaderTool, ignore and skip any characters or bytes you can't decode and read the rest of the file. 
+Keep note of each file you already read and make sure you read each file only once.
 Create the following lists in your memory:
 - Email Addresses
 - Usernames

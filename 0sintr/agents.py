@@ -7,17 +7,14 @@ from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 from prompts import *
 from mdread import MarkdownFileReaderTool
-from crewai_tools import (
-    DirectoryReadTool,
-    FileReadTool
-)
+from dirread import DirectoryReadTool
+from crewai_tools import FileReadTool
 
 # Load env variables
 load_dotenv()
 
-# Instatiate tools
-dir_tool = DirectoryReadTool()
-file_tool = FileReadTool()
+# Instantiate FileReadTool
+fileTool = FileReadTool()
 
 # Discover the LLM to use based on .env data
 try:
@@ -39,7 +36,7 @@ except NameError as e:
 google_analyst = Agent(
     role="Google Data Analyst",
     goal=google_data_analyst_goal,
-    tools=[dir_tool,MarkdownFileReaderTool],
+    tools=[DirectoryReadTool,MarkdownFileReaderTool],
     memory=True,
     verbose=True,
     backstory=google_data_analyst_backstory,
@@ -51,7 +48,7 @@ google_analyst = Agent(
 hibp_analyst = Agent(
     role="HIBP Data Analyst",
     goal=hibp_data_analyst_goal,
-    tools=[dir_tool,file_tool],
+    tools=[DirectoryReadTool,fileTool],
     memory=True,
     verbose=True,
     backstory=hibp_data_analyst_backstory,
@@ -63,7 +60,7 @@ hibp_analyst = Agent(
 osind_analyst = Agent(
     role="OSINT Industries Data Analyst",
     goal=osind_data_analyst_goal,
-    tools=[dir_tool,file_tool],
+    tools=[DirectoryReadTool,fileTool],
     memory=True,
     verbose=False,
     backstory=osind_data_analyst_backstory,
