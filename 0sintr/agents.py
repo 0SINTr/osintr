@@ -1,14 +1,16 @@
 import os
+import sys
+from colorama import Fore, Style
 from crewai import Agent
 from langchain_openai import ChatOpenAI
-from langchain_ollama import ChatOllama
+from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 from prompts import *
+from mdread import MarkdownFileReaderTool
 from crewai_tools import (
     DirectoryReadTool,
     FileReadTool
 )
-from mdread import MarkdownFileReaderTool
 
 # Load env variables
 load_dotenv()
@@ -19,16 +21,17 @@ file_tool = FileReadTool()
 
 # Discover the LLM to use based on .env data
 try:
-    if os.getenv("OPENAI_MODEL_NAME") == 'gpt-4o':
+    if os.getenv("OPENAI_API_KEY") is not None:
         llm = ChatOpenAI(
-            model_name=os.getenv("OPENAI_MODEL_NAME")
+            model_name="gpt-4o"
             )
-    elif os.getenv("OPENAI_MODEL_NAME") == 'llama3.1':
-        os.getenv("OPENAI_API_KEY")
-        llm = ChatOllama(
-            model = "llama3.1",
-            base_url = "http://localhost:11434"
+    elif os.getenv("ANTHROPIC_API_KEY") is not None:
+        llm = ChatAnthropic(
+            model = "claude-3-5-sonnet-20240620"
             )
+    else:
+        print(Style.BRIGHT + Fore.RED + "\n|---> No LLM API key found. Quitting the Data Analysis phase.\n" + Style.RESET_ALL)
+        sys.exit()
 except NameError as e:
     print(e)
 

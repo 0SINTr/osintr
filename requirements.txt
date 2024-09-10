@@ -1,7 +1,7 @@
 crewai
 creawai-tools
 python-dotenv
-langchain-ollama
+langchain-anthropic
 firecrawl-py
 requests
 pandas
