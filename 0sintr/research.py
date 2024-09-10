@@ -94,7 +94,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
         
         # Initialize the Firecrawl scraper
-        for index, url in enumerate(links):
+        for index, url in enumerate(links[::5]):
             try:
                 load_dotenv()
                 scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
@@ -135,10 +135,18 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
 
         return scraped_path
 
+# Check if the target is a valid email address, otherwise it's a username
+def check(user_input):
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    if(re.fullmatch(regex, user_input)):
+        return user_input
+    else:
+        return None
+    
 # Function for detecting aliases from target (leet)
 def detect_aliases(target):
     if check(target):
-        user = target.split('@')[0]
+        user = str(target).split('@')[0]
     else:
         user = target
     
@@ -187,7 +195,7 @@ def download_image(image_url, save_path):
             file.write(response.content)
         print("    |- Image saved as: " + Fore.YELLOW + f"{save_path}" + Style.RESET_ALL)
     except requests.exceptions.RequestException as e:
-        #print(f"Failed to retrieve image {image_url}. Error: {e}")
+        print(Fore.RED + "    |- Failed to retrieve image " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + e)
         pass
 
 # Process all .md files in the scraped directory
@@ -203,6 +211,7 @@ def process_md_files(directory, save_directory, target):
     all_urls = []
     all_aliases = []
     for md_file_name in os.listdir(directory):
+        print('file')
         if str(md_file_name).endswith('.md'):
             # Extract image URLs
             md_file_path = os.path.join(directory, md_file_name)
@@ -215,18 +224,22 @@ def process_md_files(directory, save_directory, target):
             all_image_urls.append([image_url, str(source_url).replace('.','_')])
 
             # Extract email addresses
-            email = extract_md_data(md_file_path)[1]
-            all_emails.append(email)
+            emails = extract_md_data(md_file_path)[1]
+            for email in emails:
+                all_emails.append(email)
+            #print(all_emails)
 
             # Extract all URLs
-            url = extract_md_data(md_file_path)[2]
-            all_urls.append(url)
+            urls = extract_md_data(md_file_path)[2]
+            for url in urls:
+                all_urls.append(url)
+            #print(all_urls)
 
             # Extract leet aliases
             possible_aliases = detect_aliases(target)
             if len(possible_aliases) > 0:
                 for alias in possible_aliases:
-                    if any(alias in sub for sub in email) or any(alias in sub for sub in url):
+                    if any(alias in sub for sub in email) or any(alias in sub for sub in urls):
                         all_aliases.append(alias)
 
     # Iterate over all found image URLs
@@ -261,7 +274,7 @@ def process_md_files(directory, save_directory, target):
 
     # Writing all the email addresses to md_dictionary
     if len(filtered_email_list) > 0:
-        md_dictionary['Emails'] = filtered_email_list 
+        md_dictionary['Email Addresses'] = filtered_email_list 
         # Print out the email addresses
         print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Email addresses found:\n" + Style.RESET_ALL)
         for email in set(filtered_email_list):
@@ -270,7 +283,7 @@ def process_md_files(directory, save_directory, target):
         print(Fore.GREEN + "\n  |--- Email addresses will be added to " + Style.BRIGHT + "DATA.json.\n" + Style.RESET_ALL)
         print(Fore.YELLOW + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.YELLOW + "Check the file and re-run 0SINTr for relevant addresses.\n" + Style.RESET_ALL)
     else:
-        md_dictionary['Emails'] = []
+        md_dictionary['Email Addresses'] = []
         print(Style.BRIGHT + Fore.RED + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
 
     # Writing all the URLs containing the target or target leet to md_dictionary
@@ -280,23 +293,35 @@ def process_md_files(directory, save_directory, target):
 
         # Check target in each link
         if check(target):
-            target = target.split('@')[0]
-            for link in set(all_urls):
+            target = str(target).split('@')[0]
+            for link in all_urls:
                 if target in link:
                     all_main_urls.append(link)
         else:
-            for link in set(all_urls):
+            for link in all_urls:
                 if target in link:
                     all_main_urls.append(link)
 
         # Check leet target in each link
         if len(possible_aliases) > 0:
             for alias in possible_aliases:
-                for link in set(all_urls):
+                for link in all_urls:
                     if alias in link:
                         all_main_urls.append(link)
 
-        md_dictionary['Main Links'] = all_main_urls
+        md_dictionary['Main Links'] = list(set(all_main_urls))
+    else:
+        md_dictionary['Main Links'] = []
+
+    # Writing all other URLs as secondary links to md_dictionary
+    all_unique_urls = set(all_urls)
+    all_unique_main_urls = set(all_main_urls)
+    diff = all_unique_urls.difference(all_unique_main_urls)
+    md_dictionary['Secondary Links'] = list(diff)
+
+    # Write md_dictionary to JSON file
+    with open(os.path.join(os.path.dirname(os.path.dirname(directory)), 'DATA.json'), 'w', encoding='utf-8') as f:
+        json.dump(md_dictionary, f)
 
 def search_breaches(target, directory):
     print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
@@ -414,13 +439,6 @@ def osint_industries(target, directory):
 
     else:
         print('    |- Error code: ' + str(response.status_code))
-
-def check(user_input):
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-    if(re.fullmatch(regex, user_input)):
-        return user_input
-    else:
-        return None
 
 def research():
     parser = argparse.ArgumentParser(description='Run 0sintr with the following arguments.')

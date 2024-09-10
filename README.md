@@ -126,9 +126,10 @@ python setup.py install
 
 ## Planned Upgrades
 
-- Support for additional LLMs (Phi-3, Mistral, Reflection)
+- Support for additional LLMs (Phi-3, Mistral, etc.)
 - More data sources from quality API providers
 - Phone number and company search capabilities
+- Recursive scraping
 
 ---
 

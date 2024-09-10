@@ -28,7 +28,7 @@ try:
             model = "claude-3-5-sonnet-20240620"
             )
     else:
-        print(Style.BRIGHT + Fore.RED + "\n|---> No LLM API key found. Quitting the Data Analysis phase.\n" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.RED + "\n|---> No LLM API key found. Cannot run Data Analysis phase. See README.\n" + Style.RESET_ALL)
         sys.exit()
 except NameError as e:
     print(e)
