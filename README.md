@@ -98,7 +98,7 @@ Expect a rough monthly cost of $23 for Firecrawl and HIBP, with variable OpenAI/
 Ensure Python >=3.10 is installed.
 
 ```bash
-git clone https://github.com/mihpy/0SINTr.git
+git clone https://github.com/0SINTr/0SINTr.git
 cd 0SINTr
 python setup.py install
 ```
