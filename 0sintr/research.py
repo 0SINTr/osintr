@@ -259,7 +259,7 @@ def process_md_files(directory, save_directory, target):
     emails_from_json = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
     filtered_email_list += emails_from_json
 
-    # Writing all the email addresses to a md_dictionary
+    # Writing all the email addresses to md_dictionary
     if len(filtered_email_list) > 0:
         md_dictionary['Emails'] = filtered_email_list 
         # Print out the email addresses
@@ -272,6 +272,31 @@ def process_md_files(directory, save_directory, target):
     else:
         md_dictionary['Emails'] = []
         print(Style.BRIGHT + Fore.RED + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
+
+    # Writing all the URLs containing the target or target leet to md_dictionary
+    all_main_urls = []
+    if len(all_urls) > 0:
+        possible_aliases = detect_aliases(target)
+
+        # Check target in each link
+        if check(target):
+            target = target.split('@')[0]
+            for link in set(all_urls):
+                if target in link:
+                    all_main_urls.append(link)
+        else:
+            for link in set(all_urls):
+                if target in link:
+                    all_main_urls.append(link)
+
+        # Check leet target in each link
+        if len(possible_aliases) > 0:
+            for alias in possible_aliases:
+                for link in set(all_urls):
+                    if alias in link:
+                        all_main_urls.append(link)
+
+        md_dictionary['Main Links'] = all_main_urls
 
 def search_breaches(target, directory):
     print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
