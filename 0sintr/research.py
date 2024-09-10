@@ -94,7 +94,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
         
         # Initialize the Firecrawl scraper
-        for index, url in enumerate(links[::5]):
+        for index, url in enumerate(links):
             try:
                 load_dotenv()
                 scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
@@ -150,11 +150,22 @@ def detect_aliases(target):
     else:
         user = target
     
+    # Mapping for letters to digit aliases
     mapping = {letter: str(index) for index, letter in enumerate('oizeasgtb')}
+    mapping.update({letter.upper(): str(index) for index, letter in enumerate('oizeasgtb')})
+
     possible_aliases = []
-    for l in user.lower():
-        ll = mapping.get(l, l)
-        possible_aliases.append((l,) if ll == l else (l, ll))
+    
+    for l in user:
+        ll = mapping.get(l, l)  # Get the alias if it exists, otherwise the original character
+        
+        if ll == l:  # If the character is not mapped to a number
+            # Add both lowercase and uppercase versions as possible alternatives
+            possible_aliases.append((l.lower(), l.upper()))
+        else:
+            # If mapped to a number, include both lowercase and uppercase versions of the original letter, and the digit alias
+            possible_aliases.append((l.lower(), l.upper(), ll))
+    
     return [''.join(t) for t in product(*possible_aliases)]
 
 # Function to extract relevant data from a markdown file
@@ -211,7 +222,6 @@ def process_md_files(directory, save_directory, target):
     all_urls = []
     all_aliases = []
     for md_file_name in os.listdir(directory):
-        print('file')
         if str(md_file_name).endswith('.md'):
             # Extract image URLs
             md_file_path = os.path.join(directory, md_file_name)
@@ -272,25 +282,40 @@ def process_md_files(directory, save_directory, target):
     emails_from_json = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
     filtered_email_list += emails_from_json
 
-    # Writing all the email addresses to md_dictionary
+    # Listing all possible aliases
+    possible_aliases = detect_aliases(target)
+
+    # Writing all the emails containing the target or target leet to md_dictionary
+    all_main_emails = []
     if len(filtered_email_list) > 0:
-        md_dictionary['Email Addresses'] = filtered_email_list 
+        # Check leet target in each link
+        if len(possible_aliases) > 0:
+            for alias in possible_aliases:
+                for email in filtered_email_list:
+                    if alias in email:
+                        all_main_emails.append(email)
+        md_dictionary['Relevant Email Addresses'] = list(set(all_main_emails))
+
         # Print out the email addresses
         print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Email addresses found:\n" + Style.RESET_ALL)
         for email in set(filtered_email_list):
             print(f"    |- {email}")
 
-        print(Fore.GREEN + "\n  |--- Email addresses will be added to " + Style.BRIGHT + "DATA.json.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Email addresses will be added to " + Style.BRIGHT + "GOOGLE.json.\n" + Style.RESET_ALL)
         print(Fore.YELLOW + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.YELLOW + "Check the file and re-run 0SINTr for relevant addresses.\n" + Style.RESET_ALL)
     else:
         md_dictionary['Email Addresses'] = []
         print(Style.BRIGHT + Fore.RED + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
 
+    # Writing all other URLs as secondary links to md_dictionary
+    all_unique_emails = set(all_emails)
+    all_unique_main_emails = set(all_main_emails)
+    diff = all_unique_emails.difference(all_unique_main_emails)
+    md_dictionary['Possibly Related Emails'] = list(diff)
+
     # Writing all the URLs containing the target or target leet to md_dictionary
     all_main_urls = []
     if len(all_urls) > 0:
-        possible_aliases = detect_aliases(target)
-
         # Check target in each link
         if check(target):
             target = str(target).split('@')[0]
@@ -309,18 +334,18 @@ def process_md_files(directory, save_directory, target):
                     if alias in link:
                         all_main_urls.append(link)
 
-        md_dictionary['Main Links'] = list(set(all_main_urls))
+        md_dictionary['Relevant Links'] = list(set(all_main_urls))
     else:
-        md_dictionary['Main Links'] = []
+        md_dictionary['Relevant Links'] = []
 
     # Writing all other URLs as secondary links to md_dictionary
     all_unique_urls = set(all_urls)
     all_unique_main_urls = set(all_main_urls)
     diff = all_unique_urls.difference(all_unique_main_urls)
-    md_dictionary['Secondary Links'] = list(diff)
+    md_dictionary['Possibly Related Links'] = list(diff)
 
     # Write md_dictionary to JSON file
-    with open(os.path.join(os.path.dirname(os.path.dirname(directory)), 'DATA.json'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(os.path.dirname(os.path.dirname(directory)), 'GOOGLE.json'), 'w', encoding='utf-8') as f:
         json.dump(md_dictionary, f)
 
 def search_breaches(target, directory):
@@ -331,16 +356,14 @@ def search_breaches(target, directory):
 
     # Create new directory 
     dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
-    if os.path.exists(path=dir_path):
-        os.makedirs(os.path.join(dir_path, 'leaks'))
 
     if response.status_code == 200:
         breach_data = response.json()
         # Write JSON data to directory
-        with open(os.path.join(dir_path, 'leaks', 'breaches.json'), 'w', encoding='utf-8') as outfile:
+        with open(os.path.join(dir_path, 'BREACHES.json'), 'w', encoding='utf-8') as outfile:
             json.dump(breach_data, outfile)
 
-        print(Fore.GREEN + "\n  |--- Breached data added to " + Style.BRIGHT + "/leaks/breaches.json" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Breached data added to " + Style.BRIGHT + "BREACHES.json" + Style.RESET_ALL)
 
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
@@ -366,16 +389,14 @@ def search_pastes(target, directory):
 
     # Check leaks directory 
     dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
-    if os.path.exists(path=dir_path) and not os.path.exists(path=os.path.join(dir_path, 'leaks')):
-        os.makedirs(os.path.join(dir_path, 'leaks'))
 
     if response.status_code == 200:
         paste_data = response.json() 
         # Write JSON data to directory
-        with open(os.path.join(dir_path, 'leaks', 'pastes.json'), 'w', encoding='utf-8') as outfile:
+        with open(os.path.join(dir_path, 'PASTES.json'), 'w', encoding='utf-8') as outfile:
             json.dump(paste_data, outfile)
 
-        print(Fore.GREEN + "\n  |--- Paste data added to " + Style.BRIGHT + "/leaks/pastes.json\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Paste data added to " + Style.BRIGHT + "PASTES.json\n" + Style.RESET_ALL)
 
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
@@ -412,16 +433,14 @@ def osint_industries(target, directory):
 
     # Check osint_ind directory 
     dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
-    if os.path.exists(path=dir_path) and not os.path.exists(path=os.path.join(dir_path, 'osint_ind')):
-        os.makedirs(os.path.join(dir_path, 'osint_ind'))
 
     if response.status_code == 200:
         osind_data = response.json() 
         # Write JSON data to directory
-        with open(os.path.join(dir_path, 'osint_ind', 'osind.json'), 'w', encoding='utf-8') as outfile:
+        with open(os.path.join(dir_path, 'OSINDUS.json'), 'w', encoding='utf-8') as outfile:
             json.dump(osind_data, outfile)
 
-        print(Fore.GREEN + "\n  |--- Data added to " + Style.BRIGHT + "/osint_ind/osind.json\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Data added to " + Style.BRIGHT + "OSINDUS.json\n" + Style.RESET_ALL)
 
     elif response.status_code == 400:
         print(Fore.RED + "\n  |--- Bad Request. Invalid query value." + Style.RESET_ALL)
