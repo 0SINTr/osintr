@@ -1,6 +1,6 @@
 # Google Data Analysis
 google_data_analyst_goal = '''
-Understand the data stored in each .md file inside {directory}.
+Your goal is to systematically read all Markdown (.md) files within the provided directory, extract key information, and organize it into a structured dataset..
 '''
 
 google_data_analyst_backstory = '''
@@ -8,10 +8,57 @@ You are a seasoned data scraper, capable of turning raw data into organized and 
 '''
 
 google_analyst_task_description = '''
-Search {directory} for .md files using the dir_tool. If there are no .md files in the directory, then tell me about it and do nothing.
-For EACH .md file in {directory} read its contents using the MarkdownFileReaderTool, ignore and skip any characters or bytes you can't decode and read the rest of the file. 
-Take the files in order and make sure you read each file only once.
-Create the following empty lists in your memory. You're going to append data from each .md file to each of these lists.
+Your tasks:
+
+1. File Processing:
+
+- Count and list all the .md files in {directory}.
+- Efficiently process all .md files in {directory}, ensuring that no files are missed or reread.
+- If the task needs to restart, make sure to resume from where you left off without repeating previously processed files.
+
+2. Information Extraction: 
+
+From each .md file, extract the following parameters:
+- Email Addresses: Look for standard email formats (e.g., example@domain.com).
+- Usernames: Identify usernames which may be prefixed by symbols like @ (e.g., @username). Also check for leetspeak usernames.
+- Aliases: Extract aliases or nicknames which might be in the form of quoted or parenthetical text.
+- Main URLs: Extract URLs that contain {target} or are very likely directly related to {target}.
+- Secondary URLs: Extract all the other URLs here.
+- Locations: Identify geographical locations (cities, countries, addresses, coordinates etc.).
+
+3. Batch Execution:
+
+- Process files one by one to minimize potential timeouts. Keep track of processed files to avoid repeating any.
+- After processing each file, store the extracted data in a structured format before moving on to the next file.
+- After processing each file, check to see what files have you already processed from {directory} and which not.
+- Once you conclude that you didn't skip or miss any files in {directory}, stop.
+- If you encounter a large file that exceeds the token limits or the system’s processing capacity, break the file into smaller chunks and process each chunk sequentially. Ensure that the extracted information from each chunk is combined into a unified result for that file.
+Use the following approach for chunking:
+    - If a file exceeds a predefined token limit (e.g., 20000 tokens), divide the content into smaller chunks that fit within the limit.
+    - Process each chunk separately, ensuring that no information is lost.
+    - After processing all chunks of a file, compile the results from each chunk into a single structured output for that file.
+
+4. Data Structuring:
+
+For each .md file, create a structured dataset (e.g. JSON) with the following fields:
+- Filename: The name of the file.
+- Email Addresses: List of email addresses found.
+- Usernames: List of usernames found.
+- Aliases: List of aliases found.
+- Main URLs: List of primary URLs found.
+- Secondary URLs: List of secondary URLs found.
+- Locations: List of locations found.
+
+5. Final Output:
+
+After processing all files, compile the extracted data into a single structured dataset (JSON format).
+Ensure that the dataset is well-organized and contains the information extracted from all files in {directory}.
+'''
+
+google_analyst_task_output = '''
+The final output should be a structured dataset (CSV or JSON) containing the following columns:
+
+- Filename
 - Email Addresses
 - Usernames
 - Aliases
@@ -19,22 +66,7 @@ Create the following empty lists in your memory. You're going to append data fro
 - Secondary URLs
 - Locations
 
-From EACH .md file:
-- Extract all the email addresses you can find, then append them to the Email Addresses list.
-- Extract all potential usernames you can find, then append them to the Usernames list.
-- Extract all strings similar to {target} that might indicate aliases, including any forms of leetspeak, then append them to the Aliases list.
-- Extract all URLs that are very likely directly related to {target}, then append them to the Main URLs list.
-- Extract all the other URLs, append them to the Secondary URLs list.
-- Extract all addresses, locations or coordinates, , append them to the Locations list.
-
-Read the emailAddresses.txt file from the google directory under {top_directory} using the FileTool and add each email addresses from that file to the Email Addresses list.
-Remove duplicates from each of the lists that you've just populated.
-Once you finish going through ALL the .md files inside {directory}, stop.
-If necessary, identify any unclear parts or ambiguities in this task description so I can clear up any confusion.
-'''
-
-google_analyst_task_output = '''
-Return the Email Addresses, Usernames, Aliases, Main URLs, Secondary URLs, Locations lists.
+Each row should correspond to a different .md file, with the extracted information listed in the appropriate columns.
 '''
 
 
@@ -104,7 +136,7 @@ curator_task_description = '''
 It is crucial to wait for the Google Data Analyst, the HIBP Data Analyst and the OSINT Industries Data Analyst to finish their tasks.
 Collect the lists provided by the Google Data Analyst, the lists provided by the HIBP Data Analyst and OSINDDict provided by the OSINT Industries Data Analyst, and organize the information as follows:
 - Introductory section about who the {target} and what are all the data sources that have been used by the Analysts.
-- A section with all the information in the lists provided by the Google Data Analyst, structured and organized into relevant sub-sections.
+- A section with all the information provided by the Google Data Analyst, structured and organized into relevant sub-sections.
 - A section with all the information in the lists provided by the HIBP Data Analyst, structured and organized into relevant sub-sections.
 - A section with all the information in the OSINDDict dataset provided by the OSINT Industries Data Analyst, structured and organized into relevant sub-sections.
 - A section where you use your full data analysis capabilities and reasoning to look for connections between the data points, such as cross-referencing usernames across platforms, matching email addresses with possible profiles, and identifying recurring websites. You are capable of complex reasoning and reflection, so do your best to extract all meaningful data and add it to this section. If you detect that you made a mistake in your reasoning at any point, correct yourself before concluding your analysis.

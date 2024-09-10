@@ -1,6 +1,8 @@
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from colorama import Fore, Style, init
 from firecrawl import FirecrawlApp
+from urllib.parse import urlparse
+from itertools import product
 from dotenv import load_dotenv
 import pandas as pd
 import argparse
@@ -133,8 +135,22 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
 
         return scraped_path
 
-# Function to extract image URLs and email addresses from a markdown file
-def extract_image_urls(md_file_path):
+# Function for detecting aliases from target (leet)
+def detect_aliases(target):
+    if check(target):
+        user = target.split('@')[0]
+    else:
+        user = target
+    
+    mapping = {letter: str(index) for index, letter in enumerate('oizeasgtb')}
+    possible_aliases = []
+    for l in user.lower():
+        ll = mapping.get(l, l)
+        possible_aliases.append((l,) if ll == l else (l, ll))
+    return [''.join(t) for t in product(*possible_aliases)]
+
+# Function to extract relevant data from a markdown file
+def extract_md_data(md_file_path):
     with open(md_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
         # Load the content in proper format
@@ -152,9 +168,15 @@ def extract_image_urls(md_file_path):
     # Compiling a list of 2 URLs
     urls = [image_url, source_url]
 
-    # Extract email addresses from .md files. Adding {3,} to avoid @2x style notations for image sizes
+    # Getting all the URLs from the file
+    url_pattern = r"(?i)(['\"\[\(\{]?)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))(['\"\]\)\}]?)"
+    matches = re.findall(url_pattern, content)
+    all_urls = [match[1] for match in matches]
+
+    # Extract email addresses from .md file. Adding {3,} to avoid @2x style notations for image sizes
     emails = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
-    return urls, emails
+
+    return urls, emails, all_urls
 
 # Download the page screenshot and save it
 def download_image(image_url, save_path):
@@ -169,34 +191,48 @@ def download_image(image_url, save_path):
         pass
 
 # Process all .md files in the scraped directory
-def process_md_files(directory, save_directory):
+def process_md_files(directory, save_directory, target):
     # Ensure the save directory exists
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
 
     # Iterate over all .md files in the directory and extract image URLs and email addresses
+    md_dictionary = {}
     all_emails = []
+    all_image_urls = []
     all_urls = []
+    all_aliases = []
     for md_file_name in os.listdir(directory):
         if str(md_file_name).endswith('.md'):
             # Extract image URLs
             md_file_path = os.path.join(directory, md_file_name)
-            extraction_result = extract_image_urls(md_file_path)
+            extraction_result = extract_md_data(md_file_path)
             image_url = extraction_result[0][0]
             source_url = extraction_result[0][1]
             domain_pattern = r"(https?://)?(www\d?\.)?(?P<domain>[\w\.-]+\.\w+)(/\S*)?"
             match = re.match(domain_pattern, source_url)
             source_url = match.group('domain')
-            all_urls.append([image_url, str(source_url).replace('.','_')])
+            all_image_urls.append([image_url, str(source_url).replace('.','_')])
 
             # Extract email addresses
-            email = extract_image_urls(md_file_path)[1]
+            email = extract_md_data(md_file_path)[1]
             all_emails.append(email)
+
+            # Extract all URLs
+            url = extract_md_data(md_file_path)[2]
+            all_urls.append(url)
+
+            # Extract leet aliases
+            possible_aliases = detect_aliases(target)
+            if len(possible_aliases) > 0:
+                for alias in possible_aliases:
+                    if any(alias in sub for sub in email) or any(alias in sub for sub in url):
+                        all_aliases.append(alias)
 
     # Iterate over all found image URLs
     print(Style.BRIGHT + Fore.BLUE + "\n\n|---> Saving screenshots.\n" + Style.RESET_ALL)
-    if len(all_urls) > 0:
-        for url_pair in all_urls:
+    if len(all_image_urls) > 0:
+        for url_pair in all_image_urls:
             file_no = 1
             save_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no) + ".png")
             if not os.path.exists(save_path):
@@ -223,24 +259,19 @@ def process_md_files(directory, save_directory):
     emails_from_json = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
     filtered_email_list += emails_from_json
 
-    # Writing the email addresses to a .txt file
+    # Writing all the email addresses to a md_dictionary
     if len(filtered_email_list) > 0:
-        for email in set(filtered_email_list):
-            with open(os.path.join(os.path.dirname(save_directory), 'emailAddresses.txt'), 'a') as f:
-                    f.write(email + '\n')
-        
+        md_dictionary['Emails'] = filtered_email_list 
         # Print out the email addresses
         print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Email addresses found:\n" + Style.RESET_ALL)
         for email in set(filtered_email_list):
             print(f"    |- {email}")
 
-        print(Fore.GREEN + "\n  |--- Email addresses added to " + Style.BRIGHT + "emailAddresses.txt.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Email addresses will be added to " + Style.BRIGHT + "DATA.json.\n" + Style.RESET_ALL)
         print(Fore.YELLOW + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.YELLOW + "Check the file and re-run 0SINTr for relevant addresses.\n" + Style.RESET_ALL)
-
     else:
+        md_dictionary['Emails'] = []
         print(Style.BRIGHT + Fore.RED + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
-        with open(os.path.join(os.path.dirname(save_directory), 'emailAddresses.txt'), 'w') as f:
-            f.write('No email addresses found.')
 
 def search_breaches(target, directory):
     print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
@@ -414,7 +445,7 @@ def research():
             save_directory = os.path.dirname(md_directory) + '/screenshots'
 
             # Process all .md files in the specified directory
-            process_md_files(md_directory, save_directory)
+            process_md_files(md_directory, save_directory, target)
 
         # Run the data leak detection functions, first is breach detection
         search_breaches(target, outputDir)

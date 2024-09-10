@@ -21,4 +21,3 @@ def MarkdownFileReaderTool(file_path: str) -> str:
                 return file.read()
         except Exception as e:
             return f"Error reading the file: {str(e)}"
-
