@@ -115,7 +115,7 @@ python setup.py install
 
 ## Upgrading
 
-To update this tool after installation, follow these steps:
+To update this tool to the latest version, follow these steps:
 
 ```bash
 cd 0SINTr
