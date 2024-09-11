@@ -2,7 +2,7 @@ import os
 from crewai_tools import tool
 
 @tool
-def DirectoryReadTool(directory_path: str) -> str:
+def DirectoryReadTool(directory: str) -> str:
     """
     Custom tool to read and list contents of a directory.
     
@@ -13,12 +13,12 @@ def DirectoryReadTool(directory_path: str) -> str:
     str: A string containing the list of files and subdirectories.
     """
     try:
-        if not os.path.exists(directory_path):
-            return f"Error: Directory '{directory_path}' does not exist."
+        if not os.path.exists(directory):
+            return f"Error: Directory '{directory}' does not exist."
 
-        files_and_dirs = os.listdir(directory_path)
+        files_and_dirs = os.listdir(directory)
         if not files_and_dirs:
-            return f"Directory '{directory_path}' is empty."
+            return f"Directory '{directory}' is empty."
 
         return files_and_dirs
     

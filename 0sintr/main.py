@@ -25,7 +25,8 @@ def main():
     # Run the Data Analysis phase on the target
     crew.kickoff(inputs={'target': target, 'directory': directory})
 
-    print(Fore.GREEN + "\n\n  |--- DONE. Check " + Style.BRIGHT + "OSINT_REPORT.md\n" + Style.RESET_ALL)
+    #print(Fore.GREEN + "\n\n  |--- DONE. Check " + Style.BRIGHT + "OSINT_REPORT.md\n" + Style.RESET_ALL)
+    print(Fore.GREEN + Style.BRIGHT + "\n\n  |--- DONE." + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
