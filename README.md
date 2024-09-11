@@ -127,7 +127,9 @@ python setup.py install
 
 ## Screenshots
 
+![Alt text](tools/images/0SINTr-1.png)
 
+![Alt text](tools/images/0SINTr-2.png)
 
 ---
 
