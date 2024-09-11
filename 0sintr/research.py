@@ -514,7 +514,6 @@ def research():
 
         if len(os.listdir(md_directory)) == 0:
             print(Fore.RED + "\n  |--- No .md files to process." + Style.RESET_ALL)
-            pass  
         else:
             # Defining the directories to pass to process_md_files()
             save_directory = os.path.dirname(md_directory) + '/screenshots'
@@ -534,8 +533,7 @@ def research():
 
         time.sleep(1) # Introducing sleep for 1 second
 
-        # Running the OSINT.Industries data collection, as an option
-        
+        # Running the OSINT.Industries data collection, as an option 
         if os.getenv("OSIND_API_KEY") is not None:
             osint_industries(target, outputDir)
         else:
