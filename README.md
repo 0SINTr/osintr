@@ -25,11 +25,12 @@ You provide a **Username** or **Email Address** for the **-t** argument (see bel
 - Perform verbatim search, intext, inurl, and intitle search on Google.
 - Store search results as JSON and remove duplicates.
 - Scrape URLs from JSON and save each page as Markdown files in the `scraped` directory.
-- Save unscreened pages (e.g., social media) in a `.txt` file.
-- Save screenshots in the `screenshots` directory.
-- Extract email addresses from scraped pages and store them in a `.txt` file.
-- Check breaches and pastes for the account (username/email).
-- Optionally use the OSINT.Industries API if an API key is provided.
+- Save unscraped pages (e.g., social media) in a `.txt` file.
+- Save screenshots in the `google/screenshots` directory.
+- Extract all the links and email addresses from scraped pages.
+- Sort the email addresses and URLs based on relevance and save to GOOGLE.json
+- Check HIBP breaches and pastes for target and save to BREACHES.json, PASTES.json.
+- Optionally use the OSINT.Industries if an API key is provided. Save to OSINDUS.json
 
 ### 2. Data Analysis
 

@@ -1,10 +1,10 @@
 crewai
-creawai-tools
-python-dotenv
+crewai-tools
+langchain-openai
 langchain-anthropic
+python-dotenv
 firecrawl-py
 requests
 pandas
-setuptools
 argparse
 colorama
