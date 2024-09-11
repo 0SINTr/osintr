@@ -22,7 +22,7 @@ Format the report to be well structured and visually appealing.
 '''
 
 data_organizer_task_output = '''
-A professional report in Markdown format..
+Professional report in Markdown format.
 '''
 
 
@@ -36,9 +36,9 @@ A skilled observer, adept at finding connections and patterns within the data, t
 '''
 
 pattern_analyzer_task_description = '''
-Analyze the organized data for recurring emails, usernames, and connections across platforms for the target {target}. Detect patterns and associations between different datasets.
+Analyze the Markdown report provided by Information Aggregator for recurring emails, usernames, and connections across platforms for the target {target}. Detect patterns and associations between different datasets.
 '''
 
 pattern_analyzer_task_output = '''
-A JSON file with identified patterns and connections related to {target}.
+Summary with identified patterns and connections related to {target}.
 '''
