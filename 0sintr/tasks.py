@@ -1,36 +1,27 @@
-from agents import google_analyst, hibp_analyst, osind_analyst, curator
+from agents import data_organizer, pattern_analyzer, profile_builder
 from crewai import Task
 from prompts import *
 
-# Define the Google Data Analysis Task
-google_analysis_task = Task(
-    description=google_analyst_task_description,
-    expected_output=google_analyst_task_output,
-    agent=google_analyst,
-    async_execution=False,
+# Data Organization Task
+data_organizer_task = Task(
+    description=data_organizer_task_description,
+    expected_output=data_organizer_task_output,
+    agent=data_organizer,
+    async_execution=False
 )
 
-# Define the HIBP Data Analysis Task
-hibp_analysis_task = Task(
-    description=hibp_analyst_task_description,
-    expected_output=hibp_analyst_task_output,
-    agent=hibp_analyst,
-    async_execution=False,
+# Pattern Detection Task
+pattern_analyzer_task = Task(
+    description=pattern_analyzer_task_description,
+    expected_output=pattern_analyzer_task_output,
+    agent=pattern_analyzer,
+    async_execution=False
 )
 
-# Define the OSINT.Industries Data Analysis Task
-osind_analysis_task = Task(
-    description=osind_analyst_task_description,
-    expected_output=osind_analyst_task_output,
-    agent=osind_analyst,
-    async_execution=False,
-)
-
-# Define the Curator Task
-curator_task = Task(
-    description=curator_task_description,
-    expected_output=curator_task_output,
-    agent=curator,
-    context=[google_analysis_task, hibp_analysis_task, osind_analysis_task],
-    async_execution=False,
+# Digital Footprint Creation Task
+profile_builder_task = Task(
+    description=profile_builder_task_description,
+    expected_output=profile_builder_task_output,
+    agent=profile_builder,
+    async_execution=False
 )

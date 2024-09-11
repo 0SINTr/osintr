@@ -6,7 +6,6 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 from prompts import *
-from tools.mdread import MarkdownFileReaderTool
 from tools.jsonread import JSONFileReaderTool
 from tools.dirread import DirectoryReadTool
 from crewai_tools import FileReadTool
@@ -33,49 +32,35 @@ try:
 except NameError as e:
     print(e)
 
-# Define Google Data Analyst Agent
-google_analyst = Agent(
-    role="Google Data Analyst",
-    goal=google_data_analyst_goal,
-    tools=[DirectoryReadTool,MarkdownFileReaderTool,FileTool],
-    memory=True,
+# Data Organizer Agent
+data_organizer = Agent(
+    role='Information Aggregator',
+    goal=data_organizer_goal,
     verbose=True,
-    backstory=google_data_analyst_backstory,
+    memory=True,
+    backstory=data_organizer_backstory,
     allow_delegation=False,
     llm=llm
 )
 
-# Define HIBP Data Analyst Agent
-hibp_analyst = Agent(
-    role="HIBP Data Analyst",
-    goal=hibp_data_analyst_goal,
-    tools=[DirectoryReadTool,JSONFileReaderTool],
-    memory=True,
+# Pattern Analyzer Agent
+pattern_analyzer = Agent(
+    role='Data Correlation Specialist',
+    goal=pattern_analyzer_goal,
     verbose=True,
-    backstory=hibp_data_analyst_backstory,
+    memory=True,
+    backstory=pattern_analyzer_backstory,
     allow_delegation=False,
     llm=llm
 )
 
-# Define OSINT.Industries Data Analyst Agent
-osind_analyst = Agent(
-    role="OSINT Industries Data Analyst",
-    goal=osind_data_analyst_goal,
-    tools=[DirectoryReadTool,JSONFileReaderTool],
-    memory=True,
-    verbose=False,
-    backstory=osind_data_analyst_backstory,
-    allow_delegation=False,
-    llm=llm
-)
-
-# Define Curator Agent
-curator = Agent(
-    role="Curator",
-    goal=curator_goal,
-    memory=True,
+# Profile Builder Agent
+profile_builder = Agent(
+    role='Digital Footprint Builder',
+    goal=profile_builder_goal,
     verbose=True,
-    backstory=curator_backstory,
+    memory=True,
+    backstory=profile_builder_backstory,
     allow_delegation=False,
     llm=llm
 )

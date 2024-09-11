@@ -94,11 +94,11 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
         
         # Initialize the Firecrawl scraper
-        for index, url in enumerate(links[::5]):
+        for index, url in enumerate(links):
             try:
                 load_dotenv()
                 scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
-                scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'screenshot@fullPage']})
+                scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
 
                 # Write the scrape results to separate files
                 with open(os.path.join(scraped_path, 'scrape' + str(index + 1) + '.md'), 'w', encoding='utf-8') as outfile:
@@ -170,6 +170,7 @@ def detect_aliases(target):
 
 # Function to extract relevant data from a markdown file
 def extract_md_data(md_file_path):
+    #print(f"Processing file: {md_file_path}")
     with open(md_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
         # Load the content in proper format
@@ -180,17 +181,15 @@ def extract_md_data(md_file_path):
     if image_url and str(image_url).startswith('http'):
         #print(f"Extracted URLs from {md_file_path}: {image_url}")
         image_url = image_url
-    
-    # Getting the source URL from metdata
+
+    # Getting the source URL from metadata
     source_url = res['metadata']['sourceURL']
+
+    # Getting all the URLs from the file
+    all_urls = res.get('links')
 
     # Compiling a list of 2 URLs
     urls = [image_url, source_url]
-
-    # Getting all the URLs from the file
-    url_pattern = r"(?i)(['\"\[\(\{]?)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))(['\"\]\)\}]?)"
-    matches = re.findall(url_pattern, content)
-    all_urls = [match[1] for match in matches]
 
     # Extract email addresses from .md file. Adding {3,} to avoid @2x style notations for image sizes
     emails = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
@@ -205,9 +204,12 @@ def download_image(image_url, save_path):
         with open(save_path, 'wb') as file:
             file.write(response.content)
         print("    |- Image saved as: " + Fore.YELLOW + f"{save_path}" + Style.RESET_ALL)
-    except requests.exceptions.RequestException as e:
-        print(Fore.RED + "    |- Failed to retrieve image " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + e)
-        pass
+    except requests.exceptions.RequestException:
+        print(Fore.RED + "    |- Request exception. Failed to retrieve image " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
+    except requests.exceptions.MissingSchema:
+        print(Fore.RED + "    |- Missing schema. Failed to retrieve image, link invalid: " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
+    except requests.exceptions.Timeout:
+        print(Fore.RED + "    |- Connection timed out. Failed to retrieve image " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
 
 # Process all .md files in the scraped directory
 def process_md_files(directory, save_directory, target):
@@ -223,35 +225,41 @@ def process_md_files(directory, save_directory, target):
     all_aliases = []
     for md_file_name in os.listdir(directory):
         if str(md_file_name).endswith('.md'):
-            # Extract image URLs
-            md_file_path = os.path.join(directory, md_file_name)
-            extraction_result = extract_md_data(md_file_path)
-            image_url = extraction_result[0][0]
-            source_url = extraction_result[0][1]
-            domain_pattern = r"(https?://)?(www\d?\.)?(?P<domain>[\w\.-]+\.\w+)(/\S*)?"
-            match = re.match(domain_pattern, source_url)
-            source_url = match.group('domain')
-            all_image_urls.append([image_url, str(source_url).replace('.','_')])
+            try:
+                # Extract image URLs
+                md_file_path = os.path.join(directory, md_file_name)
+                extraction_result = extract_md_data(md_file_path)
+                image_url = extraction_result[0][0]
+                source_url = extraction_result[0][1]
+                domain_pattern = r"(https?://)?(www\d?\.)?(?P<domain>[\w\.-]+\.\w+)(/\S*)?"
+                match = re.match(domain_pattern, source_url)
+                source_url = match.group('domain')
+                all_image_urls.append([image_url, str(source_url).replace('.','_')])
 
-            # Extract email addresses
-            emails = extract_md_data(md_file_path)[1]
-            for email in emails:
-                all_emails.append(email)
-            print(all_emails, end='\n')
+                # Extract email addresses
+                emails = extraction_result[1]
+                for email in emails:
+                    all_emails.append(email)
+                #print(all_emails, end='\n')
 
-            # Extract all URLs
-            urls = extract_md_data(md_file_path)[2]
-            for url in urls:
-                all_urls.append(url)
-            print(all_urls, end='\n')
+                # Extract all URLs
+                urls = extraction_result[2]
+                for url in urls:
+                    all_urls.append(url)
+                #print(all_urls, end='\n')
 
-            # Extract leet aliases
-            possible_aliases = detect_aliases(target)
-            if len(possible_aliases) > 0:
-                for alias in possible_aliases:
-                    if any(alias in sub for sub in email) or any(alias in sub for sub in urls):
-                        all_aliases.append(alias)
-            print(all_aliases, end='\n')
+                # Extract leet aliases
+                possible_aliases = detect_aliases(target)
+                if len(possible_aliases) > 0:
+                    for alias in possible_aliases:
+                        if any(alias in sub for sub in email) or any(alias in sub for sub in urls):
+                            all_aliases.append(alias)
+                else:
+                    continue
+                #print(all_aliases, end='\n')
+            except Exception as e:
+                print(Fore.RED + f"  |--- Error processing file {md_file_name}: {e}\n" + Style.RESET_ALL)
+                continue
 
     # Iterate over all found image URLs
     print(Style.BRIGHT + Fore.BLUE + "\n\n|---> Saving screenshots.\n" + Style.RESET_ALL)
@@ -280,7 +288,8 @@ def process_md_files(directory, save_directory, target):
     with open(os.path.join(os.path.dirname(save_directory), 'google_search.json'), 'r', encoding='utf-8') as f:
         content = f.read()
     
-    emails_from_json = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
+    regex = r"['\"\[\(\{]?\s*(?:mailto:)?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\s*['\"\]\)\}]?"
+    emails_from_json = re.findall(regex, content)
     filtered_email_list += emails_from_json
 
     # Listing all possible aliases
@@ -349,6 +358,7 @@ def process_md_files(directory, save_directory, target):
     with open(os.path.join(os.path.dirname(os.path.dirname(directory)), 'GOOGLE.json'), 'w', encoding='utf-8') as f:
         json.dump(md_dictionary, f)
 
+# Search for breaches in HIBP data
 def search_breaches(target, directory):
     print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
     url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
@@ -378,6 +388,7 @@ def search_breaches(target, directory):
     else:
         print('    |- Error code: ' + str(response.status_code))
 
+# Search for pastes in HIBP data
 def search_pastes(target, directory):
     print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking for pastes: " + Style.RESET_ALL)
     time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
@@ -411,6 +422,7 @@ def search_pastes(target, directory):
     else:
         print('    |- Error code: ' + str(response.status_code))
 
+# Search for data from OSINT.Industries
 def osint_industries(target, directory):
     print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking OSINT.Industries for data: " + Style.RESET_ALL)
     time.sleep(1) # Introducing sleep for 1 second
@@ -460,6 +472,7 @@ def osint_industries(target, directory):
     else:
         print('    |- Error code: ' + str(response.status_code))
 
+# Main research function
 def research():
     parser = argparse.ArgumentParser(description='Run 0sintr with the following arguments.')
     parser.add_argument('-t', '--target', help='Target email address or username', required=True)
@@ -539,7 +552,7 @@ def research():
     print(Style.BRIGHT + Fore.GREEN + "\n\n|---> Starting the AI analysis, please wait. This may take a while." + Style.RESET_ALL)
 
     # Return the target string, md_directory (.../osint_<target>/google/scrapes) and main directory (.../osint_<target>/)
-    return target, md_directory, os.path.dirname(os.path.dirname(md_directory))
+    return target, os.path.dirname(os.path.dirname(md_directory))
 
 if __name__ == "__main__":
     research()

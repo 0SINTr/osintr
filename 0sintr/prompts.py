@@ -1,70 +1,53 @@
-# Google Data Analysis
-google_data_analyst_goal = '''
-say hi
+# Data organizing
+data_organizer_goal = '''
+Organize collected OSINT data into categories based on relevance and relationship with the target.
 '''
 
-google_data_analyst_backstory = '''
-say hi
+data_organizer_backstory = '''
+This agent is specialized in sorting through vast amounts of data to bring order and structure, ensuring that no detail is missed.
 '''
 
-google_analyst_task_description = '''
-say hi
+data_organizer_task_description = '''
+Organize the data from the OSINT tool outputs located in {directory} (GOOGLE.json, BREACHES.json, PASTES.json, OSINDUS.json) related to the target {target} into categorized outputs for further analysis.
+If a file is missing, continue processing the JSON files that are present and skip the missing ones.
 '''
 
-google_analyst_task_output = '''
-say hi
-'''
-
-
-# HIBP Data Analysis
-hibp_data_analyst_goal = '''
-say hi
-'''
-
-hibp_data_analyst_backstory = '''
-say hi
-'''
-
-hibp_analyst_task_description = '''
-say hi
-'''
-
-hibp_analyst_task_output = '''
-say hi
+data_organizer_task_output = '''
+A structured analysis of the data from the JSON files in {directory} related to {target}.
 '''
 
 
-# OSINT.Industries Data Analysis
-osind_data_analyst_goal = '''
-say hi
+# Pattern analysis
+pattern_analyzer_goal = '''
+Analyze organized data for patterns, recurring emails, linked usernames, or connections across platforms.
 '''
 
-osind_data_analyst_backstory = '''
-say hi
+pattern_analyzer_backstory = '''
+A skilled observer, adept at finding connections and patterns within the data, this agent excels at identifying hidden relationships between disparate data points.
 '''
 
-osind_analyst_task_description = '''
-say hi
+pattern_analyzer_task_description = '''
+Analyze the organized data for recurring emails, usernames, and connections across platforms for the target {target}. Detect patterns and associations between different datasets.
 '''
 
-osind_analyst_task_output = '''
-say hi
+pattern_analyzer_task_output = '''
+A JSON file with identified patterns and connections related to {target}.
 '''
 
 
-# Curator Data Analysis
-curator_goal = '''
-say hi
+# Profile building
+profile_builder_goal = '''
+Create a cohesive online profile, identifying digital associations and recurring data points.
 '''
 
-curator_backstory = '''
-say hi
+profile_builder_backstory = '''
+An expert at piecing together digital footprints, this agent pulls together a comprehensive picture of a target’s online presence.
 '''
 
-curator_task_description = '''
-say hi
+profile_builder_task_description = '''
+Create a comprehensive profile from the analyzed data, highlighting important associations, recurring emails, and accounts across different platforms for the target {target}.
 '''
 
-curator_task_output = '''
-say hi
+profile_builder_task_output = '''
+A structured final report in Markdown format, saved to {directory}, summarizing the digital footprint of {target}, including key findings and patterns, as well as a list with relevant emails, links or usernames directly related to {target}.
 '''
