@@ -1,7 +1,7 @@
 
 # 0SINTr
 
-Welcome to the **0SINTr** project!  This tool helps you set up a multi-agent OSINT AI system with ease, leveraging the flexible framework provided by crewAI. The goal is to enable agents to collaborate effectively on complex tasks, maximizing their collective intelligence and data analysis capabilities.
+Welcome to the **0SINTr** project!   This tool helps you set up a multi-agent OSINT AI system with ease, leveraging the flexible framework provided by crewAI. The goal is to enable agents to collaborate effectively on complex tasks, maximizing their collective intelligence and data analysis capabilities.
 
 > **Note:** This tool is not designed for a full OSINT investigation but rather to build a foundation for the OSINT process by quickly creating a digital footprint of the target via advanced Google searches, breach and paste data, and optional data sources.
 
@@ -24,20 +24,20 @@ You provide a **Username** or **Email Address** for the **-t** argument (see bel
 **Automated tasks include:**
 - Perform verbatim search, intext, inurl, and intitle search on Google.
 - Store search results as JSON and remove duplicates.
-- Scrape URLs from JSON and save each page as Markdown files in the `scraped` directory.
-- Save unscraped pages (e.g., social media) in a `.txt` file.
-- Save screenshots in the `google/screenshots` directory.
+- Scrape URLs from JSON and save each page as Markdown file in the `google/scraped` directory.
+- Save URLs of unscraped pages (e.g., social media) in a `.txt` file.
+- Save full page screenshots in the `google/screenshots` directory.
 - Extract all the links and email addresses from scraped pages.
-- Sort the email addresses and URLs based on relevance and save to GOOGLE.json
+- Sort the email addresses and URLs based on relevance and save to GOOGLE.json.
 - Check HIBP breaches and pastes for target and save to BREACHES.json, PASTES.json.
-- Optionally use the OSINT.Industries if an API key is provided. Save to OSINDUS.json
+- Optionally use the OSINT.Industries if an API key is provided. Save to OSINDUS.json.
 
 ### 2. Data Analysis
 
 Once data is collected, the AI crew automatically analyzes the information. The crew is composed of multiple AI agents, each with unique roles and tasks. Tasks are defined in `tasks.py`, and agent configurations are outlined in `agents.py`. Prompts for the crew are found in `prompts.py`.
 
 **Automated tasks include:**
-- Analyze `.md`, `.json`, and other files in the target directory.
+- Analyze data inside `.md`, `.json`, and other files in the target directory.
 - AI agents work together, each with a specific goal, toolset, and output task.
 - Default AI model is [GPT-4o](https://platform.openai.com/docs/models/gpt-4o). Other models supported: [Claude Sonnet](https://docs.anthropic.com/en/docs/about-claude/models#model-comparison-table).
 - 0SINTr builds a profile or digital footprint of the target based on collected data.
