@@ -38,6 +38,7 @@ data_organizer = Agent(
     goal=data_organizer_goal,
     verbose=True,
     memory=True,
+    tools=[DirectoryReadTool,JSONFileReaderTool],
     backstory=data_organizer_backstory,
     allow_delegation=False,
     llm=llm
@@ -50,17 +51,6 @@ pattern_analyzer = Agent(
     verbose=True,
     memory=True,
     backstory=pattern_analyzer_backstory,
-    allow_delegation=False,
-    llm=llm
-)
-
-# Profile Builder Agent
-profile_builder = Agent(
-    role='Digital Footprint Builder',
-    goal=profile_builder_goal,
-    verbose=True,
-    memory=True,
-    backstory=profile_builder_backstory,
     allow_delegation=False,
     llm=llm
 )

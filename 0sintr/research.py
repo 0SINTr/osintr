@@ -1,7 +1,6 @@
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from colorama import Fore, Style, init
 from firecrawl import FirecrawlApp
-from urllib.parse import urlparse
 from itertools import product
 from dotenv import load_dotenv
 import pandas as pd
