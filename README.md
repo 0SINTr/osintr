@@ -1,19 +1,19 @@
 
 # 0SINTr
 
-**0SINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, and other optional data sources.
+**0SINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, OSINT Industries API etc.
 
 ---
 
 ## Why 0SINTr?
 
-The app directly interacts with high-quality APIs (SerpDev, Firecrawl, HIBP) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
+The app directly interacts with high-quality APIs (SerpDev, Firecrawl, HIBP, OSINT Industries) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
 
 ---
 
 ## Workflow
 
-0SINTr performs two primary tasks:
+**0SINTr** performs two primary tasks:
 
 ### 1. Data Collection
 
@@ -26,17 +26,17 @@ You provide a **Username** or **Email Address** for the **-t** argument (see bel
 - Save URLs of unscraped pages (e.g., social media) in a `.txt` file.
 - Save full page screenshots of each page in the `raw` directory.
 - Extract all the links and email addresses from the scraped pages.
-- Sort the email addresses and URLs based on relevance and save to DATA.json.
-- Check HIBP breaches and pastes for target and save to DATA.json.
-- Optionally use the OSINT.Industries if an API key is provided. Save to DATA.json.
+- Sort the email addresses and URLs based on relevance and save to `DATA.json`.
+- Check HIBP breaches and pastes for target and save to `DATA.json`.
+- Optionally use the OSINT.Industries if an API key is provided. Save to `DATA.json`.
 
 ### 2. Data Analysis (planned upgrade)
 
-Once data is collected, the AI functionality automatically analyzes the information inside DATA.json for patterns, hidden links and connections between data points.
+Once data is collected, **0SINTr** will automatically analyze the information inside `DATA.json` for patterns, hidden links and connections between data points.
 
 **Automated tasks include:**
-- Analyze data inside DATA.json for patterns and insights using OpenAI [GPT-4o](https://platform.openai.com/docs/models/gpt-4o).
-- 0SINTr builds a profile or digital footprint of the target based on collected data.
+- Analyze data inside `DATA.json` for patterns and insights using OpenAI [GPT-4o](https://platform.openai.com/docs/models/gpt-4o).
+- **0SINTr** builds a profile or digital footprint of the target based on collected data.
 - The gathered data is carefully curated and a summary is provided in .md format.
 
 ---
@@ -119,9 +119,9 @@ python setup.py install
 
 ## Planned Upgrades
 
-- More data sources from quality API providers
-- Phone number and company search capabilities
-- Recursive web scraping for deeper analysis
+- More data sources from quality API providers.
+- Phone number and company search capabilities.
+- Recursive web scraping for deeper analysis.
 
 ---
 
