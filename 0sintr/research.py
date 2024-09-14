@@ -331,13 +331,13 @@ def search_breaches(target):
 
     # Check HIBP response (pastes)
     if response.status_code == 200:
-        print(Fore.GREEN + "\n  |--- Breach data found and saved.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- HIBP breach data found and saved.\n" + Style.RESET_ALL)
         breach_data = response.json()
         return breach_data
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
     elif response.status_code == 404:
-        print(Fore.RED + "\n  |--- No breached data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
+        print(Fore.RED + "\n  |--- No HIBP breached data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
     elif response.status_code == 429:
         print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
     else:
@@ -356,13 +356,13 @@ def search_pastes(target):
 
     # Check HIBP response (pastes)
     if response.status_code == 200:
-        print(Fore.GREEN + "\n  |--- Paste data found and saved.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- HIBP paste data found and saved.\n" + Style.RESET_ALL)
         paste_data = response.json() 
         return paste_data
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
     elif response.status_code == 404:
-        print(Fore.RED + "\n  |--- No paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+        print(Fore.RED + "\n  |--- No HIBP paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
     elif response.status_code == 429:
         print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
     else:
