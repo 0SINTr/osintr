@@ -6,8 +6,8 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 from prompts import *
-from tools.jsonread import JSONFileReaderTool
-from tools.dirread import DirectoryReadTool
+from tools.json_read import JSONFileReaderTool
+from tools.dir_read import DirectoryReadTool
 from crewai_tools import FileReadTool
 
 # Load env variables

@@ -14,7 +14,7 @@ import re
 
 # Function to perform the Google search and scrape each page related to the target
 def google_search_function(target_verbatim, target_intext, target_intitleurl, output_directory):
-    # Check if osint_data directory exists, if not create it for the specified target
+    # Check if osint_data directory exists, if not create it for the specified target, plus 'raw' directory
     directory = os.path.join(output_directory, "osint_data_" + ''.join(char for char in str(target_verbatim) if char.isalnum()))
     if not os.path.exists(path=directory):
         os.makedirs(os.path.join(directory, 'raw'))
@@ -34,13 +34,11 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         if results_verbatim:
             for result in results_verbatim['organic']:
                 all_search_results.append(result)
-
         # Pass the query to the SerpAPIWrapper's intext search method
         results_intext = search_intext.results(target_intext)
         if results_intext:
             for result in results_intext['organic']:
                 all_search_results.append(result)
-
         # Pass the query to the SerpAPIWrapper's inurl search method
         results_inurl = search_inurl.results(target_intitleurl)
         if results_inurl:
@@ -50,7 +48,6 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         # Removing duplicates
         df = pd.DataFrame(all_search_results).drop_duplicates('title')
         unique_json_data = df.to_dict(orient='records')
-
         print(Fore.CYAN + "\n  |--- Removing duplicates from search results.\n" + Style.RESET_ALL)
         print(Fore.CYAN + f"  |--- Total duplicates removed: {len(all_search_results)-len(unique_json_data)}, Final items: {len(unique_json_data)}" + Style.RESET_ALL)
 
@@ -67,7 +64,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
     # Introducing sleep for 3 seconds
     time.sleep(3)
 
-    # Creating new directory for scraping results
+    # Checking the number of search results
     if len(all_search_results) == 0:
         print(Fore.RED + "\n  |--- No Google results found for " + Style.BRIGHT + f"{target_verbatim}" + Style.RESET_ALL)
         return raw_data_directory
@@ -83,7 +80,6 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
             else:
                 with open(os.path.join(directory, 'raw', 'unscrapeable_urls.txt'), 'a') as f:
                     f.write(entry['link'] + '\n')
-
         print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
         print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "unscrapeable_urls.txt\n" + Style.RESET_ALL)
         
@@ -94,9 +90,8 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
                 scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
 
                 # Write the scrape results to separate files
-                with open(os.path.join(raw_data_directory, str(index + 1) + '.md'), 'w', encoding='utf-8') as outfile:
+                with open(os.path.join(raw_data_directory, 'page' + str(index + 1) + '.md'), 'w', encoding='utf-8') as outfile:
                     outfile.write(str(scrape_result))
-
                 print('    |- File scrape' + str(index + 1) + '.md DONE.')
 
                 # Introducing sleep for 3 seconds
@@ -104,7 +99,6 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
 
             except Exception as e:
                 print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + url + Style.RESET_ALL)
-                print(Fore.RED + str(e) + Style.RESET_ALL)
                 noScrape_links.append(url)
                 with open(os.path.join(directory, 'raw', 'noScrapeLinks.txt'), 'a') as f:
                     f.write(url + '\n')
@@ -142,17 +136,14 @@ def detect_aliases(target):
     mapping.update({letter.upper(): str(index) for index, letter in enumerate('oizeasgtb')})
 
     possible_aliases = []
-    
     for l in user:
-        ll = mapping.get(l, l)  # Get the alias if it exists, otherwise the original character
-        
+        ll = mapping.get(l, l)  # Get the alias if it exists, otherwise the original character     
         if ll == l:  # If the character is not mapped to a number
             # Add both lowercase and uppercase versions as possible alternatives
             possible_aliases.append((l.lower(), l.upper()))
         else:
             # If mapped to a number, include both lowercase and uppercase versions of the original letter, and the digit alias
-            possible_aliases.append((l.lower(), l.upper(), ll))
-    
+            possible_aliases.append((l.lower(), l.upper(), ll))    
     return [''.join(t) for t in product(*possible_aliases)]
 
 # Function to extract relevant data from a markdown file
@@ -180,7 +171,6 @@ def extract_md_data(md_file_path):
 
     # Extract email addresses from .md file. Adding {3,} to avoid @2x style notations for image sizes
     emails = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", content)
-
     return urls, emails, all_urls
 
 # Download the page screenshot and save it
@@ -201,7 +191,7 @@ def download_image(image_url, directory):
 # Process all .md files in the scraped directory
 def process_md_files(target, directory):
     # Iterate over all .md files in the directory and extract image URLs and email addresses
-    md_dictionary = {}
+    data_dict = {}
     all_emails = []
     all_image_urls = []
     all_urls = []
@@ -223,13 +213,11 @@ def process_md_files(target, directory):
                 emails = extraction_result[1]
                 for email in emails:
                     all_emails.append(email)
-                #print(all_emails, end='\n')
 
                 # Extract all URLs
                 urls = extraction_result[2]
                 for url in urls:
                     all_urls.append(url)
-                #print(all_urls, end='\n')
 
                 # Extract leet aliases
                 possible_aliases = detect_aliases(target)
@@ -239,7 +227,6 @@ def process_md_files(target, directory):
                             all_aliases.append(alias)
                 else:
                     continue
-                #print(all_aliases, end='\n')
             except Exception as e:
                 print(Fore.RED + f"  |--- Error processing file {md_file_name}: {e}\n" + Style.RESET_ALL)
                 continue
@@ -269,8 +256,7 @@ def process_md_files(target, directory):
 
     # Extract email addresses from .json file
     with open(os.path.join(directory, 'google_search.json'), 'r', encoding='utf-8') as f:
-        content = f.read()
-    
+        content = f.read()   
     regex = r"['\"\[\(\{]?\s*(?:mailto:)?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\s*['\"\]\)\}]?"
     emails_from_json = re.findall(regex, content)
     filtered_email_list += emails_from_json
@@ -278,7 +264,7 @@ def process_md_files(target, directory):
     # Listing all possible aliases
     possible_aliases = detect_aliases(target)
 
-    # Writing all the emails containing the target or target leet to md_dictionary
+    # Writing all the emails containing the target or target leet to data_dict
     all_main_emails = []
     if len(filtered_email_list) > 0:
         # Check leet target in each link
@@ -287,26 +273,25 @@ def process_md_files(target, directory):
                 for email in filtered_email_list:
                     if alias in email:
                         all_main_emails.append(email)
-        md_dictionary['Relevant Email Addresses'] = list(set(all_main_emails))
+        data_dict['Relevant Email Addresses'] = list(set(all_main_emails))
 
         # Print out the email addresses
         print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Email addresses found:\n" + Style.RESET_ALL)
         for email in set(filtered_email_list):
             print(f"    |- {email}")
-
-        print(Fore.GREEN + "\n  |--- Email addresses will be added to " + Style.BRIGHT + "GOOGLE.json.\n" + Style.RESET_ALL)
-        print(Fore.YELLOW + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.YELLOW + "Check the file and re-run 0SINTr for relevant addresses.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Email addresses will be saved to " + Style.BRIGHT + "DATA.json.\n" + Style.RESET_ALL)
+        print(Fore.YELLOW + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.YELLOW + "Check the file and re-run 0SINTr for relevant addresses." + Style.RESET_ALL)
     else:
-        md_dictionary['Email Addresses'] = []
+        data_dict['Email Addresses'] = []
         print(Style.BRIGHT + Fore.RED + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
 
-    # Writing all other URLs as secondary links to md_dictionary
+    # Writing all other URLs as secondary links to data_dict
     all_unique_emails = set(all_emails)
     all_unique_main_emails = set(all_main_emails)
     diff = all_unique_emails.difference(all_unique_main_emails)
-    md_dictionary['Possibly Related Emails'] = list(diff)
+    data_dict['Possibly Related Emails'] = list(diff)
 
-    # Writing all the URLs containing the target or target leet to md_dictionary
+    # Writing all the URLs containing the target or target leet to data_dict
     all_main_urls = []
     if len(all_urls) > 0:
         # Check target in each link
@@ -326,53 +311,40 @@ def process_md_files(target, directory):
                 for link in all_urls:
                     if alias in link:
                         all_main_urls.append(link)
-
-        md_dictionary['Relevant Links'] = list(set(all_main_urls))
+        data_dict['Relevant Links'] = list(set(all_main_urls))
     else:
-        md_dictionary['Relevant Links'] = []
+        data_dict['Relevant Links'] = []
 
-    # Writing all other URLs as secondary links to md_dictionary
+    # Writing all other URLs as secondary links to data_dict
     all_unique_urls = set(all_urls)
     all_unique_main_urls = set(all_main_urls)
     diff = all_unique_urls.difference(all_unique_main_urls)
-    md_dictionary['Possibly Related Links'] = list(diff)
-
-    # Write md_dictionary to JSON file
-    with open(os.path.join(os.path.dirname(directory), 'GOOGLE.json'), 'w', encoding='utf-8') as f:
-        json.dump(md_dictionary, f)
+    data_dict['Possibly Related Links'] = list(diff)
+    return data_dict
 
 # Search for breaches in HIBP data
-def search_breaches(target, directory):
+def search_breaches(target):
     print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
     url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
     headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
     response = requests.get(url + target + "?truncateResponse=false" + "?includeUnverified=true", headers=headers)
 
-    # Create new directory 
-    dir_path = os.path.dirname(directory)
-
+    # Check HIBP response (pastes)
     if response.status_code == 200:
+        print(Fore.GREEN + "\n  |--- Breach data found and saved.\n" + Style.RESET_ALL)
         breach_data = response.json()
-        # Write JSON data to directory
-        with open(os.path.join(dir_path, 'BREACHES.json'), 'w', encoding='utf-8') as outfile:
-            json.dump(breach_data, outfile)
-
-        print(Fore.GREEN + "\n  |--- Breached data added to " + Style.BRIGHT + "BREACHES.json" + Style.RESET_ALL)
-
+        return breach_data
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
-
     elif response.status_code == 404:
         print(Fore.RED + "\n  |--- No breached data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
-
     elif response.status_code == 429:
         print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
-
     else:
         print('    |- Error code: ' + str(response.status_code))
 
 # Search for pastes in HIBP data
-def search_pastes(target, directory):
+def search_pastes(target):
     print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking for pastes: " + Style.RESET_ALL)
     time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
     url = "https://haveibeenpwned.com/api/v3/pasteaccount/"
@@ -382,34 +354,24 @@ def search_pastes(target, directory):
     } 
     response = requests.get(url + target, headers=headers)
 
-    # Check leaks directory 
-    dir_path = os.path.dirname(directory)
-
+    # Check HIBP response (pastes)
     if response.status_code == 200:
+        print(Fore.GREEN + "\n  |--- Paste data found and saved.\n" + Style.RESET_ALL)
         paste_data = response.json() 
-        # Write JSON data to directory
-        with open(os.path.join(dir_path, 'PASTES.json'), 'w', encoding='utf-8') as outfile:
-            json.dump(paste_data, outfile)
-
-        print(Fore.GREEN + "\n  |--- Paste data added to " + Style.BRIGHT + "PASTES.json\n" + Style.RESET_ALL)
-
+        return paste_data
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
-
     elif response.status_code == 404:
         print(Fore.RED + "\n  |--- No paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
-
     elif response.status_code == 429:
         print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
-
     else:
         print('    |- Error code: ' + str(response.status_code))
 
 # Search for data from OSINT.Industries
-def osint_industries(target, directory):
+def osint_industries(target):
     print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking OSINT.Industries for data: " + Style.RESET_ALL)
     time.sleep(1) # Introducing sleep for 1 second
-
     is_valid_email = check(target)
     if is_valid_email:
         target_type = 'email'
@@ -427,31 +389,21 @@ def osint_industries(target, directory):
     }
     response = requests.get(url, params=params, headers=headers)
 
-    # Check osint_ind directory 
-    dir_path = os.path.dirname(directory)
-
+    # Check OSINT.Industries response 
     if response.status_code == 200:
-        osind_data = response.json() 
-        # Write JSON data to directory
-        with open(os.path.join(dir_path, 'OSINDUS.json'), 'w', encoding='utf-8') as outfile:
-            json.dump(osind_data, outfile)
-
-        print(Fore.GREEN + "\n  |--- Data added to " + Style.BRIGHT + "OSINDUS.json\n" + Style.RESET_ALL)
-
+        print(Fore.GREEN + "\n  |--- OSINT.Industries data found and saved.\n" + Style.RESET_ALL)
+        osind_data = response.json()
+        return osind_data
     elif response.status_code == 400:
         print(Fore.RED + "\n  |--- Bad Request. Invalid query value." + Style.RESET_ALL)
         print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
-
     elif response.status_code == 401:
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits. Check your key and try again." + Style.RESET_ALL)
-        print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
-    
+        print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)    
     elif response.status_code == 404:
         print(Fore.RED + "\n  |--- No data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
-
     elif response.status_code == 429:
         print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
-
     else:
         print('    |- Error code: ' + str(response.status_code))
 
@@ -488,6 +440,7 @@ def research():
             print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for email address: {target_verbatim}" + Style.RESET_ALL)
             print(Fore.CYAN + "\n  |--- Search modes: verbatim, intext, intitle" + Style.RESET_ALL)
             directory = google_search_function(target_verbatim, target_intext, target_intitle, output_directory)
+        # For usernames, use verbatim, intext and inurl
         else:
             if " " in target:
                 print(Fore.RED + "\n|---> Target format incorrect: " + Style.BRIGHT + f"{target_verbatim}\n" + Style.RESET_ALL)
@@ -501,32 +454,35 @@ def research():
             print(Fore.RED + "\n  |--- No .md files to process." + Style.RESET_ALL)
         else:
             # Process all .md files in the specified directory
-            process_md_files(target, directory)
+            data_dict = process_md_files(target, directory)
 
         # Run the data leak detection functions, first is breach detection
-        search_breaches(target, directory)
+        breach_data = search_breaches(target)
+        data_dict['Breaches'] = breach_data
 
         # Differentiating between email addresses and usernames for paste checking
         if is_valid_email:
-            search_pastes(target, directory)
+            paste_data = search_pastes(target)
         else:
             print(Fore.YELLOW + "\n\n|---> Since you provided a username, I will check pastes for " + Style.BRIGHT + f"{target}@gmail.com" + Style.RESET_ALL)
-            search_pastes(target + "@gmail.com", directory)
+            paste_data = search_pastes(target + "@gmail.com")
+        data_dict['Pastes'] = paste_data
 
-        # Running the OSINT.Industries data collection, as an option 
+        # Running the OSINT.Industries data collection
         if os.getenv("OSIND_API_KEY") is not None:
-            osint_industries(target, directory)
+            osind_data = osint_industries(target)
+            data_dict['OSINDUS'] = osind_data
         else:
             print(Style.BRIGHT + Fore.RED + "\n|---> No OSINT.Industries API key found." + Style.RESET_ALL)
-            print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
+            print(Fore.YELLOW + "\n  |--- Moving on without OSINT.Industries data." + Style.RESET_ALL)
 
+        # Write data_dict to JSON file
+        with open(os.path.join(os.path.dirname(directory), 'DATA.json'), 'w', encoding='utf-8') as f:
+            json.dump(data_dict, f)
     else:
         parser.print_help()
 
-    # Kick off the crew process
-    print(Style.BRIGHT + Fore.GREEN + "\n\n|---> Starting the AI analysis, please wait. This may take a while." + Style.RESET_ALL)
-
-    # Return the target string, md_directory (.../osint_<target>/google/scrapes) and main directory (.../osint_<target>/)
+    # Return the target and main directory (.../osint_<target>/)
     return target, output_directory
 
 if __name__ == "__main__":
