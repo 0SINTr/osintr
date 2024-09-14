@@ -13,11 +13,11 @@ import os
 import re
 
 # Function to perform the Google search and scrape each page related to the target
-def google_search_function(target_verbatim, target_intext, target_intitleurl, outputDir):
+def google_search_function(target_verbatim, target_intext, target_intitleurl, output_directory):
     # Check if osint_data directory exists, if not create it for the specified target
-    dir_path = os.path.join(outputDir, "osint_data_" + ''.join(char for char in str(target_verbatim) if char.isalnum()))
-    if not os.path.exists(path=dir_path):
-        os.makedirs(os.path.join(dir_path, 'google'))
+    directory = os.path.join(output_directory, "osint_data_" + ''.join(char for char in str(target_verbatim) if char.isalnum()))
+    if not os.path.exists(path=directory):
+        os.makedirs(os.path.join(directory, 'raw'))
     else:
         print(Style.BRIGHT + Fore.RED + "\n\n|---> Directory already exists. Delete it or change path.\n" + Style.RESET_ALL)
         sys.exit()
@@ -27,9 +27,8 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
     search_intext = GoogleSerperAPIWrapper(k=20)
     search_inurl = GoogleSerperAPIWrapper(k=20)
 
+    all_search_results = []
     try:
-        all_search_results = []
-
         # Pass the query to the SerpAPIWrapper's verbatim search method
         results_verbatim = search_verbatim.results(target_verbatim)
         if results_verbatim:
@@ -49,15 +48,15 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
                 all_search_results.append(result)
 
         # Removing duplicates
-        df = pd.DataFrame(all_search_results)
-        df_unique = df.drop_duplicates('title')
-        unique_json_data = df_unique.to_dict(orient='records')
+        df = pd.DataFrame(all_search_results).drop_duplicates('title')
+        unique_json_data = df.to_dict(orient='records')
 
         print(Fore.CYAN + "\n  |--- Removing duplicates from search results.\n" + Style.RESET_ALL)
         print(Fore.CYAN + f"  |--- Total duplicates removed: {len(all_search_results)-len(unique_json_data)}, Final items: {len(unique_json_data)}" + Style.RESET_ALL)
 
         # Create and save the JSON file with unique search results
-        with open(os.path.join(dir_path, 'google', 'google_search.json'), 'w', encoding='utf-8') as outfile:
+        raw_data_directory = os.path.join(directory, 'raw')
+        with open(os.path.join(raw_data_directory, 'google_search.json'), 'w', encoding='utf-8') as outfile:
             json.dump(unique_json_data, outfile)
 
     except Exception as e:
@@ -69,15 +68,11 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
     time.sleep(3)
 
     # Creating new directory for scraping results
-    scraped_path = os.path.join(dir_path, 'google', 'scraped')
-    if not os.path.exists(path=scraped_path):
-        os.makedirs(scraped_path)
-
     if len(all_search_results) == 0:
         print(Fore.RED + "\n  |--- No Google results found for " + Style.BRIGHT + f"{target_verbatim}" + Style.RESET_ALL)
-        return scraped_path
+        return raw_data_directory
     else:
-        print(Fore.GREEN + "\n  |--- Search DONE. All data goes to " + Style.BRIGHT + f"{dir_path}" + Style.RESET_ALL)
+        print(Fore.GREEN + "\n  |--- Search DONE. All data goes to " + Style.BRIGHT + f"{directory}" + Style.RESET_ALL)
 
         # Extracting all the links from search results
         links = []
@@ -86,21 +81,20 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
             if 'gov' not in entry['link']:
                 links.append(entry['link'])
             else:
-                with open(os.path.join(dir_path, 'google', 'links', 'noScrapeLinks.txt'), 'a') as f:
+                with open(os.path.join(directory, 'raw', 'unscrapeable_urls.txt'), 'a') as f:
                     f.write(entry['link'] + '\n')
 
         print(Style.BRIGHT + Fore.MAGENTA + "\n\n|---> Starting to scrape." + Style.RESET_ALL)
-        print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "/google/noScrapeLinks.txt\n" + Style.RESET_ALL)
+        print(Fore.MAGENTA + "\n  |--- Unscrapeable URLs (if any) will be added to " + Style.BRIGHT + "unscrapeable_urls.txt\n" + Style.RESET_ALL)
         
         # Initialize the Firecrawl scraper
         for index, url in enumerate(links):
             try:
-                load_dotenv()
                 scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
                 scrape_result = scraper.scrape_url(url, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
 
                 # Write the scrape results to separate files
-                with open(os.path.join(scraped_path, 'scrape' + str(index + 1) + '.md'), 'w', encoding='utf-8') as outfile:
+                with open(os.path.join(raw_data_directory, str(index + 1) + '.md'), 'w', encoding='utf-8') as outfile:
                     outfile.write(str(scrape_result))
 
                 print('    |- File scrape' + str(index + 1) + '.md DONE.')
@@ -108,17 +102,11 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
                 # Introducing sleep for 3 seconds
                 time.sleep(3)
 
-            except requests.exceptions.HTTPError as e:
-                # Write un-scrapeable links to a txt file and continue
-                noScrape_links.append(url)
-                with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'a') as f:
-                    f.write(url + '\n')
-                continue
-
             except Exception as e:
                 print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + url + Style.RESET_ALL)
                 print(Fore.RED + str(e) + Style.RESET_ALL)
-                with open(os.path.join(dir_path, 'google', 'noScrapeLinks.txt'), 'a') as f:
+                noScrape_links.append(url)
+                with open(os.path.join(directory, 'raw', 'noScrapeLinks.txt'), 'a') as f:
                     f.write(url + '\n')
                 continue
         
@@ -132,7 +120,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         elif len(links) == 0:
             print(Fore.RED + "  |--- No links to scrape." + Style.RESET_ALL)
 
-        return scraped_path
+        return raw_data_directory
 
 # Check if the target is a valid email address, otherwise it's a username
 def check(user_input):
@@ -196,13 +184,13 @@ def extract_md_data(md_file_path):
     return urls, emails, all_urls
 
 # Download the page screenshot and save it
-def download_image(image_url, save_path):
+def download_image(image_url, directory):
     try:
         response = requests.get(image_url)
         response.raise_for_status()  # Check if the request was successful
-        with open(save_path, 'wb') as file:
+        with open(directory, 'wb') as file:
             file.write(response.content)
-        print("    |- Image saved as: " + Fore.YELLOW + f"{save_path}" + Style.RESET_ALL)
+        print("    |- Image saved as: " + Fore.YELLOW + f"{directory}" + Style.RESET_ALL)
     except requests.exceptions.RequestException:
         print(Fore.RED + "    |- Request exception. Failed to retrieve image " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
     except requests.exceptions.MissingSchema:
@@ -211,11 +199,7 @@ def download_image(image_url, save_path):
         print(Fore.RED + "    |- Connection timed out. Failed to retrieve image " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
 
 # Process all .md files in the scraped directory
-def process_md_files(directory, save_directory, target):
-    # Ensure the save directory exists
-    if not os.path.exists(save_directory):
-        os.makedirs(save_directory)
-
+def process_md_files(target, directory):
     # Iterate over all .md files in the directory and extract image URLs and email addresses
     md_dictionary = {}
     all_emails = []
@@ -265,12 +249,12 @@ def process_md_files(directory, save_directory, target):
     if len(all_image_urls) > 0:
         for url_pair in all_image_urls:
             file_no = 1
-            save_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no) + ".png")
-            if not os.path.exists(save_path):
-                download_image(url_pair[0], save_path)
+            ss_path = os.path.join(directory, "ss_" + url_pair[1] + str(file_no) + ".png")
+            if not os.path.exists(ss_path):
+                download_image(url_pair[0], ss_path)
             else:
-                save_bkp_path = os.path.join(save_directory, "ss_" + url_pair[1] + str(file_no + 1) + ".png")
-                download_image(url_pair[0], save_bkp_path)
+                ss_bkp_path = os.path.join(directory, "ss_" + url_pair[1] + str(file_no + 1) + ".png")
+                download_image(url_pair[0], ss_bkp_path)
     else:
         print(Fore.RED + "  |--- No screenshots taken.\n" + Style.RESET_ALL)
 
@@ -284,7 +268,7 @@ def process_md_files(directory, save_directory, target):
             filtered_email_list.append(email)
 
     # Extract email addresses from .json file
-    with open(os.path.join(os.path.dirname(save_directory), 'google_search.json'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(directory, 'google_search.json'), 'r', encoding='utf-8') as f:
         content = f.read()
     
     regex = r"['\"\[\(\{]?\s*(?:mailto:)?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\s*['\"\]\)\}]?"
@@ -354,7 +338,7 @@ def process_md_files(directory, save_directory, target):
     md_dictionary['Possibly Related Links'] = list(diff)
 
     # Write md_dictionary to JSON file
-    with open(os.path.join(os.path.dirname(os.path.dirname(directory)), 'GOOGLE.json'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(os.path.dirname(directory), 'GOOGLE.json'), 'w', encoding='utf-8') as f:
         json.dump(md_dictionary, f)
 
 # Search for breaches in HIBP data
@@ -365,7 +349,7 @@ def search_breaches(target, directory):
     response = requests.get(url + target + "?truncateResponse=false" + "?includeUnverified=true", headers=headers)
 
     # Create new directory 
-    dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
+    dir_path = os.path.dirname(directory)
 
     if response.status_code == 200:
         breach_data = response.json()
@@ -399,7 +383,7 @@ def search_pastes(target, directory):
     response = requests.get(url + target, headers=headers)
 
     # Check leaks directory 
-    dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
+    dir_path = os.path.dirname(directory)
 
     if response.status_code == 200:
         paste_data = response.json() 
@@ -444,7 +428,7 @@ def osint_industries(target, directory):
     response = requests.get(url, params=params, headers=headers)
 
     # Check osint_ind directory 
-    dir_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
+    dir_path = os.path.dirname(directory)
 
     if response.status_code == 200:
         osind_data = response.json() 
@@ -480,7 +464,7 @@ def research():
 
     # -o argument logic
     if args.output is not None:
-        outputDir = str(args.output).rstrip('/')
+        output_directory = str(args.output).rstrip('/')
     else:
         parser.print_help()
 
@@ -488,8 +472,9 @@ def research():
     if args.target is not None:
         target = args.target
 
-        # # Initializing colorama
+        # Initializing colorama and env variables
         init()
+        load_dotenv()
 
         # Running the Google search function
         target_verbatim = target
@@ -502,7 +487,7 @@ def research():
         if is_valid_email:
             print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for email address: {target_verbatim}" + Style.RESET_ALL)
             print(Fore.CYAN + "\n  |--- Search modes: verbatim, intext, intitle" + Style.RESET_ALL)
-            md_directory = google_search_function(target_verbatim, target_intext, target_intitle, outputDir)
+            directory = google_search_function(target_verbatim, target_intext, target_intitle, output_directory)
         else:
             if " " in target:
                 print(Fore.RED + "\n|---> Target format incorrect: " + Style.BRIGHT + f"{target_verbatim}\n" + Style.RESET_ALL)
@@ -510,37 +495,30 @@ def research():
             else:
                 print(Style.BRIGHT + Fore.CYAN + f"\n\n|---> Running search for username: {target_verbatim}" + Style.RESET_ALL)
                 print(Fore.CYAN + "\n  |--- Search modes: verbatim, intext, inurl" + Style.RESET_ALL)
-                md_directory = google_search_function(target_verbatim, target_intext, target_inurl, outputDir)
+                directory = google_search_function(target_verbatim, target_intext, target_inurl, output_directory)
 
-        if len(os.listdir(md_directory)) == 0:
+        if len(os.listdir(directory)) == 0:
             print(Fore.RED + "\n  |--- No .md files to process." + Style.RESET_ALL)
         else:
-            # Defining the directories to pass to process_md_files()
-            save_directory = os.path.dirname(md_directory) + '/screenshots'
-
             # Process all .md files in the specified directory
-            process_md_files(md_directory, save_directory, target)
+            process_md_files(target, directory)
 
         # Run the data leak detection functions, first is breach detection
-        search_breaches(target, outputDir)
+        search_breaches(target, directory)
 
         # Differentiating between email addresses and usernames for paste checking
         if is_valid_email:
-            search_pastes(target, outputDir)
+            search_pastes(target, directory)
         else:
             print(Fore.YELLOW + "\n\n|---> Since you provided a username, I will check pastes for " + Style.BRIGHT + f"{target}@gmail.com" + Style.RESET_ALL)
-            search_pastes(target + "@gmail.com", outputDir)
-
-        time.sleep(1) # Introducing sleep for 1 second
+            search_pastes(target + "@gmail.com", directory)
 
         # Running the OSINT.Industries data collection, as an option 
         if os.getenv("OSIND_API_KEY") is not None:
-            osint_industries(target, outputDir)
+            osint_industries(target, directory)
         else:
             print(Style.BRIGHT + Fore.RED + "\n|---> No OSINT.Industries API key found." + Style.RESET_ALL)
             print(Fore.YELLOW + "\n  |--- Moving on to the Analysis phase without OSINT.Industries data." + Style.RESET_ALL)
-
-        time.sleep(2) # Introducing sleep for 2 seconds
 
     else:
         parser.print_help()
@@ -549,7 +527,7 @@ def research():
     print(Style.BRIGHT + Fore.GREEN + "\n\n|---> Starting the AI analysis, please wait. This may take a while." + Style.RESET_ALL)
 
     # Return the target string, md_directory (.../osint_<target>/google/scrapes) and main directory (.../osint_<target>/)
-    return target, os.path.dirname(os.path.dirname(md_directory))
+    return target, output_directory
 
 if __name__ == "__main__":
     research()
