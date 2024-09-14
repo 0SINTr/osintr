@@ -1,7 +1,7 @@
 
 # 0SINTr
 
-Welcome to the **0SINTr** project! This tool helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, and other optional data sources.
+**0SINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, and other optional data sources.
 
 ---
 
