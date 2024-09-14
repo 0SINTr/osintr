@@ -106,7 +106,7 @@ def google_search_function(target_verbatim, target_intext, target_intitleurl, ou
         
         # Checking scraped and unscrapeable URLs
         if len(links) > 0 and len(noScrape_links) > 0:
-            print(Fore.YELLOW + "\n  |--- Scraping DONE, but not for all links.\n" + Style.RESET_ALL)
+            print(Fore.YELLOW + "\n  |--- Scraping DONE, but not for all links." + Style.RESET_ALL)
             print(Fore.MAGENTA + "\n  |--- Unscrapeable links added to " + Style.BRIGHT + "noScrapeLinks.txt.\n" + Style.RESET_ALL)
             print(Fore.MAGENTA + "  |--- " + Style.BRIGHT + "Suggestion! " + Style.RESET_ALL + Fore.MAGENTA + "Check these URLs manually to collect data." + Style.RESET_ALL)
         elif len(links) > 0 and len(noScrape_links) == 0:
