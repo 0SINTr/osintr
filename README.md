@@ -35,8 +35,7 @@ You provide a **Username** or **Email Address** for the **-t** argument (see bel
 Once data is collected, the AI functionality automatically analyzes the information inside DATA.json for patterns, hidden links and connections between data points.
 
 **Automated tasks include:**
-- Analyze data inside DATA.json for patterns and insights.
-- Default AI model is [GPT-4o](https://platform.openai.com/docs/models/gpt-4o).
+- Analyze data inside DATA.json for patterns and insights using OpenAI [GPT-4o](https://platform.openai.com/docs/models/gpt-4o)
 - 0SINTr builds a profile or digital footprint of the target based on collected data.
 - The gathered data is carefully curated and a summary is provided in .md format.
 
