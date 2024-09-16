@@ -1,3 +1,4 @@
+langchain-community
 python-dotenv
 firecrawl-py
 requests

@@ -408,7 +408,7 @@ def osint_industries(target):
         print('    |- Error code: ' + str(response.status_code))
 
 # Main research function
-def research():
+def main():
     parser = argparse.ArgumentParser(description='Run 0sintr with the following arguments.')
     parser.add_argument('-t', '--target', help='Target email address or username', required=True)
     parser.add_argument('-o', '--output', help='Directory to save results, full path', required=True)
@@ -486,4 +486,4 @@ def research():
     return target, output_directory
 
 if __name__ == "__main__":
-    research()
+    main()
