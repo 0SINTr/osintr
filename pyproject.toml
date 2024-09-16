@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "osintr"
+dynamic = ["version"]
+authors = [
+  { name="0SINTr" },
+]
+description = "Gathering open-source data on target based on user input."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "langchain-community",
+  "python-dotenv",
+  "firecrawl-py",
+  "requests",
+  "pandas",
+  "argparse",
+  "colorama"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/0SINTr/0SINTr"
