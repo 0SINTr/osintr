@@ -82,7 +82,8 @@ Optionally, you can collect data from **OSINT.Industries** via their API. Add th
 Ensure Python >=3.10 is installed.
 
 ```bash
-pip install osintr
+python -m pip install --upgrade pip
+python -m pip install osintr
 ```
 
 ---
@@ -100,9 +101,7 @@ osintr [-h] -t TARGET -o OUTPUT
 To update this tool to the latest version, follow these steps:
 
 ```bash
-cd osintr
-git pull origin main
-python setup.py install
+python -m pip install --upgrade osintr
 ```
 
 ---
