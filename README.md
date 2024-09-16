@@ -109,14 +109,6 @@ python setup.py install
 
 ---
 
-## Screenshots
-
-![0SINTr-1](0sintr/images/0SINTr-1.png)
-
-![0SINTr-2](0sintr/images/0SINTr-2.png)
-
----
-
 ## Planned Upgrades
 
 - More data sources from quality API providers.
