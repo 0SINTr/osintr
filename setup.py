@@ -11,7 +11,7 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            '0sintr = 0sintr.main:main'
+            '0sintr = osintr.main:main'
         ]
     },
     python_requires='>=3.10',
