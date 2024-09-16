@@ -1,11 +1,11 @@
 
-# 0SINTr
+# osintr
 
-**0SINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, OSINT Industries API etc.
+**osintr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, OSINT Industries API etc.
 
 ---
 
-## Why 0SINTr?
+## Why osintr?
 
 The app directly interacts with high-quality APIs (SerpDev, Firecrawl, HIBP, OSINT Industries) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
 
@@ -13,7 +13,7 @@ The app directly interacts with high-quality APIs (SerpDev, Firecrawl, HIBP, OSI
 
 ## Workflow
 
-**0SINTr** performs two primary tasks:
+**osintr** performs two primary tasks:
 
 ### 1. Data Collection
 
@@ -32,11 +32,11 @@ You provide a **Username** or **Email Address** for the **-t** argument (see bel
 
 ### 2. Data Analysis (planned upgrade)
 
-Once data is collected, **0SINTr** will automatically analyze the information inside `DATA.json` for patterns, hidden links and connections between data points.
+Once data is collected, **osintr** will automatically analyze the information inside `DATA.json` for patterns, hidden links and connections between data points.
 
 **Automated tasks include:**
 - Analyze data inside `DATA.json` for patterns and insights using OpenAI [GPT-4o](https://platform.openai.com/docs/models/gpt-4o).
-- **0SINTr** builds a profile or digital footprint of the target based on collected data.
+- **osintr** builds a profile or digital footprint of the target based on collected data.
 - The gathered data is carefully curated and a summary is provided in .md format.
 
 ---
@@ -45,7 +45,7 @@ Once data is collected, **0SINTr** will automatically analyze the information in
 
 Running the **Data Collection** and **Data Analysis** phases requires API keys inside the `.env` file.
 
-**To use 0SINTr with GPT-4o, you need the following items in your `.env` file inside the root folder of 0SINTr.**
+**To use osintr with GPT-4o, you need the following items in your `.env` file inside the root folder of osintr.**
 ```plaintext
 OPENAI_API_KEY=<your_key_here>
 SERPER_API_KEY=<your_key_here>
@@ -82,9 +82,7 @@ Optionally, you can collect data from **OSINT.Industries** via their API. Add th
 Ensure Python >=3.10 is installed.
 
 ```bash
-git clone https://github.com/0SINTr/0SINTr.git
-cd 0SINTr
-python setup.py install
+pip install osintr
 ```
 
 ---
@@ -92,7 +90,7 @@ python setup.py install
 ## Usage
 
 ```bash
-0sintr [-h] -t TARGET -o OUTPUT
+osintr [-h] -t TARGET -o OUTPUT
 ```
 
 ---
@@ -102,7 +100,7 @@ python setup.py install
 To update this tool to the latest version, follow these steps:
 
 ```bash
-cd 0SINTr
+cd osintr
 git pull origin main
 python setup.py install
 ```
