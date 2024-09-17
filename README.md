@@ -80,10 +80,13 @@ Optionally, you can collect data from **OSINT.Industries** via their API. Add th
 ## Installation
 
 Ensure Python >=3.10 is installed.
+In Linux, you may need to add `/home/<user>/.local/bin` to `PATH`.
 
 ```bash
 python -m pip install --upgrade pip
-python -m pip install osintr
+git clone https://github.com/0SINTr/0SINTr.git
+cd 0SINTr
+python -m pip install .
 ```
 
 ---
