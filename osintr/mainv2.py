@@ -338,6 +338,28 @@ def search_pastes(target):
     else:
         print('    |- Error code: ' + str(response.status_code))
 
+# Search for data from Whoxy
+def search_whoxy(target_type, target):
+    print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking Whoxy for reverse whois data ..." + Style.RESET_ALL)
+    # API key and URL
+    whoxy_key = os.getenv('WHOXY_API_KEY')
+    url = f'https://api.whoxy.com/?key={whoxy_key}&reverse=whois&'
+    response = requests.get(url + target_type + '=' + target)
+
+    # Check Whoxy response
+    if response.status_code == 200:
+        print(Fore.GREEN + "\n  |--- Whoxy data found and saved.\n" + Style.RESET_ALL)
+        whoxy_data = response.json()
+        return whoxy_data
+    elif response.status_code == 401:
+        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
+    elif response.status_code == 404:
+        print(Fore.RED + "\n  |--- No HIBP paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+    elif response.status_code == 429:
+        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
+    else:
+        print('    |- Error code: ' + str(response.status_code))
+
 # Search for data from OSINT.Industries
 def osint_industries(target):
     print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking OSINT.Industries for data ..." + Style.RESET_ALL)
@@ -370,27 +392,6 @@ def osint_industries(target):
         print(Fore.RED + "\n  |--- Invalid API key or insufficient credits. Check your key and try again." + Style.RESET_ALL)
     elif response.status_code == 404:
         print(Fore.RED + "\n  |--- No data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
-    elif response.status_code == 429:
-        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
-    else:
-        print('    |- Error code: ' + str(response.status_code))
-
-def search_whoxy(target_type, target):
-    print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking Whoxy for reverse whois data ..." + Style.RESET_ALL)
-    # API key and URL
-    whoxy_key = os.getenv('WHOXY_API_KEY')
-    url = f'https://api.whoxy.com/?key={whoxy_key}&reverse=whois&'
-    response = requests.get(url + target_type + '=' + target)
-
-    # Check Whoxy response
-    if response.status_code == 200:
-        print(Fore.GREEN + "\n  |--- Whoxy data found and saved.\n" + Style.RESET_ALL)
-        whoxy_data = response.json()
-        return whoxy_data
-    elif response.status_code == 401:
-        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
-    elif response.status_code == 404:
-        print(Fore.RED + "\n  |--- No HIBP paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
     elif response.status_code == 429:
         print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
     else:
@@ -432,21 +433,24 @@ def main():
         is_valid_email = check(target)
         if is_valid_email:
             check_directory()
-            res_one = verbatim_search()
-            res_two = intext_search()
-            res_thr = intitle_search()
-            results = join_results(res_one, res_two, res_thr)
-            uniques = remove_duplicates(results)
-            scrape_links = extract_links(uniques)
-            scraped_data = scrape_links(scrape_links)
-            data_dict = process_data(scraped_data, target, output_directory)
-            breach_data = search_breaches(target)
-            data_dict['Breaches'] = breach_data
-            paste_data = search_pastes(target)
-            data_dict['Pastes'] = paste_data
-            whoxy_data = search_whoxy('email', target)
-            data_dict['Whoxy'] = whoxy_data
-            if os.getenv("OSIND_API_KEY") is not None:
+            if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
+                res_one = verbatim_search()
+                res_two = intext_search()
+                res_thr = intitle_search()
+                results = join_results(res_one, res_two, res_thr)
+                uniques = remove_duplicates(results)
+                scrape_links = extract_links(uniques)
+                scraped_data = scrape_links(scrape_links)
+                data_dict = process_data(scraped_data, target, output_directory)
+            if os.getenv('HIBP_API_KEY'):
+                breach_data = search_breaches(target)
+                data_dict['Breaches'] = breach_data
+                paste_data = search_pastes(target)
+                data_dict['Pastes'] = paste_data
+            if os.getenv('WHOXY_API_KEY'):
+                whoxy_data = search_whoxy('email', target)
+                data_dict['Whoxy'] = whoxy_data
+            if os.getenv("OSIND_API_KEY"):
                 osind_data = osint_industries(target)
                 data_dict['OSINDUS'] = osind_data
         else:
@@ -457,20 +461,23 @@ def main():
     if args.user is not None:
         target = args.user
         check_directory()
-        res_one = verbatim_search()
-        res_two = intext_search()
-        res_thr = inurl_search()
-        results = join_results(res_one, res_two, res_thr)
-        uniques = remove_duplicates(results)
-        scrape_links = extract_links(uniques)
-        scraped_data = scrape_links(scrape_links)
-        data_dict = process_data(scraped_data, target, output_directory)
-        breach_data = search_breaches(target)
-        data_dict['Breaches'] = breach_data
-        paste_data = search_pastes(target + "@gmail.com")
-        data_dict['Pastes'] = paste_data
-        whoxy_data = search_whoxy('email', target + "@gmail.com")
-        data_dict['Whoxy'] = whoxy_data
+        if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
+            res_one = verbatim_search()
+            res_two = intext_search()
+            res_thr = inurl_search()
+            results = join_results(res_one, res_two, res_thr)
+            uniques = remove_duplicates(results)
+            scrape_links = extract_links(uniques)
+            scraped_data = scrape_links(scrape_links)
+            data_dict = process_data(scraped_data, target, output_directory)
+        if os.getenv('HIBP_API_KEY'):
+            breach_data = search_breaches(target)
+            data_dict['Breaches'] = breach_data
+            paste_data = search_pastes(target + "@gmail.com")
+            data_dict['Pastes'] = paste_data
+        if os.getenv('WHOXY_API_KEY'):
+            whoxy_data = search_whoxy('email', target + "@gmail.com")
+            data_dict['Whoxy'] = whoxy_data
         if os.getenv("OSIND_API_KEY") is not None:
             osind_data = osint_industries(target)
             data_dict['OSINDUS'] = osind_data
@@ -479,15 +486,16 @@ def main():
     if args.phone is not None:
         target = args.phone
         check_directory()
-        res_one = verbatim_search()
-        res_two = intext_search()
-        res_thr = inurl_search()
-        res_fou = intitle_search()
-        results = join_results(res_one, res_two, res_thr, res_fou)
-        uniques = remove_duplicates(results)
-        scrape_links = extract_links(uniques)
-        scraped_data = scrape_links(scrape_links)
-        data_dict = process_data(scraped_data, target, output_directory)
+        if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
+            res_one = verbatim_search()
+            res_two = intext_search()
+            res_thr = inurl_search()
+            res_fou = intitle_search()
+            results = join_results(res_one, res_two, res_thr, res_fou)
+            uniques = remove_duplicates(results)
+            scrape_links = extract_links(uniques)
+            scraped_data = scrape_links(scrape_links)
+            data_dict = process_data(scraped_data, target, output_directory)
         if os.getenv("OSIND_API_KEY") is not None:
             osind_data = osint_industries(target)
             data_dict['OSINDUS'] = osind_data
@@ -496,33 +504,37 @@ def main():
     if args.name is not None:
         target = args.name
         check_directory()
-        res_one = verbatim_search()
-        res_two = intext_search()
-        res_thr = inurl_search()
-        res_fou = intitle_search()
-        results = join_results(res_one, res_two, res_thr, res_fou)
-        uniques = remove_duplicates(results)
-        scrape_links = extract_links(uniques)
-        scraped_data = scrape_links(scrape_links)
-        data_dict = process_data(scraped_data, target, output_directory)
-        whoxy_data = search_whoxy('name', '+'.join(str(target).split()))
-        data_dict['Whoxy'] = whoxy_data
+        if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
+            res_one = verbatim_search()
+            res_two = intext_search()
+            res_thr = inurl_search()
+            res_fou = intitle_search()
+            results = join_results(res_one, res_two, res_thr, res_fou)
+            uniques = remove_duplicates(results)
+            scrape_links = extract_links(uniques)
+            scraped_data = scrape_links(scrape_links)
+            data_dict = process_data(scraped_data, target, output_directory)
+        if os.getenv('WHOXY_API_KEY'):
+            whoxy_data = search_whoxy('name', '+'.join(str(target).split()))
+            data_dict['Whoxy'] = whoxy_data
 
     # -c argument logic
     if args.company is not None:
         target = args.company
         check_directory()
-        res_one = verbatim_search()
-        res_two = intext_search()
-        res_thr = inurl_search()
-        res_fou = intitle_search()
-        results = join_results(res_one, res_two, res_thr, res_fou)
-        uniques = remove_duplicates(results)
-        scrape_links = extract_links(uniques)
-        scraped_data = scrape_links(scrape_links)
-        data_dict = process_data(scraped_data, target, output_directory)
-        whoxy_data = search_whoxy('company', '+'.join(str(target).split()))
-        data_dict['Whoxy'] = whoxy_data
+        if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
+            res_one = verbatim_search()
+            res_two = intext_search()
+            res_thr = inurl_search()
+            res_fou = intitle_search()
+            results = join_results(res_one, res_two, res_thr, res_fou)
+            uniques = remove_duplicates(results)
+            scrape_links = extract_links(uniques)
+            scraped_data = scrape_links(scrape_links)
+            data_dict = process_data(scraped_data, target, output_directory)
+        if os.getenv('WHOXY_API_KEY'):
+            whoxy_data = search_whoxy('company', '+'.join(str(target).split()))
+            data_dict['Whoxy'] = whoxy_data
 
 if __name__ == "__main__":
     main()
