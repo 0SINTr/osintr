@@ -113,8 +113,9 @@ python -m pip install --upgrade osintr
 ## Planned Upgrades
 
 - More data sources from quality API providers.
-- Phone number and company search capabilities.
+- More phone number and company search avenues.
 - Recursive web scraping for deeper analysis.
+- Optimizing the code overall.
 
 ---
 

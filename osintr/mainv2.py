@@ -4,12 +4,12 @@ from firecrawl import FirecrawlApp
 from itertools import product, chain
 from dotenv import load_dotenv
 import pandas as pd
+import textwrap
 import argparse
 import requests
 import random
 import string
 import time
-import json
 import sys
 import os
 import re
@@ -182,6 +182,7 @@ def detect_aliases(target):
 
 # Process the data and save to JSON
 def process_data(scrape_results, target, directory):
+    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Extracting data from Google advanced search ..." + Style.RESET_ALL)
     data_dict = {}
     all_image_urls = []
     all_emails = []
@@ -287,11 +288,13 @@ def process_data(scrape_results, target, directory):
     all_unique_main_urls = set(all_main_urls)
     diff = all_unique_urls.difference(all_unique_main_urls)
     data_dict['Possibly Related Links'] = list(diff)
+
+    print(Fore.GREEN + "\n  |--- Google search data found and saved.\n" + Style.RESET_ALL)
     return data_dict
 
 # Search for breaches in HIBP data
 def search_breaches(target):
-    print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking for breaches: " + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking HIBP for breaches ..." + Style.RESET_ALL)
     url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
     headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
     response = requests.get(url + target + "?truncateResponse=false" + "?includeUnverified=true", headers=headers)
@@ -312,12 +315,12 @@ def search_breaches(target):
 
 # Search for pastes in HIBP data
 def search_pastes(target):
-    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking for pastes: " + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking HIBP for pastes ..." + Style.RESET_ALL)
     time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
-    url = "https://haveibeenpwned.com/api/v3/pasteaccount/"
+    url = 'https://haveibeenpwned.com/api/v3/pasteaccount/'
     headers = {
-        "user-agent": "python-requests/2.32.3", 
-        "hibp-api-key": os.getenv("HIBP_API_KEY")
+        'user-agent': 'python-requests/2.32.3', 
+        'hibp-api-key': os.getenv('HIBP_API_KEY')
     } 
     response = requests.get(url + target, headers=headers)
 
@@ -337,15 +340,15 @@ def search_pastes(target):
 
 # Search for data from OSINT.Industries
 def osint_industries(target):
-    print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking OSINT.Industries for data: " + Style.RESET_ALL)
-    time.sleep(1) # Introducing sleep for 1 second
+    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking OSINT.Industries for data ..." + Style.RESET_ALL)
+    # Check if target is email or username
     is_valid_email = check(target)
     if is_valid_email:
         target_type = 'email'
     else:
         target_type = 'username'
 
-    url = "https://api.osint.industries/v2/request"
+    url = 'https://api.osint.industries/v2/request'
     headers = {
         'accept': 'application/json',
         'api-key': os.getenv("OSIND_API_KEY"),
@@ -372,12 +375,21 @@ def osint_industries(target):
     else:
         print('    |- Error code: ' + str(response.status_code))
 
-def search_whoxy(target):
-    pass
+def search_whoxy(target, target_type):
+    print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking Whoxy for reverse whois data ..." + Style.RESET_ALL)
+    # API key
+    whoxy_key = os.getenv('WHOXY_API_KEY')
+    url = 'https://api.whoxy.com/?key=xxxxx&reverse=whois&'
 
 # Main function
 def main():
-    parser = argparse.ArgumentParser(description='Run osintr with the following arguments.')
+    parser = argparse.ArgumentParser(
+        description='Run osintr with the following arguments.',
+        epilog=textwrap.dedent('''\
+            additional information:
+                For person and company name use double quotes to enclose the whole name.
+            '''
+        ))
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-e', '--email', help='Target email address')
     group.add_argument('-u', '--user', help='Target username')
@@ -488,3 +500,6 @@ def main():
         scrape_links = extract_links(uniques)
         scraped_data = scrape_links(scrape_links)
         data_dict = process_data(scraped_data, target, output_directory)
+
+if __name__ == "__main__":
+    main()
