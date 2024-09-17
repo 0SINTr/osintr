@@ -104,7 +104,7 @@ def extract_links(unique_data):
     return scrape_links
 
 # Scarping links with Firecrawl
-def scrape_links(scrape_links):
+def scraped_links(scrape_links):
     scrape_results = []
     for link in scrape_links:
         try:
@@ -441,7 +441,7 @@ def main():
                 results = join_results(res_one, res_two, res_thr)
                 uniques = remove_duplicates(results)
                 scrape_links = extract_links(uniques)
-                scraped_data = scrape_links(scrape_links)
+                scraped_data = scraped_links(scrape_links)
                 data_dict = process_data(scraped_data, target, output_directory)
             if os.getenv('HIBP_API_KEY'):
                 breach_data = search_breaches(target)
@@ -469,7 +469,7 @@ def main():
             results = join_results(res_one, res_two, res_thr)
             uniques = remove_duplicates(results)
             scrape_links = extract_links(uniques)
-            scraped_data = scrape_links(scrape_links)
+            scraped_data = scraped_links(scrape_links)
             data_dict = process_data(scraped_data, target, output_directory)
         if os.getenv('HIBP_API_KEY'):
             breach_data = search_breaches(target)
@@ -495,7 +495,7 @@ def main():
             results = join_results(res_one, res_two, res_thr, res_fou)
             uniques = remove_duplicates(results)
             scrape_links = extract_links(uniques)
-            scraped_data = scrape_links(scrape_links)
+            scraped_data = scraped_links(scrape_links)
             data_dict = process_data(scraped_data, target, output_directory)
         if os.getenv("OSIND_API_KEY") is not None:
             osind_data = osint_industries(target)
@@ -513,7 +513,7 @@ def main():
             results = join_results(res_one, res_two, res_thr, res_fou)
             uniques = remove_duplicates(results)
             scrape_links = extract_links(uniques)
-            scraped_data = scrape_links(scrape_links)
+            scraped_data = scraped_links(scrape_links)
             data_dict = process_data(scraped_data, target, output_directory)
         if os.getenv('WHOXY_API_KEY'):
             whoxy_data = search_whoxy('name', '+'.join(str(target).split()))
@@ -531,7 +531,7 @@ def main():
             results = join_results(res_one, res_two, res_thr, res_fou)
             uniques = remove_duplicates(results)
             scrape_links = extract_links(uniques)
-            scraped_data = scrape_links(scrape_links)
+            scraped_data = scraped_links(scrape_links)
             data_dict = process_data(scraped_data, target, output_directory)
         if os.getenv('WHOXY_API_KEY'):
             whoxy_data = search_whoxy('company', '+'.join(str(target).split()))
