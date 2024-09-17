@@ -105,6 +105,7 @@ def extract_links(unique_data):
 
 # Scarping links with Firecrawl
 def scraped_links(scrape_links):
+    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Extracting data from Google advanced search ..." + Style.RESET_ALL)
     scrape_results = []
     for link in scrape_links:
         try:
@@ -113,25 +114,26 @@ def scraped_links(scrape_links):
             scrape_results.append(scrape_result)
             time.sleep(1)
         except Exception as e:
-            print(Fore.RED + '    |- Error scraping ' + Style.BRIGHT + link + Style.RESET_ALL)
+            print(Fore.RED + '    |- Scraping not allowed for ' + Style.BRIGHT + link + Style.RESET_ALL)
             continue
     return scrape_results
 
 # Extract emails and links from results
 def extract_data(scrape_result):
     # Image URL
-    image_url = scrape_result['screenshot']
-    if image_url and str(image_url).startswith('http'):
-        image_url = image_url
-
-    # Source URL
-    source_url = scrape_result['metadata']['sourceURL']
-
-    # All URLs
-    all_urls = scrape_result['links']
+    if 'screenshot' in scrape_result:
+        if str(scrape_result['screenshot']).startswith('http'):
+            image_url = scrape_result['screenshot']
+        else:
+            image_url = ''
+    else:
+        image_url = ''
 
     # Email addresses
     emails = re.findall(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]{3,}\.[a-zA-Z0-9-.]+)", str(scrape_result))
+
+    # All URLs
+    all_urls = scrape_result['links']
 
     return image_url, emails, all_urls
 
@@ -183,7 +185,6 @@ def detect_aliases(target):
 
 # Process the data and save to JSON
 def process_data(scrape_results, target, directory):
-    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Extracting data from Google advanced search ..." + Style.RESET_ALL)
     data_dict = {}
     all_image_urls = []
     all_emails = []
@@ -196,7 +197,7 @@ def process_data(scrape_results, target, directory):
         all_image_urls.append(image_url)
 
         # Extract email addresses
-        emails = extract_data[1]
+        emails = extracted_data[1]
         for email in emails:
             all_emails.append(email)
 
@@ -221,7 +222,7 @@ def process_data(scrape_results, target, directory):
             image_path = os.path.join(ss_path, 'ss_' + ''.join(random.choices(string.ascii_lowercase, k=5)) + '.png')
             save_screenshot(url, image_path)
     else:
-        print(Fore.RED + "  |--- No screenshots taken.\n" + Style.RESET_ALL)
+        print(Fore.RED + "\n  |--- No screenshots taken.\n" + Style.RESET_ALL)
 
     # Iterate over all email addresses
     unzipped_email_list = []
@@ -439,9 +440,11 @@ def main():
                 res_two = intext_search(target)
                 res_thr = intitle_search(target)
                 results = join_results(res_one, res_two, res_thr)
-                uniques = remove_duplicates(results)
+                uniques = remove_duplicates(results)              
                 scrape_links = extract_links(uniques)
                 scraped_data = scraped_links(scrape_links)
+                with open('scraped_data', 'w', encoding='utf-8') as file:
+                    file.write(str(scraped_data))
                 data_dict = process_data(scraped_data, target, output_directory)
             if os.getenv('HIBP_API_KEY'):
                 breach_data = search_breaches(target)
