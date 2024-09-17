@@ -341,7 +341,7 @@ def search_pastes(target):
 
 # Search for data from Whoxy
 def search_whoxy(target_type, target):
-    print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking Whoxy for reverse whois data ..." + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking Whoxy for reverse whois data ..." + Style.RESET_ALL)
     # API key and URL
     whoxy_key = os.getenv('WHOXY_API_KEY')
     url = f'https://api.whoxy.com/?key={whoxy_key}&reverse=whois&'
