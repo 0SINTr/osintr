@@ -9,6 +9,7 @@ import argparse
 import requests
 import random
 import string
+import json
 import time
 import sys
 import os
@@ -432,11 +433,11 @@ def main():
         target = args.email
         is_valid_email = check(target)
         if is_valid_email:
-            check_directory()
+            check_directory(target, output_directory)
             if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-                res_one = verbatim_search()
-                res_two = intext_search()
-                res_thr = intitle_search()
+                res_one = verbatim_search(target)
+                res_two = intext_search(target)
+                res_thr = intitle_search(target)
                 results = join_results(res_one, res_two, res_thr)
                 uniques = remove_duplicates(results)
                 scrape_links = extract_links(uniques)
@@ -460,11 +461,11 @@ def main():
     # -u argument logic
     if args.user is not None:
         target = args.user
-        check_directory()
+        check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-            res_one = verbatim_search()
-            res_two = intext_search()
-            res_thr = inurl_search()
+            res_one = verbatim_search(target)
+            res_two = intext_search(target)
+            res_thr = inurl_search(target)
             results = join_results(res_one, res_two, res_thr)
             uniques = remove_duplicates(results)
             scrape_links = extract_links(uniques)
@@ -485,12 +486,12 @@ def main():
     # -p argument logic
     if args.phone is not None:
         target = args.phone
-        check_directory()
+        check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-            res_one = verbatim_search()
-            res_two = intext_search()
-            res_thr = inurl_search()
-            res_fou = intitle_search()
+            res_one = verbatim_search(target)
+            res_two = intext_search(target)
+            res_thr = inurl_search(target)
+            res_fou = intitle_search(target)
             results = join_results(res_one, res_two, res_thr, res_fou)
             uniques = remove_duplicates(results)
             scrape_links = extract_links(uniques)
@@ -503,12 +504,12 @@ def main():
     # -n argument logic
     if args.name is not None:
         target = args.name
-        check_directory()
+        check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-            res_one = verbatim_search()
-            res_two = intext_search()
-            res_thr = inurl_search()
-            res_fou = intitle_search()
+            res_one = verbatim_search(target)
+            res_two = intext_search(target)
+            res_thr = inurl_search(target)
+            res_fou = intitle_search(target)
             results = join_results(res_one, res_two, res_thr, res_fou)
             uniques = remove_duplicates(results)
             scrape_links = extract_links(uniques)
@@ -521,12 +522,12 @@ def main():
     # -c argument logic
     if args.company is not None:
         target = args.company
-        check_directory()
+        check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-            res_one = verbatim_search()
-            res_two = intext_search()
-            res_thr = inurl_search()
-            res_fou = intitle_search()
+            res_one = verbatim_search(target)
+            res_two = intext_search(target)
+            res_thr = inurl_search(target)
+            res_fou = intitle_search(target)
             results = join_results(res_one, res_two, res_thr, res_fou)
             uniques = remove_duplicates(results)
             scrape_links = extract_links(uniques)
@@ -535,6 +536,10 @@ def main():
         if os.getenv('WHOXY_API_KEY'):
             whoxy_data = search_whoxy('company', '+'.join(str(target).split()))
             data_dict['Whoxy'] = whoxy_data
+
+    # Write data_dict to JSON file
+    with open(os.path.join(os.path.dirname(output_directory), 'DATA.json'), 'w', encoding='utf-8') as f:
+        json.dump(data_dict, f)
 
 if __name__ == "__main__":
     main()
