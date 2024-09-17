@@ -3,6 +3,7 @@
 db/
 .venv/
 dist/
+build/
 __pycache__/
 .gitattributes
 .DS_Store
