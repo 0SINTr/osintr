@@ -83,7 +83,8 @@ Ensure Python >=3.10 is installed.
 In Linux, you may need to add `/home/<user>/.local/bin` to `PATH`.
 
 ```bash
-python -m pip install --upgrade pip
+sudo apt upgrade python3
+sudo apt upgrade python3-pip
 git clone https://github.com/0SINTr/0SINTr.git
 cd 0SINTr
 python -m pip install .
