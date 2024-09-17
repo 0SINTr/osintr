@@ -375,11 +375,26 @@ def osint_industries(target):
     else:
         print('    |- Error code: ' + str(response.status_code))
 
-def search_whoxy(target, target_type):
+def search_whoxy(target_type, target):
     print(Style.BRIGHT + Fore.CYAN + "\n|---> Checking Whoxy for reverse whois data ..." + Style.RESET_ALL)
-    # API key
+    # API key and URL
     whoxy_key = os.getenv('WHOXY_API_KEY')
-    url = 'https://api.whoxy.com/?key=xxxxx&reverse=whois&'
+    url = f'https://api.whoxy.com/?key={whoxy_key}&reverse=whois&'
+    response = requests.get(url + target_type + '=' + target)
+
+    # Check Whoxy response
+    if response.status_code == 200:
+        print(Fore.GREEN + "\n  |--- Whoxy data found and saved.\n" + Style.RESET_ALL)
+        whoxy_data = response.json()
+        return whoxy_data
+    elif response.status_code == 401:
+        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
+    elif response.status_code == 404:
+        print(Fore.RED + "\n  |--- No HIBP paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+    elif response.status_code == 429:
+        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
+    else:
+        print('    |- Error code: ' + str(response.status_code))
 
 # Main function
 def main():
@@ -429,6 +444,8 @@ def main():
             data_dict['Breaches'] = breach_data
             paste_data = search_pastes(target)
             data_dict['Pastes'] = paste_data
+            whoxy_data = search_whoxy('email', target)
+            data_dict['Whoxy'] = whoxy_data
             if os.getenv("OSIND_API_KEY") is not None:
                 osind_data = osint_industries(target)
                 data_dict['OSINDUS'] = osind_data
@@ -452,6 +469,8 @@ def main():
         data_dict['Breaches'] = breach_data
         paste_data = search_pastes(target + "@gmail.com")
         data_dict['Pastes'] = paste_data
+        whoxy_data = search_whoxy('email', target + "@gmail.com")
+        data_dict['Whoxy'] = whoxy_data
         if os.getenv("OSIND_API_KEY") is not None:
             osind_data = osint_industries(target)
             data_dict['OSINDUS'] = osind_data
@@ -486,6 +505,8 @@ def main():
         scrape_links = extract_links(uniques)
         scraped_data = scrape_links(scrape_links)
         data_dict = process_data(scraped_data, target, output_directory)
+        whoxy_data = search_whoxy('name', '+'.join(str(target).split()))
+        data_dict['Whoxy'] = whoxy_data
 
     # -c argument logic
     if args.company is not None:
@@ -500,6 +521,8 @@ def main():
         scrape_links = extract_links(uniques)
         scraped_data = scrape_links(scrape_links)
         data_dict = process_data(scraped_data, target, output_directory)
+        whoxy_data = search_whoxy('company', '+'.join(str(target).split()))
+        data_dict['Whoxy'] = whoxy_data
 
 if __name__ == "__main__":
     main()
