@@ -106,7 +106,8 @@ def extract_links(unique_data):
 
 # Scarping links with Firecrawl
 def scraped_links(scrape_links):
-    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Extracting data from Google advanced search ...\n" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Extracting data from Google advanced search ..." + Style.RESET_ALL)
+    print(Fore.YELLOW + "  |--- Some pages or screenshots may fail, don't panic.\n" + Style.RESET_ALL)
     scrape_results = []
     for link in scrape_links:
         try:
@@ -115,7 +116,7 @@ def scraped_links(scrape_links):
             scrape_results.append(scrape_result)
             time.sleep(1)
         except Exception as e:
-            print(Fore.RED + '    |- Scraping not allowed for ' + Style.BRIGHT + link + Style.RESET_ALL)
+            print(Fore.RED + '    |- Scraping not allowed for ' + Style.BRIGHT + link + Style.RESET_ALL + " - skipping")
             continue
     return scrape_results
 
@@ -146,13 +147,13 @@ def save_screenshot(image_url, directory):
         response.raise_for_status() 
         with open(directory, 'wb') as file:
             file.write(response.content)
-        print("    |- Screenshot saved as: " + Fore.YELLOW + f"{directory}" + Style.RESET_ALL)
+        print("    |- Screenshot saved as: " + Fore.YELLOW + directory + Style.RESET_ALL)
     except requests.exceptions.RequestException:
-        print(Fore.RED + "    |- Request exception. Failed to retrieve image" + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
+        print(Fore.RED + f"    |- Request exception. Failed to retrieve image from {image_url}" + Style.RESET_ALL + " - skipping")
     except requests.exceptions.MissingSchema:
-        print(Fore.RED + "    |- Missing schema. Failed to retrieve image, link invalid: " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
+        print(Fore.RED + f"    |- Missing schema. Failed to retrieve image, link invalid: {image_url}" + Style.RESET_ALL + " - skipping")
     except requests.exceptions.Timeout:
-        print(Fore.RED + "    |- Connection timed out. Failed to retrieve image" + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
+        print(Fore.RED + f"    |- Connection timed out. Failed to retrieve image from {image_url}" + Style.RESET_ALL + " - skipping")
 
 # Check if the target is a valid email address, otherwise it's a username
 def check(user_input):
