@@ -404,19 +404,25 @@ def osint_industries(target):
 # Main function
 def main():
     parser = argparse.ArgumentParser(
-        description='Run osintr with the following arguments.',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=textwrap.dedent('''\
+            See below all available arguments for osintr.
+            Use only one -e|-u|-p|-n|-c argument at a time.
+            
+            example:
+            osintr -e example@example.com -o /home/bob/data
+            '''),
         epilog=textwrap.dedent('''\
-            additional information:
-                For person and company name use double quotes to enclose the whole name.
-            '''
-        ))
+            NOTE!
+            For person or company name use double quotes to enclose the whole name.             
+            '''))
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-e', '--email', help='Target email address')
-    group.add_argument('-u', '--user', help='Target username')
-    group.add_argument('-p', '--phone', help='Target phone number')
-    group.add_argument('-n', '--name', help='Target person name')
-    group.add_argument('-c', '--company', help='Target company name')
-    parser.add_argument('-o', '--output', help='Directory to save results', required=True)
+    group.add_argument('-e', dest='EMAIL', help='Target email address')
+    group.add_argument('-u', dest='USER', help='Target username')
+    group.add_argument('-p', dest='PHONE', help='Target phone number')
+    group.add_argument('-n', dest='NAME', help='Target person name')
+    group.add_argument('-c', dest='COMPANY', help='Target company name')
+    parser.add_argument('-o', dest='OUTPUT', help='Directory to save results', required=True)
     args = parser.parse_args()
 
     # -o argument logic

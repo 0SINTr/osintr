@@ -1,13 +1,13 @@
 
 # osintr
 
-**osintr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, OSINT Industries API etc.
+**osintr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, Whoxy reverse whois, OSINT Industries API etc.
 
 ---
 
 ## Why osintr?
 
-The app directly interacts with high-quality APIs (SerpDev, Firecrawl, HIBP, OSINT Industries) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
+The app directly interacts with high-quality APIs (SerpDev, Firecrawl, HIBP, Whoxy, OSINT Industries) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
 
 ---
 
