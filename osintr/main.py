@@ -108,7 +108,7 @@ def extract_links(unique_data):
 
 # Scarping links with Firecrawl
 def scraped_links(scrape_links):
-    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Starting to scrape links." + Style.RESET_ALL)
+    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Starting to scrape links. Moving on if nothing to scrape." + Style.RESET_ALL)
     print(Fore.GREEN + " [" + Fore.WHITE + "!" + Fore.GREEN + "]" + Fore.WHITE + " Some pages or screenshots may fail, don't panic." + Style.RESET_ALL)
     scrape_results = []
     for link in scrape_links:
@@ -152,7 +152,7 @@ def save_screenshot(image_url, directory):
             file.write(response.content)
         print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Screenshot saved as: " + Style.RESET_ALL + directory)
     except Exception as e:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Failed to retrieve image from " + Style.RESET_ALL + image_url + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Failed to retrieve image from" + Style.RESET_ALL + f" {image_url}" + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
 
 # Check if the target is a valid email address, otherwise it's a username
 def check(user_input):
