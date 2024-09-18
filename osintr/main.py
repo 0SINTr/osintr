@@ -216,11 +216,11 @@ def process_data(scrape_results, target, directory):
 
     # Iterate over all image URLs
     if len(all_image_urls):
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Taking screenshots where possible." + Style.RESET_ALL)
         ss_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()), 'screenshots')
         if not os.path.exists(ss_path):
             os.makedirs(ss_path)
         for url in all_image_urls:
-            print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Taking screenshots where possible." + Style.RESET_ALL)
             image_path = os.path.join(ss_path, 'ss_' + ''.join(random.choices(string.ascii_lowercase, k=5)) + '.png')
             save_screenshot(url, image_path)
     else:
@@ -250,12 +250,12 @@ def process_data(scrape_results, target, directory):
         data_dict['Relevant Email Addresses'] = list(set(all_main_emails))
 
         # Print out the email addresses
-        print(Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Relevant email addresses found:" + Style.RESET_ALL)
+        print('\n' + Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "*" + Fore.WHITE + "]" + Fore.GREEN + " Relevant email addresses found:" + Style.RESET_ALL)
         for email in set(unzipped_email_list):
             print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Style.RESET_ALL + f" {email}")
     else:
         data_dict['Email Addresses'] = []
-        print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No relevant or alternate email addresses found." + Style.RESET_ALL)
+        print('\n' + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No relevant or alternate email addresses found for " + Style.BRIGHT + target + Style.RESET_ALL)
 
     # Writing all other emails as secondary emails to data_dict
     all_unique_emails = set(all_emails)
@@ -324,7 +324,7 @@ def search_breaches(target):
 
 # Search for pastes in HIBP data
 def search_pastes(target):
-    print(Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking HIBP for paste data." + Style.RESET_ALL)
+    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking HIBP for paste data." + Style.RESET_ALL)
     time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
     url = 'https://haveibeenpwned.com/api/v3/pasteaccount/'
     headers = {
@@ -554,7 +554,7 @@ def main():
     # Write data_dict to JSON file
     with open(os.path.join(data_dir, 'DATA.json'), 'w', encoding='utf-8') as f:
         json.dump(data_dict, f)
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "-" + Fore.GREEN + "]" + " DONE. " + Style.RESET_ALL + Fore.GREEN + f"Check {data_dir} for " + Style.BRIGHT + f"DATA.json\n" + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "-" + Fore.GREEN + "]" + " DONE. " + Style.RESET_ALL + Fore.GREEN + f"Check" + Style.BRIGHT + f" {data_dir} " + Style.RESET_ALL + Fore.GREEN + "for " + Style.BRIGHT + f"DATA.json\n" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
