@@ -1,41 +1,40 @@
 
 # osintr
 
-**osintr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, Whoxy reverse whois, OSINT Industries API etc.
+**osintr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, Whoxy reverse whois data, OSINT Industries API data etc.
 
 ---
 
 ## Why osintr?
 
-The app directly interacts with high-quality APIs (SerpDev, Firecrawl, HIBP, Whoxy, OSINT Industries) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
+The app directly interacts only with high-quality APIs (SerpDev, Firecrawl, HIBP, Whoxy, OSINT Industries) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
 
 ---
 
 ## Workflow
 
-**osintr** performs two primary tasks:
+**osintr** works on Linux and performs two primary tasks:
 
 ### 1. Data Collection
 
-You provide a **Username** or **Email Address** for the **-t** argument (see below). This is the **target** of the OSINT investigation. Ensure you create and populate a `.env` file as described below before running the tool.
+You provide the **target** of the OSINT investigation (see **Usage** below).   
+Ensure you add your API keys (see **API Keys** below) before running the tool.
 
 **Automated tasks include:**
-- Perform verbatim search, intext, inurl, and intitle search on Google.
-- Store search results, including URLs, as JSON and remove duplicates.
-- Scrape all URLs and save each page as Markdown file in the `raw` directory.
-- Save URLs of unscraped pages (e.g., social media) in a `.txt` file.
-- Save full page screenshots of each page in the `raw` directory.
-- Extract all the links and email addresses from the scraped pages.
-- Sort the email addresses and URLs based on relevance and save to `DATA.json`.
-- Check HIBP breaches and pastes for target and save to `DATA.json`.
-- Optionally use the OSINT.Industries if an API key is provided. Save to `DATA.json`.
+- Performs verbatim search, intext, inurl, and intitle search on Google.
+- Scrapes all URLs and saves all links and email addresses on each page.
+- Saves a full page screenshot of each page in a separate directory.
+- Sorts email addresses and links based on relevance. Saves to `DATA.json`.
+- Checks HIBP breaches and pastes (for -e|-u). Saves to `DATA.json`.
+- Checks Whoxy reverse whois data (for -e|-u|-n|-c). Saves to `DATA.json`.
+- Checks OSINT.Industries for more data (for -e|-u|-p). Save to `DATA.json`.
 
 ### 2. Data Analysis (planned upgrade)
 
-Once data is collected, **osintr** will automatically analyze the information inside `DATA.json` for patterns, hidden links and connections between data points.
+Once data is collected, **osintr** will automatically analyze the information inside `DATA.json` for patterns and hidden connections between data points.
 
 **Automated tasks include:**
-- Analyze data inside `DATA.json` for patterns and insights using OpenAI [GPT-4o](https://platform.openai.com/docs/models/gpt-4o).
+- Analyzes `DATA.json` for patterns and insights using OpenAI [GPT-o1](https://openai.com/o1/).
 - **osintr** builds a profile or digital footprint of the target based on collected data.
 - The gathered data is carefully curated and a summary is provided in .md format.
 
@@ -43,50 +42,68 @@ Once data is collected, **osintr** will automatically analyze the information in
 
 ## API Keys
 
-Running the **Data Collection** and **Data Analysis** phases requires API keys inside the `.env` file.
+Running the **Data Collection** and **Data Analysis** phases requires API keys.
+The API keys should reside in your environment prior to running **osintr**.
 
-**To use osintr with GPT-4o, you need the following items in your `.env` file inside the root folder of osintr.**
+**To add your API keys to your environment, edit bashrc or zshrc. Example:**
 ```plaintext
-OPENAI_API_KEY=<your_key_here>
-SERPER_API_KEY=<your_key_here>
-FIRECRAWL_API_KEY=<your_key_here>
-HIBP_API_KEY=<your_key_here>
-``` 
+vim ~/.zshrc
+export SERPER_API_KEY="<your_key_here>"
+export FIRECRAWL_API_KEY="<your_key_here>"
+export HIBP_API_KEY="<your_key_here>"
+export WHOXY_API_KEY="<your_key_here>"
+export OSIND_API_KEY="<your_key_here>"
+export OPENAI_API_KEY="<your_key_here>"
+source ~/.zshrc
+```
+
+**NOTE!** The **OPENAI_API_KEY** is currently optional until the **Data Analysis** functionality is implemented.
 
 **API Keys:**
-- **OpenAI**: [Get your key here](https://openai.com/)
+
 - **SerperDev**: [Get your key here](https://serper.dev/)
 - **Firecrawl**: [Get your key here](https://www.firecrawl.dev/)
 - **HaveIBeenPwned**: [Get your key here](https://haveibeenpwned.com/)
+- **Whoxy**: [Get your key here](https://www.whoxy.com/)
+- **OSINT.Industries**: [Get your key here](https://www.osint.industries/)
+- **OpenAI**: [Get your key here](https://openai.com/)
 
----
-
-## Optional Feature
-
-Optionally, you can collect data from **OSINT.Industries** via their API. Add the key in `.env` as `OSIND_API_KEY=<your_key_here>`. This functionality is triggered at runtime if you have a valid key saved in `.env`.
+**NOTE!** For Whoxy make sure you buy credits for the [Reverse Whois API](https://www.whoxy.com/pricing.php).
 
 ---
 
 ## Costs
 
-- **OpenAI**: Pay-as-you-go.
+**osintr** aims to use reliable, but affordable APIs:
+
 - **SerperDev**: 2,500 free queries, then pay-as-you-go (50k queries for $50).
 - **Firecrawl**: 500 free credits; $19/mo for 3,000 page scrapes. 
 - **HIBP**: Pwned1 plan for $3.95/mo, 10 email searches/minute.
+- **Whoxy**: $10 for 1,000 reverse whois API queries.
 - **OSINT.Industries** (optional): Starting at £19/mo.
+- **OpenAI**: Pay-as-you-go.
 
 ---
 
 ## Installation
 
+**Preparing**
 Ensure Python >=3.10 is installed.
-In Linux, you may need to add `/home/<user>/.local/bin` to `PATH`.
+Add `/home/<user>/.local/bin` to `PATH`.
+Edit ~/.bashrc if that's your default.
 
 ```bash
 sudo apt upgrade python3
 sudo apt upgrade python3-pip
-git clone https://github.com/0SINTr/0SINTr.git
-cd 0SINTr
+vim ~/.zshrc
+export PATH="$HOME/.local/bin:$PATH"
+source ~/.zshrc
+```
+
+**Installing**
+```bash
+git clone https://github.com/0SINTr/osintr.git
+cd osintr
 python -m pip install .
 ```
 
@@ -95,7 +112,25 @@ python -m pip install .
 ## Usage
 
 ```bash
-osintr [-h] -t TARGET -o OUTPUT
+usage: main.py [-h] (-e EMAIL | -u USER | -p PHONE | -n NAME | -c COMPANY) -o OUTPUT
+
+See below all available arguments for osintr.
+Use only one -e|-u|-p|-n|-c argument at a time.
+
+example:
+osintr -e example@example.com -o /home/bob/data
+
+options:
+  -h, --help  show this help message and exit
+  -e EMAIL    Target email address
+  -u USER     Target username
+  -p PHONE    Target phone number
+  -n NAME     Target person name
+  -c COMPANY  Target company name
+  -o OUTPUT   Directory to save results
+
+NOTE!
+For person or company name use double quotes to enclose the whole name.
 ```
 
 ---
@@ -105,6 +140,8 @@ osintr [-h] -t TARGET -o OUTPUT
 To update this tool to the latest version, follow these steps:
 
 ```bash
+cd osintr
+git pull origin main
 python -m pip install --upgrade osintr
 ```
 
@@ -115,7 +152,6 @@ python -m pip install --upgrade osintr
 - More data sources from quality API providers.
 - More phone number and company search avenues.
 - Recursive web scraping for deeper analysis.
-- Optimizing the code overall.
 
 ---
 
@@ -129,8 +165,9 @@ This tool is designed for passive, non-intrusive OSINT tasks. Any illegal or une
 
 For support, questions, or feedback:
 
-- [OpenAI API docs](https://platform.openai.com/docs/overview)
 - [SerperDev API docs](https://serper.dev/)
 - [Firecrawl API docs](https://docs.firecrawl.dev/introduction)
 - [HaveIBeenPwned API docs](https://haveibeenpwned.com/API/v3)
+- [Whoxy Reverse API docs](https://www.whoxy.com/reverse-whois/)
 - [OSINT.Industries API docs](https://docs.osint.industries/reference/search)
+- [OpenAI API docs](https://platform.openai.com/docs/overview)
