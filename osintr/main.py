@@ -224,7 +224,7 @@ def process_data(scrape_results, target, directory):
             image_path = os.path.join(ss_path, 'ss_' + ''.join(random.choices(string.ascii_lowercase, k=5)) + '.png')
             save_screenshot(url, image_path)
     else:
-        print(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No screenshots taken." + Style.RESET_ALL)
+        print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No screenshots taken." + Style.RESET_ALL)
 
     # Iterate over all email addresses
     unzipped_email_list = []
@@ -255,7 +255,7 @@ def process_data(scrape_results, target, directory):
             print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Style.RESET_ALL + f" {email}")
     else:
         data_dict['Email Addresses'] = []
-        print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No relevant email addresses found." + Style.RESET_ALL)
+        print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No relevant or alternate email addresses found." + Style.RESET_ALL)
 
     # Writing all other emails as secondary emails to data_dict
     all_unique_emails = set(all_emails)
@@ -554,7 +554,7 @@ def main():
     # Write data_dict to JSON file
     with open(os.path.join(data_dir, 'DATA.json'), 'w', encoding='utf-8') as f:
         json.dump(data_dict, f)
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "-" + Fore.GREEN + "]" + f" DONE. Check DATA.json in {data_dir}.\n" + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "-" + Fore.GREEN + "]" + " DONE. " + Style.RESET_ALL + Fore.GREEN + f"Check {data_dir} for " + Style.BRIGHT + f"DATA.json\n" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
