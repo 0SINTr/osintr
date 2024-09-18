@@ -19,6 +19,7 @@ import re
 def check_directory(target, directory):
     directory = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
     if not os.path.exists(path=directory):
+        print(Style.BRIGHT + Fore.YELLOW + "\n|---> Initializing ...\n" + Style.RESET_ALL)
         os.makedirs(directory)
         return directory
     else:
@@ -105,7 +106,7 @@ def extract_links(unique_data):
 
 # Scarping links with Firecrawl
 def scraped_links(scrape_links):
-    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Extracting data from Google advanced search ..." + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Extracting data from Google advanced search ...\n" + Style.RESET_ALL)
     scrape_results = []
     for link in scrape_links:
         try:
@@ -145,13 +146,13 @@ def save_screenshot(image_url, directory):
         response.raise_for_status() 
         with open(directory, 'wb') as file:
             file.write(response.content)
-        print("    |- Image saved as: " + Fore.YELLOW + f"{directory}" + Style.RESET_ALL)
+        print("    |- Screenshot saved as: " + Fore.YELLOW + f"{directory}" + Style.RESET_ALL)
     except requests.exceptions.RequestException:
-        print(Fore.RED + "    |- Request exception. Failed to retrieve image " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
+        print(Fore.RED + "    |- Request exception. Failed to retrieve image" + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
     except requests.exceptions.MissingSchema:
         print(Fore.RED + "    |- Missing schema. Failed to retrieve image, link invalid: " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
     except requests.exceptions.Timeout:
-        print(Fore.RED + "    |- Connection timed out. Failed to retrieve image " + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
+        print(Fore.RED + "    |- Connection timed out. Failed to retrieve image" + Style.BRIGHT + f"{image_url}" + Style.RESET_ALL + " - skipping")
 
 # Check if the target is a valid email address, otherwise it's a username
 def check(user_input):
@@ -215,7 +216,7 @@ def process_data(scrape_results, target, directory):
 
     # Iterate over all image URLs
     if len(all_image_urls):
-        ss_path = os.path.join(directory, 'screenshots')
+        ss_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()), 'screenshots')
         if not os.path.exists(ss_path):
             os.makedirs(ss_path)
         for url in all_image_urls:
@@ -291,7 +292,7 @@ def process_data(scrape_results, target, directory):
     diff = all_unique_urls.difference(all_unique_main_urls)
     data_dict['Possibly Related Links'] = list(diff)
 
-    print(Fore.GREEN + "\n  |--- Google search data found and saved.\n" + Style.RESET_ALL)
+    print(Fore.GREEN + "\n  |--- Google search data found and saved." + Style.RESET_ALL)
     return data_dict
 
 # Search for breaches in HIBP data
@@ -434,7 +435,7 @@ def main():
         target = args.email
         is_valid_email = check(target)
         if is_valid_email:
-            check_directory(target, output_directory)
+            data_dir = check_directory(target, output_directory)
             if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
                 res_one = verbatim_search(target)
                 res_two = intext_search(target)
@@ -443,8 +444,6 @@ def main():
                 uniques = remove_duplicates(results)              
                 scrape_links = extract_links(uniques)
                 scraped_data = scraped_links(scrape_links)
-                with open('scraped_data', 'w', encoding='utf-8') as file:
-                    file.write(str(scraped_data))
                 data_dict = process_data(scraped_data, target, output_directory)
             if os.getenv('HIBP_API_KEY'):
                 breach_data = search_breaches(target)
@@ -464,7 +463,7 @@ def main():
     # -u argument logic
     if args.user is not None:
         target = args.user
-        check_directory(target, output_directory)
+        data_dir = check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
             res_one = verbatim_search(target)
             res_two = intext_search(target)
@@ -489,7 +488,7 @@ def main():
     # -p argument logic
     if args.phone is not None:
         target = args.phone
-        check_directory(target, output_directory)
+        data_dir = check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
             res_one = verbatim_search(target)
             res_two = intext_search(target)
@@ -507,7 +506,7 @@ def main():
     # -n argument logic
     if args.name is not None:
         target = args.name
-        check_directory(target, output_directory)
+        data_dir = check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
             res_one = verbatim_search(target)
             res_two = intext_search(target)
@@ -525,7 +524,7 @@ def main():
     # -c argument logic
     if args.company is not None:
         target = args.company
-        check_directory(target, output_directory)
+        data_dir = check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
             res_one = verbatim_search(target)
             res_two = intext_search(target)
@@ -541,8 +540,9 @@ def main():
             data_dict['Whoxy'] = whoxy_data
 
     # Write data_dict to JSON file
-    with open(os.path.join(os.path.dirname(output_directory), 'DATA.json'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(data_dir, 'DATA.json'), 'w', encoding='utf-8') as f:
         json.dump(data_dict, f)
+        print(Style.BRIGHT + Fore.YELLOW + "\n|---> DONE. Check DATA.json.\n" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
