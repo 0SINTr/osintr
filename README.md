@@ -1,7 +1,7 @@
 
-# osintr
+# OSINTr
 
-**osintr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, Whoxy reverse whois data, OSINT Industries API data etc.
+**OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, Whoxy reverse whois data, OSINT Industries API data etc.
 
 ---
 
@@ -13,7 +13,7 @@ The app directly interacts only with high-quality APIs (SerpDev, Firecrawl, HIBP
 
 ## Workflow
 
-**osintr** works on Linux and performs two primary tasks:
+**OSINTr** works on Linux and performs two primary tasks:
 
 ### 1. Data Collection
 
@@ -21,21 +21,21 @@ You provide the **target** of the OSINT investigation (see **Usage** below).
 Ensure you add your API keys (see **API Keys** below) before running the tool.
 
 **Automated tasks include:**
-- Performs verbatim search, intext, inurl, and intitle search on Google.
-- Scrapes all URLs and saves all links and email addresses on each page.
+- Performs verbatim, intext, inurl and intitle search on Google.
+- Scrapes all URLs and saves all links and email addresses from each page.
 - Saves a full page screenshot of each page in a separate directory.
 - Sorts email addresses and links based on relevance. Saves to `DATA.json`.
-- Checks HIBP breaches and pastes (for -e|-u). Saves to `DATA.json`.
-- Checks Whoxy reverse whois data (for -e|-u|-n|-c). Saves to `DATA.json`.
-- Checks OSINT.Industries for more data (for -e|-u|-p). Save to `DATA.json`.
+- Checks HIBP breaches and pastes (for **-e**|**-u**). Saves to `DATA.json`.
+- Checks Whoxy reverse whois data (for **-e**|**-u**|**-n**|**-c**). Saves to `DATA.json`.
+- Checks OSINT.Industries for more data (for **-e**|**-u**|**-p**). Saves to `DATA.json`.
 
 ### 2. Data Analysis (planned upgrade)
 
-Once data is collected, **osintr** will automatically analyze the information inside `DATA.json` for patterns and hidden connections between data points.
+Once data is collected, **OSINTr** will automatically analyze the information inside `DATA.json` for patterns and hidden connections between data points.
 
 **Automated tasks include:**
 - Analyzes `DATA.json` for patterns and insights using OpenAI [GPT-o1](https://openai.com/o1/).
-- **osintr** builds a profile or digital footprint of the target based on collected data.
+- **OSINTr** builds a profile or digital footprint of the target based on collected data.
 - The gathered data is carefully curated and a summary is provided in .md format.
 
 ---
@@ -43,7 +43,7 @@ Once data is collected, **osintr** will automatically analyze the information in
 ## API Keys
 
 Running the **Data Collection** and **Data Analysis** phases requires API keys.
-The API keys should reside in your environment prior to running **osintr**.
+The API keys should reside in your environment prior to running **OSINTr**.
 
 **To add your API keys to your environment, edit bashrc or zshrc. Example:**
 ```plaintext
@@ -57,7 +57,7 @@ export OPENAI_API_KEY="<your_key_here>"
 source ~/.zshrc
 ```
 
-**NOTE!** The **OPENAI_API_KEY** is currently optional until the **Data Analysis** functionality is implemented.
+**Note!** The **OPENAI_API_KEY** is currently optional until the **Data Analysis** functionality is implemented.
 
 **API Keys:**
 
@@ -74,7 +74,7 @@ source ~/.zshrc
 
 ## Costs
 
-**osintr** aims to use reliable, but affordable APIs:
+**OSINTr** aims to use reliable, but affordable APIs:
 
 - **SerperDev**: 2,500 free queries, then pay-as-you-go (50k queries for $50).
 - **Firecrawl**: 500 free credits; $19/mo for 3,000 page scrapes. 
@@ -90,7 +90,7 @@ source ~/.zshrc
 **Preparing**
 Ensure Python >=3.10 is installed.
 Add `/home/<user>/.local/bin` to `PATH`.
-Edit ~/.bashrc if that's your default.
+Edit `~/.bashrc` if that's your default.
 
 ```bash
 sudo apt upgrade python3
@@ -137,7 +137,7 @@ For person or company name use double quotes to enclose the whole name.
 
 ## Upgrading
 
-To update this tool to the latest version, follow these steps:
+To upgrade this tool to the latest version, follow these steps:
 
 ```bash
 cd osintr
