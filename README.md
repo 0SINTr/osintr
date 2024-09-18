@@ -3,13 +3,9 @@
 
 **OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, Whoxy reverse whois data, OSINT Industries API data etc.
 
----
-
 ## Why OSINTr?
 
 OSINTr directly interacts only with high-quality APIs (SerpDev, Firecrawl, HIBP, Whoxy, OSINT Industries) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
-
----
 
 ## Workflow
 
@@ -37,8 +33,6 @@ Once data is collected, **OSINTr** will automatically analyze the information in
 - Analyzes `DATA.json` for patterns and insights using OpenAI [GPT-o1](https://openai.com/o1/).
 - **OSINTr** builds a profile or digital footprint of the target based on collected data.
 - The gathered data is carefully curated and a summary is provided in **.md** format.
-
----
 
 ## API Keys
 
@@ -70,8 +64,6 @@ source ~/.zshrc
 
 **Note!** For Whoxy make sure you buy credits for the [Reverse Whois API](https://www.whoxy.com/pricing.php).
 
----
-
 ## Costs
 
 **OSINTr** aims to use reliable, but affordable APIs:
@@ -82,8 +74,6 @@ source ~/.zshrc
 - **Whoxy**: $10 for 1,000 reverse whois API queries.
 - **OSINT.Industries** (optional): Starting at £19/mo.
 - **OpenAI**: Pay-as-you-go.
-
----
 
 ## Installation
 
@@ -106,8 +96,6 @@ git clone https://github.com/0SINTr/osintr.git
 cd osintr
 python -m pip install .
 ```
-
----
 
 ## Usage
 
@@ -132,8 +120,6 @@ options:
 NOTE!
 For person or company name use double quotes to enclose the whole name.
 ```
-
----
 
 ## Upgrading
 
