@@ -99,7 +99,8 @@ python -m pip install .
 
 ## Usage
 
-```bash
+```console
+$ osintr -h
 usage: osintr [-h] (-e EMAIL | -u USER | -p PHONE | -n NAME | -c COMPANY) -o OUTPUT
 
 See below all available arguments for osintr.
