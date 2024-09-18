@@ -19,11 +19,11 @@ import re
 def check_directory(target, directory):
     directory = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
     if not os.path.exists(path=directory):
-        print(Style.BRIGHT + Fore.YELLOW + "\n|---> Initializing ...\n" + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Initializing OSINTr and searching Google." + Style.RESET_ALL)
         os.makedirs(directory)
         return directory
     else:
-        print(Style.BRIGHT + Fore.RED + "\n|---> Directory already exists. Delete it or change path.\n" + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " Directory already exists. Delete it or change path.\n" + Style.RESET_ALL)
         sys.exit()
 
 # Perform verbatim Google search on target
@@ -37,7 +37,7 @@ def verbatim_search(target):
             for result in results['organic']:
                 search_results.append(result)
     except Exception as e:
-        sys.exit(Fore.RED + f"\n  |--- Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
+        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
     return search_results
 
 # Perform intext Google search on target
@@ -52,7 +52,7 @@ def intext_search(target):
             for result in results['organic']:
                 search_results.append(result)
     except Exception as e:
-        sys.exit(Fore.RED + f"\n  |--- Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
+        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
     return search_results
 
 # Perform inurl Google search on target
@@ -67,7 +67,7 @@ def inurl_search(target):
             for result in results['organic']:
                 search_results.append(result)
     except Exception as e:
-        sys.exit(Fore.RED + f"\n  |--- Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
+        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
     return search_results
 
 # Perform intitle Google search on target
@@ -82,7 +82,7 @@ def intitle_search(target):
             for result in results['organic']:
                 search_results.append(result)
     except Exception as e:
-        sys.exit(Fore.RED + f"\n  |--- Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
+        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
     return search_results
 
 # Join all search results into a list
@@ -94,6 +94,7 @@ def join_results(res_one, res_two, res_thr, *res):
 def remove_duplicates(results):
     df = pd.DataFrame(results).drop_duplicates('title')
     unique_data = df.to_dict(orient='records')
+    print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + Fore.WHITE + " Duplicates removed from search results." + Style.RESET_ALL)
     return unique_data
 
 # Extracting links from search results
@@ -102,21 +103,23 @@ def extract_links(unique_data):
     for entry in unique_data:
         if 'gov' not in entry['link']:
             scrape_links.append(entry['link'])
+    print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + Fore.WHITE + " Links extracted and ready for scraping." + Style.RESET_ALL)
     return scrape_links
 
 # Scarping links with Firecrawl
 def scraped_links(scrape_links):
-    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Extracting data from Google advanced search ..." + Style.RESET_ALL)
-    print(Fore.YELLOW + "  |--- Some pages or screenshots may fail, don't panic.\n" + Style.RESET_ALL)
+    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Starting to scrape links." + Style.RESET_ALL)
+    print(Fore.GREEN + " [" + Fore.WHITE + "!" + Fore.GREEN + "]" + Fore.WHITE + " Some pages or screenshots may fail, don't panic." + Style.RESET_ALL)
     scrape_results = []
     for link in scrape_links:
         try:
+            print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
             scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
             scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
             scrape_results.append(scrape_result)
             time.sleep(1)
         except Exception as e:
-            print(Fore.RED + '    |- Scraping not allowed for ' + Style.BRIGHT + link + Style.RESET_ALL + " - skipping")
+            print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
             continue
     return scrape_results
 
@@ -147,13 +150,9 @@ def save_screenshot(image_url, directory):
         response.raise_for_status() 
         with open(directory, 'wb') as file:
             file.write(response.content)
-        print("    |- Screenshot saved as: " + Fore.YELLOW + directory + Style.RESET_ALL)
-    except requests.exceptions.RequestException:
-        print(Fore.RED + f"    |- Request exception. Failed to retrieve image from {image_url}" + Style.RESET_ALL + " - skipping")
-    except requests.exceptions.MissingSchema:
-        print(Fore.RED + f"    |- Missing schema. Failed to retrieve image, link invalid: {image_url}" + Style.RESET_ALL + " - skipping")
-    except requests.exceptions.Timeout:
-        print(Fore.RED + f"    |- Connection timed out. Failed to retrieve image from {image_url}" + Style.RESET_ALL + " - skipping")
+        print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Screenshot saved as: " + Style.RESET_ALL + directory)
+    except Exception as e:
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Failed to retrieve image from " + Style.RESET_ALL + image_url + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
 
 # Check if the target is a valid email address, otherwise it's a username
 def check(user_input):
@@ -221,10 +220,11 @@ def process_data(scrape_results, target, directory):
         if not os.path.exists(ss_path):
             os.makedirs(ss_path)
         for url in all_image_urls:
+            print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Taking screenshots where possible." + Style.RESET_ALL)
             image_path = os.path.join(ss_path, 'ss_' + ''.join(random.choices(string.ascii_lowercase, k=5)) + '.png')
             save_screenshot(url, image_path)
     else:
-        print(Fore.RED + "\n  |--- No screenshots taken.\n" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No screenshots taken." + Style.RESET_ALL)
 
     # Iterate over all email addresses
     unzipped_email_list = []
@@ -250,17 +250,19 @@ def process_data(scrape_results, target, directory):
         data_dict['Relevant Email Addresses'] = list(set(all_main_emails))
 
         # Print out the email addresses
-        print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Email addresses found:\n" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Relevant email addresses found:" + Style.RESET_ALL)
         for email in set(unzipped_email_list):
-            print(f"    |- {email}")
+            print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Style.RESET_ALL + f" {email}")
     else:
         data_dict['Email Addresses'] = []
-        print(Style.BRIGHT + Fore.RED + "\n\n|---> No email addresses found:" + Style.RESET_ALL)
+        print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No relevant email addresses found." + Style.RESET_ALL)
 
     # Writing all other emails as secondary emails to data_dict
     all_unique_emails = set(all_emails)
     all_unique_main_emails = set(all_main_emails)
     diff = all_unique_emails.difference(all_unique_main_emails)
+    if len(diff):
+        print(Fore.WHITE + "[" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Possibly related email addresses found and saved." + Style.RESET_ALL)
     data_dict['Possibly Related Emails'] = list(diff)
 
     # Writing all the URLs containing the target or target leet to data_dict
@@ -283,6 +285,7 @@ def process_data(scrape_results, target, directory):
                 for link in all_urls:
                     if alias in link:
                         all_main_urls.append(link)
+        print(Fore.WHITE + "[" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Relevant links found and saved." + Style.RESET_ALL)
         data_dict['Relevant Links'] = list(set(all_main_urls))
     else:
         data_dict['Relevant Links'] = []
@@ -291,35 +294,37 @@ def process_data(scrape_results, target, directory):
     all_unique_urls = set(all_urls)
     all_unique_main_urls = set(all_main_urls)
     diff = all_unique_urls.difference(all_unique_main_urls)
+    if len(diff):
+        print(Fore.WHITE + "[" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Possibly related links found and saved." + Style.RESET_ALL)
     data_dict['Possibly Related Links'] = list(diff)
 
-    print(Fore.GREEN + "\n  |--- Google search data found and saved." + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "-" + Fore.WHITE + "]" + Fore.GREEN + " All Google search data was saved." + Style.RESET_ALL)
     return data_dict
 
 # Search for breaches in HIBP data
 def search_breaches(target):
-    print(Style.BRIGHT + Fore.YELLOW + "\n\n|---> Checking HIBP for breaches ..." + Style.RESET_ALL)
+    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking HIBP for breach data." + Style.RESET_ALL)
     url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
     headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
     response = requests.get(url + target + "?truncateResponse=false" + "?includeUnverified=true", headers=headers)
 
     # Check HIBP response (pastes)
     if response.status_code == 200:
-        print(Fore.GREEN + "\n  |--- HIBP breach data found and saved.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + " HIBP breach data found and saved." + Style.RESET_ALL)
         breach_data = response.json()
         return breach_data
     elif response.status_code == 401:
-        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Invalid API key or insufficient credits." + Style.RESET_ALL)
     elif response.status_code == 404:
-        print(Fore.RED + "\n  |--- No HIBP breached data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No HIBP breach data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
     elif response.status_code == 429:
-        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
     else:
-        print('    |- Error code: ' + str(response.status_code))
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Error code: " + Style.RESET_ALL + str(response.status_code))
 
 # Search for pastes in HIBP data
 def search_pastes(target):
-    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking HIBP for pastes ..." + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking HIBP for paste data." + Style.RESET_ALL)
     time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
     url = 'https://haveibeenpwned.com/api/v3/pasteaccount/'
     headers = {
@@ -330,21 +335,21 @@ def search_pastes(target):
 
     # Check HIBP response (pastes)
     if response.status_code == 200:
-        print(Fore.GREEN + "\n  |--- HIBP paste data found and saved.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + " HIBP paste data found and saved." + Style.RESET_ALL)
         paste_data = response.json() 
         return paste_data
     elif response.status_code == 401:
-        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Invalid API key or insufficient credits." + Style.RESET_ALL)
     elif response.status_code == 404:
-        print(Fore.RED + "\n  |--- No HIBP paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No HIBP paste data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
     elif response.status_code == 429:
-        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
     else:
-        print('    |- Error code: ' + str(response.status_code))
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Error code: " + Style.RESET_ALL + str(response.status_code))
 
 # Search for data from Whoxy
 def search_whoxy(target_type, target):
-    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking Whoxy for reverse whois data ..." + Style.RESET_ALL)
+    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking Whoxy for reverse whois data." + Style.RESET_ALL)
     # API key and URL
     whoxy_key = os.getenv('WHOXY_API_KEY')
     url = f'https://api.whoxy.com/?key={whoxy_key}&reverse=whois&'
@@ -352,21 +357,21 @@ def search_whoxy(target_type, target):
 
     # Check Whoxy response
     if response.status_code == 200:
-        print(Fore.GREEN + "\n  |--- Whoxy data found and saved.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + " Whoxy data found and saved." + Style.RESET_ALL)
         whoxy_data = response.json()
         return whoxy_data
     elif response.status_code == 401:
-        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Invalid API key or insufficient credits." + Style.RESET_ALL)
     elif response.status_code == 404:
-        print(Fore.RED + "\n  |--- No HIBP paste data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No Whoxy reverse whois data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
     elif response.status_code == 429:
-        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
     else:
-        print('    |- Error code: ' + str(response.status_code))
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Error code: " + Style.RESET_ALL + str(response.status_code))
 
 # Search for data from OSINT.Industries
 def osint_industries(target):
-    print(Style.BRIGHT + Fore.YELLOW + "\n|---> Checking OSINT.Industries for data ..." + Style.RESET_ALL)
+    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking OSINT.Industries for data." + Style.RESET_ALL)
     # Check if target is email or username
     is_valid_email = check(target)
     if is_valid_email:
@@ -387,19 +392,19 @@ def osint_industries(target):
 
     # Check OSINT.Industries response 
     if response.status_code == 200:
-        print(Fore.GREEN + "\n  |--- OSINT.Industries data found and saved.\n" + Style.RESET_ALL)
+        print(Fore.GREEN + " [" + Fore.WHITE + "*" + Fore.GREEN + "]" + " OSINT.Industries data found and saved." + Style.RESET_ALL)
         osind_data = response.json()
         return osind_data
     elif response.status_code == 400:
-        print(Fore.RED + "\n  |--- Bad Request. Invalid query value." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Bad Request. Invalid query value." + Style.RESET_ALL)
     elif response.status_code == 401:
-        print(Fore.RED + "\n  |--- Invalid API key or insufficient credits. Check your key and try again." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Invalid API key or insufficient credits." + Style.RESET_ALL)
     elif response.status_code == 404:
-        print(Fore.RED + "\n  |--- No data found for " + Style.BRIGHT + f"{target}\n" + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No OSINT Industries data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
     elif response.status_code == 429:
-        print(Fore.RED + "\n  |--- Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
     else:
-        print('    |- Error code: ' + str(response.status_code))
+        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Error code: " + Style.RESET_ALL + str(response.status_code))
 
 # Main function
 def main():
@@ -426,8 +431,8 @@ def main():
     args = parser.parse_args()
 
     # -o argument logic
-    if args.output is not None:
-        output_directory = str(args.output).rstrip('/')
+    if args.OUTPUT is not None:
+        output_directory = str(args.OUTPUT).rstrip('/')
     else:
         parser.print_help()
 
@@ -438,8 +443,8 @@ def main():
     init()
 
     # -e argument logic
-    if args.email is not None:
-        target = args.email
+    if args.EMAIL is not None:
+        target = args.EMAIL
         is_valid_email = check(target)
         if is_valid_email:
             data_dir = check_directory(target, output_directory)
@@ -464,12 +469,12 @@ def main():
                 osind_data = osint_industries(target)
                 data_dict['OSINDUS'] = osind_data
         else:
-            print(Fore.RED + "\n  |--- Invalid email address." + Style.RESET_ALL)
+            print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " Invalid email address.\n" + Style.RESET_ALL)
             sys.exit()
 
     # -u argument logic
-    if args.user is not None:
-        target = args.user
+    if args.USER is not None:
+        target = args.USER
         data_dir = check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
             res_one = verbatim_search(target)
@@ -493,8 +498,8 @@ def main():
             data_dict['OSINDUS'] = osind_data
 
     # -p argument logic
-    if args.phone is not None:
-        target = args.phone
+    if args.PHONE is not None:
+        target = args.PHONE
         data_dir = check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
             res_one = verbatim_search(target)
@@ -511,8 +516,8 @@ def main():
             data_dict['OSINDUS'] = osind_data
 
     # -n argument logic
-    if args.name is not None:
-        target = args.name
+    if args.NAME is not None:
+        target = args.NAME
         data_dir = check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
             res_one = verbatim_search(target)
@@ -529,8 +534,8 @@ def main():
             data_dict['Whoxy'] = whoxy_data
 
     # -c argument logic
-    if args.company is not None:
-        target = args.company
+    if args.COMPANY is not None:
+        target = args.COMPANY
         data_dir = check_directory(target, output_directory)
         if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
             res_one = verbatim_search(target)
@@ -549,7 +554,7 @@ def main():
     # Write data_dict to JSON file
     with open(os.path.join(data_dir, 'DATA.json'), 'w', encoding='utf-8') as f:
         json.dump(data_dict, f)
-        print(Style.BRIGHT + Fore.YELLOW + "\n|---> DONE. Check DATA.json.\n" + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "-" + Fore.GREEN + "]" + f" DONE. Check DATA.json in {data_dir}.\n" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
