@@ -112,7 +112,7 @@ python -m pip install .
 ## Usage
 
 ```bash
-usage: main.py [-h] (-e EMAIL | -u USER | -p PHONE | -n NAME | -c COMPANY) -o OUTPUT
+usage: osintr [-h] (-e EMAIL | -u USER | -p PHONE | -n NAME | -c COMPANY) -o OUTPUT
 
 See below all available arguments for osintr.
 Use only one -e|-u|-p|-n|-c argument at a time.
