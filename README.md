@@ -145,23 +145,17 @@ git pull origin main
 python -m pip install --upgrade osintr
 ```
 
----
-
 ## Planned Upgrades
 
 - More data sources from quality API providers.
 - More phone number and company search avenues.
 - Recursive web scraping for deeper analysis.
 
----
-
 ## Disclaimer
 
 **OSINTr** is designed for passive, non-intrusive OSINT tasks.\
 Any illegal or unethical use of the tool is **your** responsibility.\
 See **LICENSE** for more details on rights, permissions, and liability.
-
----
 
 ## Support
 
