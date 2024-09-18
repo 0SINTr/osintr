@@ -36,16 +36,17 @@ Once data is collected, **OSINTr** will automatically analyze the information in
 **Automated tasks include:**
 - Analyzes `DATA.json` for patterns and insights using OpenAI [GPT-o1](https://openai.com/o1/).
 - **OSINTr** builds a profile or digital footprint of the target based on collected data.
-- The gathered data is carefully curated and a summary is provided in .md format.
+- The gathered data is carefully curated and a summary is provided in **.md** format.
 
 ---
 
 ## API Keys
 
-Running the **Data Collection** and **Data Analysis** phases requires API keys.
+Running the **Data Collection** and **Data Analysis** phases requires API keys.\
 The API keys should reside in your environment prior to running **OSINTr**.
 
-**To add your API keys to your environment, edit bashrc or zshrc. Example:**
+**To add the API keys to your environment, edit bashrc or zshrc.**\
+**Example:**
 ```plaintext
 vim ~/.zshrc
 export SERPER_API_KEY="<your_key_here>"
@@ -68,7 +69,7 @@ source ~/.zshrc
 - **OSINT.Industries**: [Get your key here](https://www.osint.industries/)
 - **OpenAI**: [Get your key here](https://openai.com/)
 
-**NOTE!** For Whoxy make sure you buy credits for the [Reverse Whois API](https://www.whoxy.com/pricing.php).
+**Note!** For Whoxy make sure you buy credits for the [Reverse Whois API](https://www.whoxy.com/pricing.php).
 
 ---
 
@@ -87,7 +88,7 @@ source ~/.zshrc
 
 ## Installation
 
-**Preparing**
+**Preparing**\
 Ensure Python >=3.10 is installed.
 Add `/home/<user>/.local/bin` to `PATH`.
 Edit `~/.bashrc` if that's your default.
