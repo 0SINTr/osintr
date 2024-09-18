@@ -158,8 +158,8 @@ python -m pip install --upgrade osintr
 ## Disclaimer
 
 **OSINTr** is designed for passive, non-intrusive OSINT tasks.\
-Any illegal or unethical use of the tool is your responsibility.\
-See LICENSE for more details on rights, permissions, and liability.
+Any illegal or unethical use of the tool is **your** responsibility.\
+See **LICENSE** for more details on rights, permissions, and liability.
 
 ---
 
