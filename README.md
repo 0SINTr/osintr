@@ -45,8 +45,7 @@ Once data is collected, **OSINTr** will automatically analyze the information in
 Running the **Data Collection** and **Data Analysis** phases requires API keys.\
 The API keys should reside in your environment prior to running **OSINTr**.
 
-**To add the API keys to your environment, edit bashrc or zshrc.**\
-**Example:**
+**To add the API keys to your environment, edit bashrc or zshrc.**
 ```plaintext
 vim ~/.zshrc
 export SERPER_API_KEY="<your_key_here>"
@@ -89,8 +88,8 @@ source ~/.zshrc
 ## Installation
 
 **Preparing**\
-Ensure Python >=3.10 is installed.
-Add `/home/<user>/.local/bin` to `PATH`.
+Ensure Python >=3.10 is installed.\
+Add `/home/<user>/.local/bin` to `PATH`.\
 Edit `~/.bashrc` if that's your default.
 
 ```bash
@@ -138,7 +137,7 @@ For person or company name use double quotes to enclose the whole name.
 
 ## Upgrading
 
-To upgrade this tool to the latest version, follow these steps:
+To upgrade **OSINTr** to the latest version, follow these steps:
 
 ```bash
 cd osintr
@@ -158,13 +157,15 @@ python -m pip install --upgrade osintr
 
 ## Disclaimer
 
-This tool is designed for passive, non-intrusive OSINT tasks. Any illegal or unethical use of the tool is your responsibility. See LICENSE for more details on rights, permissions, and liability.
+**OSINTr** is designed for passive, non-intrusive OSINT tasks.\
+Any illegal or unethical use of the tool is your responsibility.\
+See LICENSE for more details on rights, permissions, and liability.
 
 ---
 
 ## Support
 
-For support, questions, or feedback:
+API documentation:
 
 - [SerperDev API docs](https://serper.dev/)
 - [Firecrawl API docs](https://docs.firecrawl.dev/introduction)
