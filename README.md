@@ -127,7 +127,7 @@ NOTE!
 For person or company name use double quotes to enclose the whole name.
 ```
 
-## Screenshots
+## Screenshot
 
 ![osintr1](osintr/docs/0SINTr-1.png)
 ![osintr2](osintr/docs/0SINTr-2.png)
