@@ -250,7 +250,7 @@ def process_data(scrape_results, target, directory):
         data_dict['Relevant Email Addresses'] = list(set(all_main_emails))
 
         # Print out the email addresses
-        print('\n' + Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "*" + Fore.WHITE + "]" + Fore.GREEN + " Relevant email addresses found:" + Style.RESET_ALL)
+        print('\n' + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Relevant email addresses found:" + Style.RESET_ALL)
         for email in set(unzipped_email_list):
             print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Style.RESET_ALL + f" {email}")
     else:
