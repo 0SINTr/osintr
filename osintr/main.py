@@ -392,7 +392,7 @@ def osint_industries(target):
 
     # Check OSINT.Industries response 
     if response.status_code == 200:
-        print(Fore.GREEN + " [" + Fore.WHITE + "*" + Fore.GREEN + "]" + " OSINT.Industries data found and saved." + Style.RESET_ALL)
+        print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + " OSINT.Industries data found and saved." + Style.RESET_ALL)
         osind_data = response.json()
         return osind_data
     elif response.status_code == 400:
@@ -554,7 +554,7 @@ def main():
     # Write data_dict to JSON file
     with open(os.path.join(data_dir, 'DATA.json'), 'w', encoding='utf-8') as f:
         json.dump(data_dict, f)
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "-" + Fore.GREEN + "]" + " DONE. " + Style.RESET_ALL + Fore.GREEN + f"Check" + Style.BRIGHT + f" {data_dir} " + Style.RESET_ALL + Fore.GREEN + "for " + Style.BRIGHT + f"DATA.json\n" + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "v" + Fore.GREEN + "]" + " DONE. " + Style.RESET_ALL + Fore.GREEN + f"Check" + Style.BRIGHT + f" {data_dir} " + Style.RESET_ALL + Fore.GREEN + "for " + Style.BRIGHT + f"DATA.json\n" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
