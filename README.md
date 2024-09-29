@@ -144,9 +144,6 @@ python -m pip install --upgrade osintr
 ## Planned Upgrades
 
 - Better formating for the JSON data (md or html).
-- More data sources from quality API providers.
-- More phone number and company search avenues.
-- Recursive web scraping for deeper analysis.
 
 ## Disclaimer
 
