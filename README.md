@@ -99,7 +99,7 @@ For person or company names use double quotes to enclose the whole name.
 
 ## Screenshot
 
-![osintr1](osintr/docs/x.png)
+![osintr_example](osintr/docs/example.png)
 
 ## Planned Upgrades
 
