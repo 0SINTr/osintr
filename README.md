@@ -58,9 +58,9 @@ source ~/.zshrc
 
 ## Installation
 
-**Preparing**\
-- Ensure Python >=3.10 is installed.\
-- Add `/home/<user>/.local/bin` to `PATH`.\
+**Preparing**
+- Ensure Python >=3.10 is installed.
+- Add `/home/<user>/.local/bin` to `PATH`.
 - Edit `~/.bashrc` if that's your default.
 
 ```bash
