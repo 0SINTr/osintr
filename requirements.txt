@@ -6,5 +6,4 @@ jellyfish
 requests
 argparse
 colorama
-difflib
 pandas
