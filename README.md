@@ -1,4 +1,4 @@
-![osintr](img/osintr.png)
+![osintr](docs/osintr.png)
 # OSINTr
 **[OFM](https://github.com/0SINTr/ofm) Stage 1 tool for GRASS (Google Recursive Advanced Search & Scrape)**
 
