@@ -1,12 +1,13 @@
-
+![osintr](img/osintr.png)
 # OSINTr
+**[OFM](https://github.com/0SINTr/ofm) Stage 1 tool for GRASS (Google Recursive Advanced Search & Scrape)**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/0SINTr/osintr/master/LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org)
 [![Stable Release](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/0SINTr/osintr/releases/tag/v0.1.0)
 [![Last Commit](https://img.shields.io/github/last-commit/0SINTr/osintr)](https://github.com/0SINTr/osintr/commits/main)
 
-**OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via advanced Google searches, HIBP breach and paste data, Whoxy reverse whois data, OSINT Industries API data etc.
+**OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via recursive advanced Google searches via SerperDev and Firecrawl APIs.
 
 ## Why OSINTr?
 
