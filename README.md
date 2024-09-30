@@ -19,7 +19,7 @@
 
 ### Data Collection
 
-- Provide the **target** of the OSINT investigation (see **Usage** below).   
+- Requires a **target** for the OSINT investigation (see **Usage** below).   
 - Ensure you add your API keys (see **API Keys** below) before running the tool.
 
 **Automated tasks include:**
@@ -44,7 +44,7 @@ export FIRECRAWL_API_KEY="<your_key_here>"
 source ~/.zshrc
 ```
 
-**API Keys:**
+**Getting API Keys:**
 
 - **SerperDev**: [Get your key here](https://serper.dev/)
 - **Firecrawl**: [Get your key here](https://www.firecrawl.dev/)
@@ -59,9 +59,9 @@ source ~/.zshrc
 ## Installation
 
 **Preparing**\
-Ensure Python >=3.10 is installed.\
-Add `/home/<user>/.local/bin` to `PATH`.\
-Edit `~/.bashrc` if that's your default.
+- Ensure Python >=3.10 is installed.\
+- Add `/home/<user>/.local/bin` to `PATH`.\
+- Edit `~/.bashrc` if that's your default.
 
 ```bash
 sudo apt upgrade python3
