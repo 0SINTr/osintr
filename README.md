@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/0SINTr/osintr/master/LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org)
-[![Stable Release](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/0SINTr/osintr/releases/tag/v0.1.0)
+[![Stable Release](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/0SINTr/osintr/releases/tag/v0.2.0)
 [![Last Commit](https://img.shields.io/github/last-commit/0SINTr/osintr)](https://github.com/0SINTr/osintr/commits/main)
 
 **OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a **digital footprint** of the target via recursive advanced Google searches via **SerperDev** and **Firecrawl** APIs.
@@ -29,19 +29,18 @@
 - For each email address it finds, it **recursively** performs **GRASS** for each address.
 - Currently, the **maximum depth for recursion** is set to 2. May increase in the future.
 - Creates a directory under **-o OUTPUT** directory named *osint_TargetName* for each target.
-- Saves all email addresses and URLs from the GRASS process to a file **final_data.json**.
+- Saves all email addresses and URLs from the **GRASS** process to a file **final_data.json**.
 
 ## API Keys
 
-Running **OSINTr** requires API keys for the benefits stated previously.\
-**The API keys should reside in your environment prior to running OSINTr**.
+Running **OSINTr** requires API keys for the benefits stated previously. The API keys should reside in your environment **prior** to running **OSINTr**.
 
 **To add the API keys to your environment, edit bashrc or zshrc.**
 ```plaintext
-vim ~/.zshrc
+vim ~/.bashrc
 export SERPER_API_KEY="<your_key_here>"
 export FIRECRAWL_API_KEY="<your_key_here>"
-source ~/.zshrc
+source ~/.bashrc
 ```
 
 **Getting API Keys:**
@@ -59,7 +58,7 @@ source ~/.zshrc
 ## Installation
 
 **Preparing**
-- Ensure Python >=3.10 is installed.
+- Ensure **Python >=3.10** is installed.
 - Add `/home/<user>/.local/bin` to `PATH`.
 - Edit `~/.zshrc` if that's your default.
 
@@ -99,12 +98,14 @@ For person or company names use double quotes to enclose the whole name.
 
 ## Screenshot
 
+Details related to the target are **hidden** for obvious reasons.
+
 ![osintr_example](osintr/docs/example.png)
 
 ## Planned Upgrades
 
 - [ ] Filtering crawled URLs by relevance.
-- [ ] Better formating for the JSON data (md or html).
+- [ ] Better formating for the JSON data.
 
 ## Disclaimer
 
@@ -114,7 +115,7 @@ For person or company names use double quotes to enclose the whole name.
 
 ## Support
 
-API documentation:
+**API documentation**:
 
 - [SerperDev API docs](https://serper.dev/)
 - [Firecrawl API docs](https://docs.firecrawl.dev/introduction)
