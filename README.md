@@ -7,15 +7,15 @@
 [![Stable Release](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/0SINTr/osintr/releases/tag/v0.1.0)
 [![Last Commit](https://img.shields.io/github/last-commit/0SINTr/osintr)](https://github.com/0SINTr/osintr/commits/main)
 
-**OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a digital footprint of the target via recursive advanced Google searches via SerperDev and Firecrawl APIs.
+**OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a **digital footprint** of the target via recursive advanced Google searches via **SerperDev** and **Firecrawl** APIs.
 
 ## Why OSINTr?
 
-**OSINTr** directly interacts only with high-quality APIs (SerpDev, Firecrawl) at a low cost, bypassing the need for unreliable third-party apps and implicitly handling common issues related to parsing, captchas, proxies or other types of usual setbacks. This ensures full control over the code and focus on the OSINT tasks rather than troubleshooting scraping and crawling hiccups.
+**OSINTr** directly interacts only with high-quality APIs (SerpDev, Firecrawl) at a low cost, bypassing the need for unreliable third-party apps and implicitly **handling common issues** related to parsing, captchas, proxies or other types of usual setbacks. This ensures full control over the code and exclusive focus on the OSINT tasks rather than troubleshooting scraping and crawling hiccups.
 
 ## Workflow
 
-**OSINTr** works best on Linux and tackles Stage 1 of the [OFM](https://github.com/0SINTr/ofm) workflow by performing **GRASS** (Google Recursive Advanced Search & Scrape).
+**OSINTr** works best on Linux and tackles **Stage 1 of the [OFM](https://github.com/0SINTr/ofm)** workflow by performing **GRASS (Google Recursive Advanced Search & Scrape)**.
 
 ### Data Collection
 
@@ -34,7 +34,7 @@
 ## API Keys
 
 Running **OSINTr** requires API keys for the benefits stated previously.\
-The API keys should reside in your environment prior to running **OSINTr**.
+**The API keys should reside in your environment prior to running OSINTr**.
 
 **To add the API keys to your environment, edit bashrc or zshrc.**
 ```plaintext
@@ -87,7 +87,6 @@ usage: main.py [-h] -t TARGET -o OUTPUT
 examples:
 osintr -t jdoe95@example.com -o /home/bob/data
 osintr -t john.doe95 -o /home/bob/data
-osintr -t +123456789 -o /home/bob/data
 osintr -t "John Doe" -o /home/bob/data
 osintr -t "Evil Corp Ltd" -o /home/bob/data
 
