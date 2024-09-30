@@ -1,7 +1,10 @@
-langchain-community
 python-dotenv
 firecrawl-py
+Levenshtein
+homoglyphs
+jellyfish
 requests
-pandas
 argparse
 colorama
+difflib
+pandas

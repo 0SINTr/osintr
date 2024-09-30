@@ -1,7 +1,6 @@
-from langchain_community.utilities import GoogleSerperAPIWrapper
-from colorama import Fore, Style, init
+from match import match_emails, is_valid_email
 from firecrawl import FirecrawlApp
-from itertools import product, chain
+from colorama import Fore, Style
 from dotenv import load_dotenv
 import pandas as pd
 import textwrap
@@ -19,76 +18,36 @@ import re
 def check_directory(target, directory):
     directory = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
     if not os.path.exists(path=directory):
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Initializing OSINTr and searching Google." + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + f" Initializing OSINTr for target '{target}' and searching Google." + Style.RESET_ALL)
         os.makedirs(directory)
-        return directory
     else:
-        print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " Directory already exists. Delete it or change path.\n" + Style.RESET_ALL)
-        sys.exit()
+        print("\n" + Style.BRIGHT + Fore.YELLOW + "[" + Fore.WHITE + "!" + Fore.YELLOW + "]" + f" Directory for target '{target}' already exists. Continuing..." + Style.RESET_ALL)
+    return directory
 
-# Perform verbatim Google search on target
-def verbatim_search(target):
-    search = GoogleSerperAPIWrapper(tbs="li:1", k=20)
+# Perform verbatim and inurl Google search on target
+def google_search(target):
+    url = "https://google.serper.dev/search"
+    query = f"\"{target}\" OR inurl:\"{target}\""
+    payload = json.dumps({
+    "q": query,
+    "num": 10,
+    "autocorrect": False
+    })
+    headers = {
+    'X-API-KEY': os.getenv('SERPER_API_KEY'),
+    'Content-Type': 'application/json'
+    }
+
     try:
         search_results = []
-        # Pass the query to the SerpAPIWrapper's verbatim search method
-        results = search.results(target)
+        # Submit the query
+        results = requests.request("POST", url, headers=headers, data=payload)
         if results:
-            for result in results['organic']:
+            for result in results.json()['organic']:
                 search_results.append(result)
     except Exception as e:
-        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
+        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}\n" + Style.RESET_ALL)
     return search_results
-
-# Perform intext Google search on target
-def intext_search(target):
-    search = GoogleSerperAPIWrapper(k=20)
-    target = f"intext:\"{target}\""   
-    try:
-        search_results = []
-        # Pass the query to the SerpAPIWrapper's intext search method
-        results = search.results(target)
-        if results:
-            for result in results['organic']:
-                search_results.append(result)
-    except Exception as e:
-        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
-    return search_results
-
-# Perform inurl Google search on target
-def inurl_search(target):
-    search = GoogleSerperAPIWrapper(k=20)
-    target = f"inurl:\"{target}\""
-    try:
-        search_results = []
-        # Pass the query to the SerpAPIWrapper's inurl search method
-        results = search.results(target)
-        if results:
-            for result in results['organic']:
-                search_results.append(result)
-    except Exception as e:
-        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
-    return search_results
-
-# Perform intitle Google search on target
-def intitle_search(target):
-    search = GoogleSerperAPIWrapper(k=20)
-    target = f"intitle:\"{target}\""  
-    try:
-        search_results = []
-        # Pass the query to the SerpAPIWrapper's intitle search method
-        results = search.results(target)
-        if results:
-            for result in results['organic']:
-                search_results.append(result)
-    except Exception as e:
-        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}" + Style.RESET_ALL)
-    return search_results
-
-# Join all search results into a list
-def join_results(res_one, res_two, res_thr, *res):
-    results = list(chain(res_one, res_two, res_thr))
-    return results
 
 # Remove duplicate search results
 def remove_duplicates(results):
@@ -142,6 +101,14 @@ def extract_data(scrape_result):
 
     return image_url, emails, all_urls
 
+# Check if the target is a valid email address, otherwise it's a username
+def check(target):
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    if(re.fullmatch(regex, target)):
+        return target
+    else:
+        return None
+    
 # Saving screenshots via image URLs
 def save_screenshot(image_url, directory):
     try:
@@ -154,43 +121,13 @@ def save_screenshot(image_url, directory):
     except Exception as e:
         print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Failed to retrieve image from" + Style.RESET_ALL + f" {image_url}" + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
 
-# Check if the target is a valid email address, otherwise it's a username
-def check(user_input):
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-    if(re.fullmatch(regex, user_input)):
-        return user_input
-    else:
-        return None
-    
-# Function for detecting aliases from target (leet)
-def detect_aliases(target):
-    if check(target):
-        user = str(target).split('@')[0]
-    else:
-        user = target
-    
-    # Mapping for letters to digit aliases
-    mapping = {letter: str(index) for index, letter in enumerate('oizeasgtb')}
-    mapping.update({letter.upper(): str(index) for index, letter in enumerate('oizeasgtb')})
-
-    possible_aliases = []
-    for l in user:
-        ll = mapping.get(l, l)  # Get the alias if it exists, otherwise the original character     
-        if ll == l:  # If the character is not mapped to a number
-            # Add both lowercase and uppercase versions as possible alternatives
-            possible_aliases.append((l.lower(), l.upper()))
-        else:
-            # If mapped to a number, include both lowercase and uppercase versions of the original letter, and the digit alias
-            possible_aliases.append((l.lower(), l.upper(), ll))    
-    return [''.join(t) for t in product(*possible_aliases)]
-
-# Process the data and save to JSON
+# Process the data and save to dictionary
 def process_data(scrape_results, target, directory):
     data_dict = {}
-    all_image_urls = []
     all_emails = []
     all_urls = []
-    all_aliases = []
+    all_image_urls = []
+    # Iterating over search results and extracting data
     for scrape_result in scrape_results:
         extracted_data = extract_data(scrape_result)
         # Image URL
@@ -206,15 +143,19 @@ def process_data(scrape_results, target, directory):
         urls = extracted_data[2]
         for url in urls:
             all_urls.append(url)
+    
+    # Writing emails and URLs to dictionary
+    if len(all_emails) > 0:
+        data_dict['Email Addresses'] = list(set(all_emails))
+    else:
+        data_dict['Email Addresses'] = []
 
-        # Extract leet aliases
-        possible_aliases = detect_aliases(target)
-        if len(possible_aliases) > 0:
-            for alias in possible_aliases:
-                if any(alias in sub for sub in email) or any(alias in sub for sub in urls):
-                    all_aliases.append(alias)
+    if len(all_urls) > 0:
+        data_dict['URLs'] = list(set(all_urls))
+    else:
+        data_dict['URLs'] = []
 
-    # Iterate over all image URLs
+    # Iterating over all image URLs and taking screenshots
     if len(all_image_urls):
         print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Taking screenshots where possible." + Style.RESET_ALL)
         ss_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()), 'screenshots')
@@ -226,335 +167,169 @@ def process_data(scrape_results, target, directory):
     else:
         print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No screenshots taken." + Style.RESET_ALL)
 
-    # Iterate over all email addresses
-    unzipped_email_list = []
-    for email in all_emails:
-        if type(email) is list:
-            for item in email:
-                unzipped_email_list.append(item)
-        else:
-            unzipped_email_list.append(email)
-
-    # Listing all possible aliases
-    possible_aliases = detect_aliases(target)
-
-    # Writing all the emails containing the target or target leet to data_dict
-    all_main_emails = []
-    if len(unzipped_email_list) > 0:
-        # Check leet target in each link
-        if len(possible_aliases) > 0:
-            for alias in possible_aliases:
-                for email in unzipped_email_list:
-                    if alias in email:
-                        all_main_emails.append(email)
-        data_dict['Relevant Email Addresses'] = list(set(all_main_emails))
-
-        # Print out the email addresses
-        print('\n' + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Relevant email addresses found:" + Style.RESET_ALL)
-        for email in set(unzipped_email_list):
-            print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Style.RESET_ALL + f" {email}")
-    else:
-        data_dict['Email Addresses'] = []
-        print('\n' + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No relevant or alternate email addresses found for " + Style.BRIGHT + target + Style.RESET_ALL)
-
-    # Writing all other emails as secondary emails to data_dict
-    all_unique_emails = set(all_emails)
-    all_unique_main_emails = set(all_main_emails)
-    diff = all_unique_emails.difference(all_unique_main_emails)
-    if len(diff):
-        print(Fore.WHITE + "[" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Possibly related email addresses found and saved." + Style.RESET_ALL)
-    data_dict['Possibly Related Emails'] = list(diff)
-
-    # Writing all the URLs containing the target or target leet to data_dict
-    all_main_urls = []
-    if len(all_urls) > 0:
-        # Check target in each link
-        if check(target):
-            target = str(target).split('@')[0]
-            for link in all_urls:
-                if target in link:
-                    all_main_urls.append(link)
-        else:
-            for link in all_urls:
-                if target in link:
-                    all_main_urls.append(link)
-
-        # Check leet target in each link
-        if len(possible_aliases) > 0:
-            for alias in possible_aliases:
-                for link in all_urls:
-                    if alias in link:
-                        all_main_urls.append(link)
-        print(Fore.WHITE + "[" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Relevant links found and saved." + Style.RESET_ALL)
-        data_dict['Relevant Links'] = list(set(all_main_urls))
-    else:
-        data_dict['Relevant Links'] = []
-
-    # Writing all other URLs as secondary links to data_dict
-    all_unique_urls = set(all_urls)
-    all_unique_main_urls = set(all_main_urls)
-    diff = all_unique_urls.difference(all_unique_main_urls)
-    if len(diff):
-        print(Fore.WHITE + "[" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Possibly related links found and saved." + Style.RESET_ALL)
-    data_dict['Possibly Related Links'] = list(diff)
-
     print(Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "-" + Fore.WHITE + "]" + Fore.GREEN + " All Google search data was saved." + Style.RESET_ALL)
     return data_dict
 
-# Search for breaches in HIBP data
-def search_breaches(target):
-    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking HIBP for breach data." + Style.RESET_ALL)
-    url = "https://haveibeenpwned.com/api/v3/breachedaccount/"
-    headers = {"user-agent": "python-requests/2.32.3", "hibp-api-key": os.getenv("HIBP_API_KEY")} 
-    response = requests.get(url + target + "?truncateResponse=false" + "?includeUnverified=true", headers=headers)
-
-    # Check HIBP response (pastes)
-    if response.status_code == 200:
-        print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + " HIBP breach data found and saved." + Style.RESET_ALL)
-        breach_data = response.json()
-        return breach_data
-    elif response.status_code == 401:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Invalid API key or insufficient credits." + Style.RESET_ALL)
-    elif response.status_code == 404:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No HIBP breach data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
-    elif response.status_code == 429:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
-    else:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Error code: " + Style.RESET_ALL + str(response.status_code))
-
-# Search for pastes in HIBP data
-def search_pastes(target):
-    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking HIBP for paste data." + Style.RESET_ALL)
-    time.sleep(10) # Introducing sleep for 10 seconds to avoid statusCode 429
-    url = 'https://haveibeenpwned.com/api/v3/pasteaccount/'
-    headers = {
-        'user-agent': 'python-requests/2.32.3', 
-        'hibp-api-key': os.getenv('HIBP_API_KEY')
-    } 
-    response = requests.get(url + target, headers=headers)
-
-    # Check HIBP response (pastes)
-    if response.status_code == 200:
-        print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + " HIBP paste data found and saved." + Style.RESET_ALL)
-        paste_data = response.json() 
-        return paste_data
-    elif response.status_code == 401:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Invalid API key or insufficient credits." + Style.RESET_ALL)
-    elif response.status_code == 404:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No HIBP paste data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
-    elif response.status_code == 429:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
-    else:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Error code: " + Style.RESET_ALL + str(response.status_code))
-
-# Search for data from Whoxy
-def search_whoxy(target_type, target):
-    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking Whoxy for reverse whois data." + Style.RESET_ALL)
-    # API key and URL
-    whoxy_key = os.getenv('WHOXY_API_KEY')
-    url = f'https://api.whoxy.com/?key={whoxy_key}&reverse=whois&'
-    response = requests.get(url + target_type + '=' + target)
-
-    # Check Whoxy response
-    if response.status_code == 200:
-        print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + " Whoxy data found and saved." + Style.RESET_ALL)
-        whoxy_data = response.json()
-        return whoxy_data
-    elif response.status_code == 401:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Invalid API key or insufficient credits." + Style.RESET_ALL)
-    elif response.status_code == 404:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No Whoxy reverse whois data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
-    elif response.status_code == 429:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
-    else:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Error code: " + Style.RESET_ALL + str(response.status_code))
-
-# Search for data from OSINT.Industries
-def osint_industries(target):
-    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Checking OSINT.Industries for data." + Style.RESET_ALL)
-    # Check if target is email or username
-    is_valid_email = check(target)
-    if is_valid_email:
-        target_type = 'email'
-    else:
-        target_type = 'username'
-
-    url = 'https://api.osint.industries/v2/request'
-    headers = {
-        'accept': 'application/json',
-        'api-key': os.getenv("OSIND_API_KEY"),
-    }
-    params = {
-        'type': target_type,
-        'query': target,
-    }
-    response = requests.get(url, params=params, headers=headers)
-
-    # Check OSINT.Industries response 
-    if response.status_code == 200:
-        print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + " OSINT.Industries data found and saved." + Style.RESET_ALL)
-        osind_data = response.json()
-        return osind_data
-    elif response.status_code == 400:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Bad Request. Invalid query value." + Style.RESET_ALL)
-    elif response.status_code == 401:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Invalid API key or insufficient credits." + Style.RESET_ALL)
-    elif response.status_code == 404:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No OSINT Industries data found for " + Style.BRIGHT + f"{target}" + Style.RESET_ALL)
-    elif response.status_code == 429:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Too Many Requests. Rate limit exceeded." + Style.RESET_ALL)
-    else:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Error code: " + Style.RESET_ALL + str(response.status_code))
-
-# Main function
-def main():
+# Parsing CLI arguments
+def arg_parsing():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent('''\
-            See below all available arguments for osintr.
-            Use only one -e|-u|-p|-n|-c argument at a time.
-            
-            example:
-            osintr -e example@example.com -o /home/bob/data
+            examples:                 
+            osintr -t jdoe95@example.com -o /home/bob/data
+            osintr -t john.doe95 -o /home/bob/data
+            osintr -t +123456789 -o /home/bob/data
+            osintr -t "John Doe" -o /home/bob/data
+            osintr -t "Evil Corp Ltd" -o /home/bob/data                                                                  
             '''),
         epilog=textwrap.dedent('''\
             NOTE!
-            For person or company name use double quotes to enclose the whole name.             
+            For person or company names use double quotes to enclose the whole name.             
             '''))
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-e', dest='EMAIL', help='Target email address')
-    group.add_argument('-u', dest='USER', help='Target username')
-    group.add_argument('-p', dest='PHONE', help='Target phone number')
-    group.add_argument('-n', dest='NAME', help='Target person name')
-    group.add_argument('-c', dest='COMPANY', help='Target company name')
+    parser.add_argument('-t', dest='TARGET', help='Target of investigation', required=True)
     parser.add_argument('-o', dest='OUTPUT', help='Directory to save results', required=True)
     args = parser.parse_args()
 
-    # -o argument logic
+    # TARGET argument
+    if args.TARGET is not None:
+        target = args.TARGET
+        pass
+    else:
+        parser.print_help()
+
+    # OUTPUT argument
     if args.OUTPUT is not None:
         output_directory = str(args.OUTPUT).rstrip('/')
     else:
         parser.print_help()
 
+    return target, output_directory
+
+# Data dictionary return function
+def data_dictfunc():
+    args = arg_parsing()
+    target = args[0]
+    output = args[1]
+
+    # Checking if directory exists
+    check_directory(target, output)
+
     # Loading env variables
     load_dotenv()
+    if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
+        results = google_search(target)
+        uniques = remove_duplicates(results)              
+        scrape_links = extract_links(uniques)
+        scraped_data = scraped_links(scrape_links)
+        data_dict = process_data(scraped_data, target, output)
+        return target, data_dict
+    else:
+        print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " API key(s) not found.\n" + Style.RESET_ALL)
+        sys.exit()
 
-    # Initalizing colorama
-    init()
+def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2):
+    if depth > max_depth:
+        print(Fore.YELLOW + f" [!] Maximum recursion depth reached for target '{target}'. Skipping further recursion." + Style.RESET_ALL)
+        return combined_data
 
-    # -e argument logic
-    if args.EMAIL is not None:
-        target = args.EMAIL
-        is_valid_email = check(target)
-        if is_valid_email:
-            data_dir = check_directory(target, output_directory)
-            if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-                res_one = verbatim_search(target)
-                res_two = intext_search(target)
-                res_thr = intitle_search(target)
-                results = join_results(res_one, res_two, res_thr)
-                uniques = remove_duplicates(results)              
-                scrape_links = extract_links(uniques)
-                scraped_data = scraped_links(scrape_links)
-                data_dict = process_data(scraped_data, target, output_directory)
-            if os.getenv('HIBP_API_KEY'):
-                breach_data = search_breaches(target)
-                data_dict['Breaches'] = breach_data
-                paste_data = search_pastes(target)
-                data_dict['Pastes'] = paste_data
-            if os.getenv('WHOXY_API_KEY'):
-                whoxy_data = search_whoxy('email', target)
-                data_dict['Whoxy'] = whoxy_data
-            if os.getenv("OSIND_API_KEY"):
-                osind_data = osint_industries(target)
-                data_dict['OSINDUS'] = osind_data
-        else:
-            print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " Invalid email address.\n" + Style.RESET_ALL)
-            sys.exit()
+    if processed_targets is None:
+        processed_targets = set()
+    if combined_data is None:
+        combined_data = {'Email Addresses': set(), 'URLs': set()}
 
-    # -u argument logic
-    if args.USER is not None:
-        target = args.USER
-        data_dir = check_directory(target, output_directory)
-        if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-            res_one = verbatim_search(target)
-            res_two = intext_search(target)
-            res_thr = inurl_search(target)
-            results = join_results(res_one, res_two, res_thr)
-            uniques = remove_duplicates(results)
-            scrape_links = extract_links(uniques)
-            scraped_data = scraped_links(scrape_links)
-            data_dict = process_data(scraped_data, target, output_directory)
-        if os.getenv('HIBP_API_KEY'):
-            breach_data = search_breaches(target)
-            data_dict['Breaches'] = breach_data
-            paste_data = search_pastes(target + "@gmail.com")
-            data_dict['Pastes'] = paste_data
-        if os.getenv('WHOXY_API_KEY'):
-            whoxy_data = search_whoxy('email', target + "@gmail.com")
-            data_dict['Whoxy'] = whoxy_data
-        if os.getenv("OSIND_API_KEY") is not None:
-            osind_data = osint_industries(target)
-            data_dict['OSINDUS'] = osind_data
+    # Check if the target has already been processed
+    if target in processed_targets:
+        print(Fore.CYAN + f" [i] Target '{target}' has already been processed. Skipping." + Style.RESET_ALL)
+        return combined_data
 
-    # -p argument logic
-    if args.PHONE is not None:
-        target = args.PHONE
-        data_dir = check_directory(target, output_directory)
-        if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-            res_one = verbatim_search(target)
-            res_two = intext_search(target)
-            res_thr = inurl_search(target)
-            res_fou = intitle_search(target)
-            results = join_results(res_one, res_two, res_thr, res_fou)
-            uniques = remove_duplicates(results)
-            scrape_links = extract_links(uniques)
-            scraped_data = scraped_links(scrape_links)
-            data_dict = process_data(scraped_data, target, output_directory)
-        if os.getenv("OSIND_API_KEY") is not None:
-            osind_data = osint_industries(target)
-            data_dict['OSINDUS'] = osind_data
+    processed_targets.add(target)
 
-    # -n argument logic
-    if args.NAME is not None:
-        target = args.NAME
-        data_dir = check_directory(target, output_directory)
-        if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-            res_one = verbatim_search(target)
-            res_two = intext_search(target)
-            res_thr = inurl_search(target)
-            res_fou = intitle_search(target)
-            results = join_results(res_one, res_two, res_thr, res_fou)
-            uniques = remove_duplicates(results)
-            scrape_links = extract_links(uniques)
-            scraped_data = scraped_links(scrape_links)
-            data_dict = process_data(scraped_data, target, output_directory)
-        if os.getenv('WHOXY_API_KEY'):
-            whoxy_data = search_whoxy('name', '+'.join(str(target).split()))
-            data_dict['Whoxy'] = whoxy_data
+    # Indicate which target is being processed
+    print(Style.BRIGHT + Fore.GREEN + f"\n[+] Starting search and scrape for target: '{target}' (Depth: {depth})" + Style.RESET_ALL)
 
-    # -c argument logic
-    if args.COMPANY is not None:
-        target = args.COMPANY
-        data_dir = check_directory(target, output_directory)
-        if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-            res_one = verbatim_search(target)
-            res_two = intext_search(target)
-            res_thr = inurl_search(target)
-            res_fou = intitle_search(target)
-            results = join_results(res_one, res_two, res_thr, res_fou)
-            uniques = remove_duplicates(results)
-            scrape_links = extract_links(uniques)
-            scraped_data = scraped_links(scrape_links)
-            data_dict = process_data(scraped_data, target, output_directory)
-        if os.getenv('WHOXY_API_KEY'):
-            whoxy_data = search_whoxy('company', '+'.join(str(target).split()))
-            data_dict['Whoxy'] = whoxy_data
+    # Checking if directory exists
+    directory = check_directory(target, output)
 
-    # Write data_dict to JSON file
-    with open(os.path.join(data_dir, 'DATA.json'), 'w', encoding='utf-8') as f:
-        json.dump(data_dict, f)
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "v" + Fore.GREEN + "]" + " DONE. " + Style.RESET_ALL + Fore.GREEN + f"Check" + Style.BRIGHT + f" {data_dir} " + Style.RESET_ALL + Fore.GREEN + "for " + Style.BRIGHT + f"DATA.json\n" + Style.RESET_ALL)
+    # Loading env variables
+    load_dotenv()
+    if not all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
+        print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " API key(s) not found.\n" + Style.RESET_ALL)
+        sys.exit()
 
-if __name__ == "__main__":
+    # Perform the search and scrape process
+    results = google_search(target)
+    uniques = remove_duplicates(results)
+    scrape_links = extract_links(uniques)
+    scraped_data = scraped_links(scrape_links)
+    data_dict = process_data(scraped_data, target, output)
+
+    # Update combined data
+    combined_data['Email Addresses'].update(data_dict.get('Email Addresses', []))
+    combined_data['URLs'].update(data_dict.get('URLs', []))
+
+    # Display the emails found in this iteration
+    found_emails = data_dict.get('Email Addresses', [])
+    if found_emails:
+        print(Fore.GREEN + f"\n[+] Emails found for target '{target}':" + Style.RESET_ALL)
+        for email in found_emails:
+            print(f"    - {email}")
+    else:
+        print(Style.BRIGHT + Fore.YELLOW + f"\n[!] No emails found for target '{target}'." + Style.RESET_ALL)
+        if depth == 0:
+            print(Fore.YELLOW + f" [!] No emails identified during the initial search." + Style.RESET_ALL)
+        return combined_data  # No emails to process further
+
+    # Now, apply match_emails() to the found emails
+    # Since the initial target is not an email, we compare the found emails among themselves
+    # This step helps to find related emails among the found ones
+    matched_emails = set()
+    for email in found_emails:
+        matches = match_emails(email, found_emails)
+        matched_emails.update(matches)
+
+    # Remove emails that have already been processed
+    matched_emails = matched_emails - processed_targets
+
+    # Display matched emails that will be processed recursively
+    if matched_emails:
+        print(Style.BRIGHT + Fore.CYAN + f"\n[i] Matched emails to be processed further:" + Style.RESET_ALL)
+        for email in matched_emails:
+            print(f"    - {email}")
+    else:
+        print(Fore.CYAN + f"\n[i] No matched emails for further processing." + Style.RESET_ALL)
+
+    # Recursively process each matched email
+    for email in matched_emails:
+        # Ensure that the email hasn't been processed and is valid
+        if email not in processed_targets and is_valid_email(email):
+            recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth)
+
+    return combined_data
+
+def main():
+    # Parsing CLI arguments
+    args = arg_parsing()
+    initial_target = args[0]
+    output_directory = args[1]
+
+    # Start recursive search and scrape
+    combined_data = recursive_search_and_scrape(initial_target, output_directory)
+
+    # Convert sets to lists for final output
+    combined_data['Email Addresses'] = list(combined_data['Email Addresses'])
+    combined_data['URLs'] = sorted(list(combined_data['URLs']))
+
+    # Save combined data to a JSON file or output as needed
+    # For example, print the results
+    #print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Final Data:" + Style.RESET_ALL)
+    #print(json.dumps(combined_data, indent=2))
+
+    # Save combined data to a JSON file
+    output_file = os.path.join(output_directory, "osint_data_" + ''.join(char for char in str(initial_target) if char.isalnum()), 'final_data.json')
+    with open(output_file, 'w') as f:
+        json.dump(combined_data, f, indent=2)
+
+    print(Fore.GREEN + f" [+] Final data saved to {output_file}\n" + Style.RESET_ALL)
+
+if __name__ == '__main__':
     main()
