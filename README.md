@@ -15,7 +15,7 @@
 
 ## Workflow
 
-**OSINTr** works best on Linux and tackles **Stage 1 of the [OFM](https://github.com/0SINTr/ofm)** workflow by performing **GRASS (Google Recursive Advanced Search & Scrape)**.
+**OSINTr** works best on Linux and tackles **Stage 1 of the [OFM](https://github.com/0SINTr/ofm)** workflow by performing **GRASS** (Google Recursive Advanced Search & Scrape).
 
 ### Data Collection
 
@@ -23,13 +23,13 @@
 - Ensure you add your API keys (see **API Keys** below) before running the tool.
 
 **Automated tasks include:**
-- Performs verbatim (intitle, intext, inanchor included) and inurl Google search.
-- Scrapes all found URLs and extracts all email addresses and URLs from each page.
-- Saves a full page screenshot (if possible) of each page in a separate directory.
-- For each email address it finds, it recursively performs GRASS for each address.
-- Currently, the maximum depth for recursion is set to 2. May increase in the future.
-- Creates a directory under -o OUTPUT directory named osint_TargetName for each target.
-- Saves all email addresses and URLs from the GRASS process to a file final_data.json.
+- Performs **verbatim** (intitle, intext, inanchor included) and **inurl** Google search.
+- Scrapes all found URLs and extracts all **email addresses** and **URLs** from each page.
+- Saves a **full page screenshot** (if possible) of each page in a separate directory.
+- For each email address it finds, it **recursively** performs **GRASS** for each address.
+- Currently, the **maximum depth for recursion** is set to 2. May increase in the future.
+- Creates a directory under **-o OUTPUT** directory named *osint_TargetName* for each target.
+- Saves all email addresses and URLs from the GRASS process to a file **final_data.json**.
 
 ## API Keys
 
@@ -61,21 +61,19 @@ source ~/.zshrc
 **Preparing**
 - Ensure Python >=3.10 is installed.
 - Add `/home/<user>/.local/bin` to `PATH`.
-- Edit `~/.bashrc` if that's your default.
+- Edit `~/.zshrc` if that's your default.
 
 ```bash
 sudo apt upgrade python3
 sudo apt upgrade python3-pip
-vim ~/.zshrc
+vim ~/.bashrc
 export PATH="$HOME/.local/bin:$PATH"
-source ~/.zshrc
+source ~/.bashrc
 ```
 
 **Installing**
 ```bash
-git clone https://github.com/0SINTr/osintr.git
-cd osintr
-python -m pip install .
+pipx install git+https://github.com/0SINTr/osintr.git
 ```
 
 ## Usage
@@ -103,16 +101,6 @@ For person or company names use double quotes to enclose the whole name.
 
 ![osintr1](osintr/docs/x.png)
 
-## Upgrading
-
-To upgrade **OSINTr** to the latest version, follow these steps:
-
-```bash
-cd osintr
-git pull origin main
-python -m pip install --upgrade osintr
-```
-
 ## Planned Upgrades
 
 - [ ] Filtering crawled URLs by relevance.
@@ -120,7 +108,7 @@ python -m pip install --upgrade osintr
 
 ## Disclaimer
 
-- **OSINTr** is designed for passive, non-intrusive OSINT tasks.
+- **OSINTr** is designed for **passive**, **non-intrusive** OSINT tasks.
 - Any illegal or unethical use of the tool is **your** responsibility.
 - See **LICENSE** for more details on rights, permissions, and liability.
 
