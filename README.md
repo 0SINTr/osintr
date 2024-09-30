@@ -98,7 +98,7 @@ For person or company names use double quotes to enclose the whole name.
 
 ## Screenshot
 
-Details related to the target are **hidden** for obvious reasons.
+See an example workflow below. Details related to the target have been **hidden** for obvious reasons.
 
 ![osintr_example](osintr/docs/example.png)
 
