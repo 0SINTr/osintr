@@ -178,7 +178,6 @@ def arg_parsing():
             examples:                 
             osintr -t jdoe95@example.com -o /home/bob/data
             osintr -t john.doe95 -o /home/bob/data
-            osintr -t +123456789 -o /home/bob/data
             osintr -t "John Doe" -o /home/bob/data
             osintr -t "Evil Corp Ltd" -o /home/bob/data                                                                  
             '''),
