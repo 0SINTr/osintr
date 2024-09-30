@@ -11,38 +11,29 @@
 
 ## Why OSINTr?
 
-**OSINTr** directly interacts only with high-quality APIs (SerpDev, Firecrawl, HIBP, Whoxy, OSINT Industries) at a low cost, bypassing the need for unreliable third-party apps. This ensures you have full control over the code and only need to cover the API costs.
+**OSINTr** directly interacts only with high-quality APIs (SerpDev, Firecrawl) at a low cost, bypassing the need for unreliable third-party apps and implicitly handling common issues related to parsing, captchas, proxies or other types of usual setbacks. This ensures full control over the code and focus on the OSINT tasks rather than troubleshooting scraping and crawling hiccups.
 
 ## Workflow
 
-**OSINTr** works on Linux and performs two primary tasks:
+**OSINTr** works best on Linux and tackles Stage 1 of the [OFM](https://github.com/0SINTr/ofm) workflow by performing **GRASS** (Google Recursive Advanced Search & Scrape).
 
-### 1. Data Collection
+### Data Collection
 
-You provide the **target** of the OSINT investigation (see **Usage** below).   
-Ensure you add your API keys (see **API Keys** below) before running the tool.
-
-**Automated tasks include:**
-- Performs verbatim, intext, inurl and intitle search on Google.
-- Scrapes all URLs and saves all links and email addresses from each page.
-- Saves a full page screenshot of each page in a separate directory.
-- Sorts email addresses and links based on relevance. Saves to `DATA.json`.
-- Checks HIBP breaches and pastes (for **-e**|**-u**). Saves to `DATA.json`.
-- Checks Whoxy reverse whois data (for **-e**|**-u**|**-n**|**-c**). Saves to `DATA.json`.
-- Checks OSINT.Industries for more data (for **-e**|**-u**|**-p**). Saves to `DATA.json`.
-
-### 2. Data Analysis (planned upgrade)
-
-Once data is collected, **OSINTr** will automatically analyze the information inside `DATA.json` for patterns and hidden connections between data points.
+- Provide the **target** of the OSINT investigation (see **Usage** below).   
+- Ensure you add your API keys (see **API Keys** below) before running the tool.
 
 **Automated tasks include:**
-- Analyzes `DATA.json` for patterns and insights using OpenAI [GPT-o1](https://openai.com/o1/).
-- **OSINTr** builds a profile or digital footprint of the target based on collected data.
-- The gathered data is carefully curated and a summary is provided in **.md** format.
+- Performs verbatim (intitle, intext, inanchor included) and inurl Google search.
+- Scrapes all found URLs and extracts all email addresses and URLs from each page.
+- Saves a full page screenshot (if possible) of each page in a separate directory.
+- For each email address it finds, it recursively performs GRASS for each address.
+- Currently, the maximum depth for recursion is set to 2. May increase in the future.
+- Creates a directory under -o OUTPUT directory named osint_TargetName for each target.
+- Saves all email addresses and URLs from the GRASS process to a file final_data.json.
 
 ## API Keys
 
-Running the **Data Collection** and **Data Analysis** phases requires API keys.\
+Running **OSINTr** requires API keys for the benefits stated previously.\
 The API keys should reside in your environment prior to running **OSINTr**.
 
 **To add the API keys to your environment, edit bashrc or zshrc.**
@@ -50,25 +41,13 @@ The API keys should reside in your environment prior to running **OSINTr**.
 vim ~/.zshrc
 export SERPER_API_KEY="<your_key_here>"
 export FIRECRAWL_API_KEY="<your_key_here>"
-export HIBP_API_KEY="<your_key_here>"
-export WHOXY_API_KEY="<your_key_here>"
-export OSIND_API_KEY="<your_key_here>"
-export OPENAI_API_KEY="<your_key_here>"
 source ~/.zshrc
 ```
-
-**Note!** The **OPENAI_API_KEY** is currently optional until the **Data Analysis** functionality is implemented.
 
 **API Keys:**
 
 - **SerperDev**: [Get your key here](https://serper.dev/)
 - **Firecrawl**: [Get your key here](https://www.firecrawl.dev/)
-- **HaveIBeenPwned**: [Get your key here](https://haveibeenpwned.com/)
-- **Whoxy**: [Get your key here](https://www.whoxy.com/)
-- **OSINT.Industries**: [Get your key here](https://www.osint.industries/)
-- **OpenAI**: [Get your key here](https://openai.com/)
-
-**Note!** For Whoxy make sure you buy credits for the [Reverse Whois API](https://www.whoxy.com/pricing.php).
 
 ## Costs
 
@@ -76,10 +55,6 @@ source ~/.zshrc
 
 - **SerperDev**: 2,500 free queries, then pay-as-you-go (50k queries for $50).
 - **Firecrawl**: 500 free credits; $19/mo for 3,000 page scrapes. 
-- **HIBP**: Pwned1 plan for $3.95/mo, 10 email searches/minute.
-- **Whoxy**: $10 for 1,000 reverse whois API queries.
-- **OSINT.Industries** (optional): Starting at £19/mo.
-- **OpenAI**: Pay-as-you-go.
 
 ## Installation
 
@@ -107,30 +82,27 @@ python -m pip install .
 
 ```console
 $ osintr -h
-usage: osintr [-h] (-e EMAIL | -u USER | -p PHONE | -n NAME | -c COMPANY) -o OUTPUT
+usage: main.py [-h] -t TARGET -o OUTPUT
 
-See below all available arguments for osintr.
-Use only one -e|-u|-p|-n|-c argument at a time.
-
-example:
-osintr -e example@example.com -o /home/bob/data
+examples:
+osintr -t jdoe95@example.com -o /home/bob/data
+osintr -t john.doe95 -o /home/bob/data
+osintr -t +123456789 -o /home/bob/data
+osintr -t "John Doe" -o /home/bob/data
+osintr -t "Evil Corp Ltd" -o /home/bob/data
 
 options:
   -h, --help  show this help message and exit
-  -e EMAIL    Target email address
-  -u USER     Target username
-  -p PHONE    Target phone number
-  -n NAME     Target person name
-  -c COMPANY  Target company name
+  -t TARGET   Target of investigation
   -o OUTPUT   Directory to save results
 
 NOTE!
-For person or company name use double quotes to enclose the whole name.
+For person or company names use double quotes to enclose the whole name.
 ```
 
 ## Screenshot
 
-![osintr1](osintr/docs/0SINTr.png)
+![osintr1](osintr/docs/x.png)
 
 ## Upgrading
 
@@ -144,7 +116,8 @@ python -m pip install --upgrade osintr
 
 ## Planned Upgrades
 
-- Better formating for the JSON data (md or html).
+- [ ] Filtering crawled URLs by relevance.
+- [ ] Better formating for the JSON data (md or html).
 
 ## Disclaimer
 
@@ -158,7 +131,3 @@ API documentation:
 
 - [SerperDev API docs](https://serper.dev/)
 - [Firecrawl API docs](https://docs.firecrawl.dev/introduction)
-- [HaveIBeenPwned API docs](https://haveibeenpwned.com/API/v3)
-- [Whoxy Reverse API docs](https://www.whoxy.com/reverse-whois/)
-- [OSINT.Industries API docs](https://docs.osint.industries/reference/search)
-- [OpenAI API docs](https://platform.openai.com/docs/overview)
