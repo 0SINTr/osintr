@@ -51,7 +51,7 @@
 - If the target is **email** or **username**: 
     - Recursion is done **automatically** up to a max depth of 2.
 - If the target is **person** or **company name**: 
-    - **You pick** the emails to recurse at each depth level.
+    - **You pick** the emails to recurse at each level of depth.
 - Currently, the **maximum depth for recursion** is set to 2. May increase in the future.
 - Creates a directory under **-o OUTPUT** directory named ***osint_TargetName*** for each target.
 - Saves all email addresses and URLs from the **GRASS** process to a file **Raw_Data.json**.
@@ -131,8 +131,11 @@ See an example workflow below. Details related to the target have been **hidden*
 
 ## Planned Upgrades
 
-- [ ] Filtering crawled URLs by relevance.
-- [ ] Better formating for the JSON data.
+- [v] Filtering crawled URLs by relevance.
+- [v] Better formating for the JSON data.
+- [v] Adding HTML-based final reporting.
+- [ ] Improved, better-structured output.
+- [ ] Google images, maps, places, reviews.
 
 ## Disclaimer
 
