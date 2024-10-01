@@ -388,10 +388,9 @@ def main():
     report_directory = check_directory(initial_target, output_directory)
 
     # Generate the HTML report
-    report_template_path = os.path.join('templates', 'report_template.html')
     report_output_path = os.path.join(report_directory, 'Final_Report.html')
 
-    generate_html_report(combined_data, template_path=report_template_path, output_html_path=report_output_path)
+    generate_html_report(combined_data, output_html_path=report_output_path)
     
     # Save (raw) combined data to a JSON file
     output_file = os.path.join(report_directory, 'Raw_Data.json')
