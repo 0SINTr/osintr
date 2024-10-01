@@ -65,28 +65,31 @@
 ```mermaid
 flowchart TD
     A[Start: Provide Initial Target] --> B{Determine Target Type}
-    B -->|Email| C["Extract Username and Domain"]
-    B -->|Username| D["Tokenize Username"]
-    C --> E["Google Search: 'username' OR inurl:'username'"]
-    D --> E["Google Search: 'username' OR inurl:'username'"]
-    E --> F["Remove Duplicate Search Results"]
-    F --> G["Extract Relevant Links (Exclude 'gov')"]
-    G --> H["Scrape Extracted Links using Firecrawl"]
-    H --> I["Extract Emails and URLs from Scraped Data"]
-    I --> J["Save Screenshots (if available)"]
-    J --> K["Update Combined Data"]
-    K --> L["Evaluate URLs for Relevance"]
-    L --> M{Are there Relevant URLs?}
-    M -->|Yes| N["Store Relevant URLs"]
-    M -->|No| O["Store Other URLs"]
-    N --> P["Generate HTML Report"]
-    O --> P["Generate HTML Report"]
-    P --> Q["Save Raw Data to JSON"]
-    Q --> R[End]
+    B -->|Name/Company| C["Google Search: 'name' OR inurl:'name'"]
+    C --> D["Remove Duplicate Search Results"]
+    D --> E["Extract Relevant Links (Exclude 'gov')"]
+    E --> F["Scrape Extracted Links using Firecrawl"]
+    F --> G["Extract Emails and URLs from Scraped Data"]
+    G --> H["Save Screenshots (if available)"]
+    H --> I["Update Combined Data"]
+    I --> J["Evaluate URLs for Relevance"]
+    J --> K{Are there Relevant URLs?}
+    K -->|Yes| L["Store Relevant URLs"]
+    K -->|No| M["Store Other URLs"]
+    L --> N["Generate HTML Report"]
+    M --> N["Generate HTML Report"]
+    N --> O["Save Raw Data to JSON"]
+    O --> P["User-Guided Recursion"]
+    P --> Q{Select Emails for Further Investigation}
+    Q -->|Select Emails| R["Recursively Search and Scrape Selected Emails"]
+    Q -->|Skip Recursion| S[End]
+    R --> N
+    S --> T[End]
 
     %% Styling
     classDef startEnd fill:#f9f,stroke:#333,stroke-width:2px;
-    class A,R startEnd;
+    class A,T startEnd;
+
 ```
 
 
