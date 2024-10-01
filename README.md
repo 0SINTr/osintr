@@ -62,32 +62,32 @@
 
 ### Initial Target is an Email or Username
 
-```mermaid
 flowchart TD
     A[Start: Provide Initial Target] --> B{Determine Target Type}
-    B -->|Email| C[Extract Username and Domain]
-    B -->|Username| D[Tokenize Username]
-    C --> E[Google Search: "username" OR inurl:"username"]
-    D --> E[Google Search: "username" OR inurl:"username"]
-    E --> F[Remove Duplicate Search Results]
-    F --> G[Extract Relevant Links (Exclude 'gov')]
-    G --> H[Scrape Extracted Links using Firecrawl]
-    H --> I[Extract Emails and URLs from Scraped Data]
-    I --> J[Save Screenshots (if available)]
-    J --> K[Update Combined Data]
-    K --> L[Evaluate URLs for Relevance]
+    B -->|Email| C["Extract Username and Domain"]
+    B -->|Username| D["Tokenize Username"]
+    C --> E["Google Search: \"username\" OR inurl:\"username\""]
+    D --> E["Google Search: \"username\" OR inurl:\"username\""]
+    E --> F["Remove Duplicate Search Results"]
+    F --> G["Extract Relevant Links (Exclude 'gov')"]
+    G --> H["Scrape Extracted Links using Firecrawl"]
+    H --> I["Extract Emails and URLs from Scraped Data"]
+    I --> J["Save Screenshots (if available)"]
+    J --> K["Update Combined Data"]
+    K --> L["Evaluate URLs for Relevance"]
     L --> M{Are there Relevant URLs?}
-    M -->|Yes| N[Store Relevant URLs]
-    M -->|No| O[Store Other URLs]
-    N --> P[Generate HTML Report]
-    O --> P[Generate HTML Report]
-    P --> Q[Save Raw Data to JSON]
+    M -->|Yes| N["Store Relevant URLs"]
+    M -->|No| O["Store Other URLs"]
+    N --> P["Generate HTML Report"]
+    O --> P["Generate HTML Report"]
+    P --> Q["Save Raw Data to JSON"]
     Q --> R[End]
     
     %% Styling
     classDef startEnd fill:#f9f,stroke:#333,stroke-width:2px;
     class A,R startEnd;
-```
+
+
 
 
 ## API Keys
