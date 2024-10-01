@@ -16,8 +16,12 @@ def generate_html_report(data, template_path='report_template.html', output_html
     initial_target = data.get('initial_target', 'N/A')
     email_addresses = data.get('Email Addresses', [])
     relevant_urls = data.get('Relevant URLs', [])
+    other_urls = data.get('Other URLs', [])
     
     # Set up Jinja2 environment
+    template_dir = os.path.dirname(template_path)
+    if template_dir == '':
+        template_dir = '.'  # Current directory
     env = Environment(loader=FileSystemLoader(searchpath=os.path.dirname(template_path) or './'))
     template = env.get_template(os.path.basename(template_path))
     
@@ -26,6 +30,7 @@ def generate_html_report(data, template_path='report_template.html', output_html
         initial_target=initial_target,
         email_addresses=email_addresses,
         relevant_urls=relevant_urls,
+        other_urls=other_urls,
         generation_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )
     

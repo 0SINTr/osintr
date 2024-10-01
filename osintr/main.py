@@ -366,7 +366,7 @@ def main():
 
         # Update combined_data dictionary
         combined_data['Relevant URLs'] = relevant_urls
-        combined_data['URLs'] = irrelevant_urls
+        combined_data['Other URLs'] = irrelevant_urls
 
         # Display relevant URLs
         if relevant_urls:
