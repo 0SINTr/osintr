@@ -48,8 +48,10 @@
     - **Name Entity Recognition (NER)** via spaCy tokens for person name or company name matching
     - Stop words and excluded tokens for an improved **scoring system** for URL vs. name matching
     - Exact or **fuzzy token matching**, adjusted penalty logic, sorting URLs by **relevance score**
-- If the target is **email** or **username**, recursion is done **automatically** up to a max depth of 2.
-- If the target is **person** or **company name**, **you pick** the emails to recurse at each depth level.
+- If the target is **email** or **username**: 
+    - Recursion is done **automatically** up to a max depth of 2.
+- If the target is **person** or **company name**: 
+    - **You pick** the emails to recurse at each depth level.
 - Currently, the **maximum depth for recursion** is set to 2. May increase in the future.
 - Creates a directory under **-o OUTPUT** directory named ***osint_TargetName*** for each target.
 - Saves all email addresses and URLs from the **GRASS** process to a file **Raw_Data.json**.
