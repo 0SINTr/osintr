@@ -1,4 +1,5 @@
-from match import match_emails, is_valid_email
+from modules.match_emails import match_emails, is_valid_email
+from modules.match_urls import evaluate_urls
 from firecrawl import FirecrawlApp
 from colorama import Fore, Style
 from dotenv import load_dotenv
@@ -30,7 +31,7 @@ def google_search(target):
     query = f"\"{target}\" OR inurl:\"{target}\""
     payload = json.dumps({
     "q": query,
-    "num": 10,
+    "num": 20,
     "autocorrect": False
     })
     headers = {
@@ -170,6 +171,19 @@ def process_data(scrape_results, target, directory):
     print(Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "-" + Fore.WHITE + "]" + Fore.GREEN + " All Google search data was saved." + Style.RESET_ALL)
     return data_dict
 
+# Determine the type of the target
+def get_target_type(target):
+    """Determine if the target is an email, username, or name/company."""
+    email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    username_regex = r"^[a-zA-Z0-9_.-]+$"
+
+    if re.fullmatch(email_regex, target):
+        return "email"
+    elif re.fullmatch(username_regex, target):
+        return "username"
+    else:
+        return "name_company"
+    
 # Parsing CLI arguments
 def arg_parsing():
     parser = argparse.ArgumentParser(
@@ -187,6 +201,7 @@ def arg_parsing():
             '''))
     parser.add_argument('-t', dest='TARGET', help='Target of investigation', required=True)
     parser.add_argument('-o', dest='OUTPUT', help='Directory to save results', required=True)
+    parser.add_argument('--max-depth', dest='MAX_DEPTH', type=int, default=2, help='Maximum recursion depth (default: 2)')
     args = parser.parse_args()
 
     # TARGET argument
@@ -202,31 +217,13 @@ def arg_parsing():
     else:
         parser.print_help()
 
-    return target, output_directory
+    # MAX_DEPTH argument
+    max_depth = args.MAX_DEPTH
 
-# Data dictionary return function
-def data_dictfunc():
-    args = arg_parsing()
-    target = args[0]
-    output = args[1]
+    return target, output_directory, max_depth
 
-    # Checking if directory exists
-    check_directory(target, output)
-
-    # Loading env variables
-    load_dotenv()
-    if all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-        results = google_search(target)
-        uniques = remove_duplicates(results)              
-        scrape_links = extract_links(uniques)
-        scraped_data = scraped_links(scrape_links)
-        data_dict = process_data(scraped_data, target, output)
-        return target, data_dict
-    else:
-        print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " API key(s) not found.\n" + Style.RESET_ALL)
-        sys.exit()
-
-def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2):
+# Function for performing GRASS
+def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2, initial_target_type=None):
     if depth > max_depth:
         print(Fore.YELLOW + f" [!] Maximum recursion depth reached for target '{target}'. Skipping further recursion." + Style.RESET_ALL)
         return combined_data
@@ -246,7 +243,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     # Indicate which target is being processed
     print(Style.BRIGHT + Fore.GREEN + f"\n[+] Starting search and scrape for target: '{target}' (Depth: {depth})" + Style.RESET_ALL)
 
-    # Checking if directory exists
+    # Checking if directory exists and get the path
     directory = check_directory(target, output)
 
     # Loading env variables
@@ -260,7 +257,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
     scraped_data = scraped_links(scrape_links)
-    data_dict = process_data(scraped_data, target, output)
+    data_dict = process_data(scraped_data, target, directory)  # Pass 'directory' here
 
     # Update combined data
     combined_data['Email Addresses'].update(data_dict.get('Email Addresses', []))
@@ -270,38 +267,74 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     found_emails = data_dict.get('Email Addresses', [])
     if found_emails:
         print(Fore.GREEN + f"\n[+] Emails found for target '{target}':" + Style.RESET_ALL)
-        for email in found_emails:
-            print(f"    - {email}")
+        for idx, email in enumerate(found_emails, 1):
+            print(f"    {idx}. {email}")
     else:
         print(Style.BRIGHT + Fore.YELLOW + f"\n[!] No emails found for target '{target}'." + Style.RESET_ALL)
         if depth == 0:
             print(Fore.YELLOW + f" [!] No emails identified during the initial search." + Style.RESET_ALL)
         return combined_data  # No emails to process further
 
-    # Now, apply match_emails() to the found emails
-    # Since the initial target is not an email, we compare the found emails among themselves
-    # This step helps to find related emails among the found ones
-    matched_emails = set()
-    for email in found_emails:
-        matches = match_emails(email, found_emails)
-        matched_emails.update(matches)
-
-    # Remove emails that have already been processed
-    matched_emails = matched_emails - processed_targets
-
-    # Display matched emails that will be processed recursively
-    if matched_emails:
-        print(Style.BRIGHT + Fore.CYAN + f"\n[i] Matched emails to be processed further:" + Style.RESET_ALL)
-        for email in matched_emails:
-            print(f"    - {email}")
+    # Determine the type of the initial target
+    if depth == 0:
+        initial_target_type = get_target_type(target)
     else:
-        print(Fore.CYAN + f"\n[i] No matched emails for further processing." + Style.RESET_ALL)
+        initial_target_type = "email"  # Subsequent targets are emails
 
-    # Recursively process each matched email
-    for email in matched_emails:
-        # Ensure that the email hasn't been processed and is valid
-        if email not in processed_targets and is_valid_email(email):
-            recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth)
+    if initial_target_type in ["email", "username"]:
+        # **Automatic Recursion:**
+        matched_emails = set()
+        for email in found_emails:
+            matches = match_emails(email, found_emails)
+            matched_emails.update(matches)
+
+        # Remove emails that have already been processed
+        matched_emails = matched_emails - processed_targets
+
+        # Display matched emails that will be processed recursively
+        if matched_emails:
+            print(Style.BRIGHT + Fore.CYAN + f"\n[i] Matched emails to be processed further:" + Style.RESET_ALL)
+            for email in matched_emails:
+                print(f"    - {email}")
+        else:
+            print(Fore.CYAN + f"\n[i] No matched emails for further processing." + Style.RESET_ALL)
+
+        # Recursively process each matched email
+        for email in matched_emails:
+            if email not in processed_targets and is_valid_email(email):
+                recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type)
+
+    elif initial_target_type == "name_company":
+        # **User-Guided Recursion:**
+        print(Fore.CYAN + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
+        print(Fore.CYAN + "    Enter the numbers corresponding to the emails, separated by commas (e.g., 1,3,5). Enter '0' to skip recursion on emails." + Style.RESET_ALL)
+
+        # Capture user input
+        selected_indices = input(Fore.YELLOW + "Your selection: " + Style.RESET_ALL)
+
+        # Process user input
+        try:
+            selected_indices = selected_indices.strip()
+            if selected_indices == '0':
+                print(Fore.YELLOW + " [!] Skipping recursion on emails as per user selection." + Style.RESET_ALL)
+                return combined_data
+            selected_indices = [int(idx.strip()) for idx in selected_indices.split(',')]
+            selected_emails = [found_emails[idx - 1] for idx in selected_indices if 1 <= idx <= len(found_emails)]
+        except (ValueError, IndexError):
+            print(Fore.RED + " [!] Invalid input. Skipping recursion on emails." + Style.RESET_ALL)
+            return combined_data
+
+        if selected_emails:
+            print(Fore.GREEN + "\n[+] Selected emails to process recursively:" + Style.RESET_ALL)
+            for email in selected_emails:
+                print(f"    - {email}")
+
+            # Recursively process each selected email
+            for email in selected_emails:
+                if email not in processed_targets and is_valid_email(email):
+                    recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type)
+        else:
+            print(Fore.YELLOW + " [!] No valid emails selected for recursion." + Style.RESET_ALL)
 
     return combined_data
 
@@ -310,21 +343,45 @@ def main():
     args = arg_parsing()
     initial_target = args[0]
     output_directory = args[1]
+    max_depth = args[2]
 
     # Start recursive search and scrape
-    combined_data = recursive_search_and_scrape(initial_target, output_directory)
+    combined_data = recursive_search_and_scrape(initial_target, output_directory, max_depth=max_depth)
 
     # Convert sets to lists for final output
     combined_data['Email Addresses'] = list(combined_data['Email Addresses'])
     combined_data['URLs'] = sorted(list(combined_data['URLs']))
 
-    # Save combined data to a JSON file or output as needed
-    # For example, print the results
-    #print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Final Data:" + Style.RESET_ALL)
-    #print(json.dumps(combined_data, indent=2))
+    # Now, perform URL relevance matching
+    if combined_data['URLs']:
+        print(Fore.GREEN + f"\n[+] Starting URL relevance matching using 'match_urls.py'." + Style.RESET_ALL)
+        relevant_urls_with_scores = evaluate_urls(initial_target, combined_data['URLs'])
+        # Adjust the threshold as needed. For example, 50:
+        relevant_urls = [url for url, score in relevant_urls_with_scores if score >= 50]
+        irrelevant_urls = list(set(combined_data['URLs']) - set(relevant_urls))
+
+        # Update combined_data dictionary
+        combined_data['Relevant URLs'] = relevant_urls
+        combined_data['URLs'] = irrelevant_urls
+
+        # Display relevant URLs
+        if relevant_urls:
+            print(Fore.GREEN + f"\n[+] Relevant URLs found:" + Style.RESET_ALL)
+            for url in relevant_urls:
+                print(f"    - {url}")
+        else:
+            print(Fore.YELLOW + f"\n[!] No relevant URLs identified." + Style.RESET_ALL)
+    else:
+        print(Fore.YELLOW + f"\n[!] No URLs found to match." + Style.RESET_ALL)
+        combined_data['Relevant URLs'] = []
+        # 'URLs' key is already empty or as it was
 
     # Save combined data to a JSON file
-    output_file = os.path.join(output_directory, "osint_data_" + ''.join(char for char in str(initial_target) if char.isalnum()), 'final_data.json')
+    output_file = os.path.join(
+        output_directory,
+        "osint_data_" + ''.join(char for char in str(initial_target) if char.isalnum()),
+        'final_data.json'
+    )
     with open(output_file, 'w') as f:
         json.dump(combined_data, f, indent=2)
 
