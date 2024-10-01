@@ -10,7 +10,7 @@ setup(
     description='OFM Stage 1 tool for GRASS (Google Recursive Advanced Search & Scrape).',
     long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
-    packages=find_packages(),
+    packages=find_packages(include=['osintr', 'osintr.*']),
     install_requires=requirements,
     include_package_data=True,
     package_data={
