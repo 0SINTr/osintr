@@ -62,6 +62,9 @@
 
 ### Initial Target is an Email or Username
 
+### Initial Target is an Email or Username
+
+```mermaid
 flowchart TD
     A[Start: Provide Initial Target] --> B{Determine Target Type}
     B -->|Email| C["Extract Username and Domain"]
