@@ -26,7 +26,9 @@
 - Performs **verbatim** (intitle, intext, inanchor included) and **inurl** Google search.
 - Scrapes all found URLs and extracts all **email addresses** and **URLs** from each page.
 - Saves a **full page screenshot** (if possible) of each page in a separate directory.
-- For each email address it finds, it **recursively** performs **GRASS** for each address.
+- The **initial search** might be performed on an **email**, **username**, **person name** or **company**.
+- Goal is to collect at least one **email address** from the initial search and then dig deeper.
+- For each email address it finds relevant, it **recursively** performs the **GRASS** job.
 - Automatically checks for **matches** between potentially related email addresses, using:
     - Exact matching:
         - `john.doe@tests.com` to `john.doe@test.com`
@@ -44,9 +46,43 @@
         - `john.dough@test.com` to `john.doe@test.com`
     - Substring matching:
         - `john.doe@test.com` to `john.doe99@test.com`
+- Automatically checks for **matches** between the target and potentially related URLs, using:
+    - Differentiation between **target** being an email or username, vs. person or company name
+    - **Name Entity Recognition (NER)** via spaCy tokens for person name or company name matching
+    - Stop words and excluded tokens for an improved **scoring system** for URL vs. name matching
+    - Exact or **fuzzy token matching**, adjusted penalty logic, sorting URLs by **relevance score**
+- If the target is **email** or **username**, recursion is done **automatically** up to a max depth of 2.
+- If the target is **person** or **company name**, **you pick** the emails to recurse at each depth level.
 - Currently, the **maximum depth for recursion** is set to 2. May increase in the future.
 - Creates a directory under **-o OUTPUT** directory named ***osint_TargetName*** for each target.
-- Saves all email addresses and URLs from the **GRASS** process to a file **final_data.json**.
+- Saves all email addresses and URLs from the **GRASS** process to a file **Raw_Data.json**.
+- Also creates a Jinja2 template-based **Final_Report.html** with clean structure and formatting.
+
+flowchart TD
+    A[Start: Provide Initial Target] --> B{Determine Target Type}
+    B -->|Email| C[Extract Username and Domain]
+    B -->|Username| D[Tokenize Username]
+    C --> E[Google Search: "username" OR inurl:"username"]
+    D --> E[Google Search: "username" OR inurl:"username"]
+    E --> F[Remove Duplicate Search Results]
+    F --> G[Extract Relevant Links (Exclude 'gov')]
+    G --> H[Scrape Extracted Links using Firecrawl]
+    H --> I[Extract Emails and URLs from Scraped Data]
+    I --> J[Save Screenshots (if available)]
+    J --> K[Update Combined Data]
+    K --> L[Evaluate URLs for Relevance]
+    L --> M{Are there Relevant URLs?}
+    M -->|Yes| N[Store Relevant URLs]
+    M -->|No| O[Store Other URLs]
+    N --> P[Generate HTML Report]
+    O --> P[Generate HTML Report]
+    P --> Q[Save Raw Data to JSON]
+    Q --> R[End]
+    
+    %% Styling
+    classDef startEnd fill:#f9f,stroke:#333,stroke-width:2px;
+    class A,R startEnd;
+
 
 ## API Keys
 
@@ -96,7 +132,7 @@ pipx install git+https://github.com/0SINTr/osintr.git
 
 ```console
 $ osintr -h
-usage: main.py [-h] -t TARGET -o OUTPUT
+usage: main.py [-h] -t TARGET -o OUTPUT [--max-depth DEPTH]
 
 examples:
 osintr -t jdoe95@example.com -o /home/bob/data
@@ -105,9 +141,10 @@ osintr -t "John Doe" -o /home/bob/data
 osintr -t "Evil Corp Ltd" -o /home/bob/data
 
 options:
-  -h, --help  show this help message and exit
-  -t TARGET   Target of investigation
-  -o OUTPUT   Directory to save results
+  -h, --help         show this help message and exit
+  -t TARGET          Target of investigation
+  -o OUTPUT          Directory to save results
+  --max-depth DEPTH  Maximum recursion depth (default: 2)
 
 NOTE!
 For person or company names use double quotes to enclose the whole name.
