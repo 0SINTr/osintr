@@ -101,6 +101,14 @@ source ~/.bashrc
 pipx install git+https://github.com/0SINTr/osintr.git
 ```
 
+After installation, **on the first run**, you will see an output similar to the one below. Don't panic, it's the **spaCy** library downloading its **NER Model**.
+```
+Downloading 'en_core_web_sm' model...
+Collecting en-core-web-sm==3.7.1
+  Downloading https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl (12.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.8/12.8 MB 25.7 MB/s eta 0:00:00
+```
+
 ## Usage
 
 ```console
