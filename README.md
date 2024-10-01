@@ -131,9 +131,9 @@ See an example workflow below. Details related to the target have been **hidden*
 
 ## Planned Upgrades
 
-- [v] Filtering crawled URLs by relevance.
-- [v] Better formating for the JSON data.
-- [v] Adding HTML-based final reporting.
+- [x] Filtering crawled URLs by relevance.
+- [x] Better formating for the JSON data.
+- [x] Adding HTML-based final reporting.
 - [ ] Improved, better-structured output.
 - [ ] Google images, maps, places, reviews.
 
