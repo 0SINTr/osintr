@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OSINT Report for {{ initial_target }}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .footer {
+            text-align: center;
+            color: #6c757d;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">OSINT Report for {{ initial_target }}</h1>
+        
+        <div class="section">
+            <h2>Email Addresses</h2>
+            {% if email_addresses %}
+                <div class="table-container">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Email Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for email in email_addresses %}
+                            <tr>
+                                <th scope="row">{{ loop.index }}</th>
+                                <td>{{ email }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No email addresses found.</p>
+            {% endif %}
+        </div>
+        
+        <div class="section">
+            <h2>Relevant URLs</h2>
+            {% if relevant_urls %}
+                <div class="table-container">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">URL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for url in relevant_urls %}
+                            <tr>
+                                <th scope="row">{{ loop.index }}</th>
+                                <td><a href="{{ url }}" target="_blank">{{ url }}</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No relevant URLs found.</p>
+            {% endif %}
+        </div>
+        
+        <div class="footer">
+            <p>Report generated on {{ generation_date }}</p>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS (Optional, for interactive components) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

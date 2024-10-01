@@ -1,5 +1,3 @@
-# match_urls.py
-
 from urllib.parse import urlparse
 from fuzzywuzzy import fuzz
 import spacy

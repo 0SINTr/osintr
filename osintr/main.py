@@ -1,4 +1,5 @@
 from modules.match_emails import match_emails, is_valid_email
+from modules.report_generator import generate_html_report
 from modules.match_urls import evaluate_urls
 from firecrawl import FirecrawlApp
 from colorama import Fore, Style
@@ -31,7 +32,7 @@ def google_search(target):
     query = f"\"{target}\" OR inurl:\"{target}\""
     payload = json.dumps({
     "q": query,
-    "num": 20,
+    "num": 5,
     "autocorrect": False
     })
     headers = {
@@ -201,7 +202,7 @@ def arg_parsing():
             '''))
     parser.add_argument('-t', dest='TARGET', help='Target of investigation', required=True)
     parser.add_argument('-o', dest='OUTPUT', help='Directory to save results', required=True)
-    parser.add_argument('--max-depth', dest='MAX_DEPTH', type=int, default=2, help='Maximum recursion depth (default: 2)')
+    parser.add_argument('--max-depth', dest='DEPTH', type=int, default=2, help='Maximum recursion depth (default: 2)')
     args = parser.parse_args()
 
     # TARGET argument
@@ -218,7 +219,7 @@ def arg_parsing():
         parser.print_help()
 
     # MAX_DEPTH argument
-    max_depth = args.MAX_DEPTH
+    max_depth = args.DEPTH
 
     return target, output_directory, max_depth
 
@@ -266,7 +267,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     # Display the emails found in this iteration
     found_emails = data_dict.get('Email Addresses', [])
     if found_emails:
-        print(Fore.GREEN + f"\n[+] Emails found for target '{target}':" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Emails found for target '{target}':" + Style.RESET_ALL)
         for idx, email in enumerate(found_emails, 1):
             print(f"    {idx}. {email}")
     else:
@@ -306,11 +307,11 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
 
     elif initial_target_type == "name_company":
         # **User-Guided Recursion:**
-        print(Fore.CYAN + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
         print(Fore.CYAN + "    Enter the numbers corresponding to the emails, separated by commas (e.g., 1,3,5). Enter '0' to skip recursion on emails." + Style.RESET_ALL)
 
         # Capture user input
-        selected_indices = input(Fore.YELLOW + "Your selection: " + Style.RESET_ALL)
+        selected_indices = input(Style.BRIGHT + Fore.YELLOW + "Your selection: " + Style.RESET_ALL)
 
         # Process user input
         try:
@@ -352,9 +353,12 @@ def main():
     combined_data['Email Addresses'] = list(combined_data['Email Addresses'])
     combined_data['URLs'] = sorted(list(combined_data['URLs']))
 
+    # Add 'initial_target' to combined_data
+    combined_data['initial_target'] = initial_target
+
     # Now, perform URL relevance matching
     if combined_data['URLs']:
-        print(Fore.GREEN + f"\n[+] Starting URL relevance matching using 'match_urls.py'." + Style.RESET_ALL)
+        print(Fore.GREEN + f"\n[+] Starting URL relevance matching in collected data." + Style.RESET_ALL)
         relevant_urls_with_scores = evaluate_urls(initial_target, combined_data['URLs'])
         # Adjust the threshold as needed. For example, 50:
         relevant_urls = [url for url, score in relevant_urls_with_scores if score >= 50]
@@ -366,9 +370,9 @@ def main():
 
         # Display relevant URLs
         if relevant_urls:
-            print(Fore.GREEN + f"\n[+] Relevant URLs found:" + Style.RESET_ALL)
-            for url in relevant_urls:
-                print(f"    - {url}")
+            print(Style.BRIGHT + Fore.GREEN + f"\n[+] Relevant URLs found and saved." + Style.RESET_ALL)
+            #for url in relevant_urls:
+                #print(f"    - {url}")
         else:
             print(Fore.YELLOW + f"\n[!] No relevant URLs identified." + Style.RESET_ALL)
     else:
@@ -376,16 +380,18 @@ def main():
         combined_data['Relevant URLs'] = []
         # 'URLs' key is already empty or as it was
 
-    # Save combined data to a JSON file
-    output_file = os.path.join(
-        output_directory,
-        "osint_data_" + ''.join(char for char in str(initial_target) if char.isalnum()),
-        'final_data.json'
-    )
+    # Generate the HTML report
+    report_template_path = os.path.join('modules', 'report_template.html')
+    report_output_path = os.path.join(output_directory, 'Final_Report.html')
+
+    generate_html_report(combined_data, template_path=report_template_path, output_html_path=report_output_path)
+    
+    # Save (raw) combined data to a JSON file
+    output_file = os.path.join(output_directory, 'Raw_Data.json')
     with open(output_file, 'w') as f:
         json.dump(combined_data, f, indent=2)
 
-    print(Style.BRIGHT + Fore.GREEN + f" [+] Final data saved to {output_file}\n" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.GREEN + f" [+] Raw data saved to {output_file}\n" + Style.RESET_ALL)
 
 if __name__ == '__main__':
     main()

@@ -1,9 +1,12 @@
 python-dotenv
 firecrawl-py
 Levenshtein
+fuzzywuzzy
 homoglyphs
 jellyfish
 requests
 argparse
 colorama
+jinja2
 pandas
+spacy
