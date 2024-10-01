@@ -29,7 +29,7 @@
 - For each email address it finds, it **recursively** performs **GRASS** for each address.
 - Automatically checks for matches between potentially related email addresses, using:
     - Exact matching:
-        - **john.doe@tests.com** to **john.doe@test.com**
+        - `**john.doe@tests.com**` to `**john.doe@test.com**`
     - Case-insensitive matching:
         - **JoHn.DoE@test.com** to **john.doe@test.com**
     - Handling dots and plus-addressing:
