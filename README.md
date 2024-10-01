@@ -27,6 +27,24 @@
 - Scrapes all found URLs and extracts all **email addresses** and **URLs** from each page.
 - Saves a **full page screenshot** (if possible) of each page in a separate directory.
 - For each email address it finds, it **recursively** performs **GRASS** for each address.
+    - Automatically checks for matches between potentially related email addresses, using:
+        - Exact matching:
+            - **john.doe@tests.com** to **john.doe@test.com**
+        - Case-insensitive matching:
+            - **JoHn.DoE@test.com** to **john.doe@test.com**
+        - Handling dots and plus-addressing:
+            - **john.doe+dev@test.com** to **john.doe@test.com**
+        - Characters to digits mapping & leet:
+            - **j0hnd03@example.com** to **john.doe@test.com**
+        - Levenshtein fuzzy matching (thr=2):
+            - **johnny.doe@test.com** to **john.doe@test.com**
+        - Homoglyph matching:
+            - **john.doｅ@test.com** to **john.doe@test.com**
+        - Phonetic matching:
+            - **john.dough@test.com** to **john.doe@test.com**
+        - Substring matching:
+            - **john.doe@test.com** to **john.doe99@test.com**
+
 - Currently, the **maximum depth for recursion** is set to 2. May increase in the future.
 - Creates a directory under **-o OUTPUT** directory named *osint_TargetName* for each target.
 - Saves all email addresses and URLs from the **GRASS** process to a file **final_data.json**.

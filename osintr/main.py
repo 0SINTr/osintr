@@ -328,7 +328,7 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(combined_data, f, indent=2)
 
-    print(Fore.GREEN + f" [+] Final data saved to {output_file}\n" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.GREEN + f" [+] Final data saved to {output_file}\n" + Style.RESET_ALL)
 
 if __name__ == '__main__':
     main()
