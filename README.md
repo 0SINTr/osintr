@@ -13,12 +13,9 @@
 
 **OSINTr** directly interacts only with high-quality APIs (SerpDev, Firecrawl) at a low cost, bypassing the need for unreliable third-party apps and implicitly **handling common issues** related to parsing, captchas, proxies or other types of usual setbacks. This ensures full control over the code and exclusive focus on the OSINT tasks rather than troubleshooting scraping and crawling hiccups.
 
-## Workflow
-
-**OSINTr** works best on Linux and tackles **Stage 1 of the [OFM](https://github.com/0SINTr/ofm)** workflow by performing **GRASS** (Google Recursive Advanced Search & Scrape).
-
 ### Data Collection
 
+**OSINTr** works best on Linux and tackles **Stage 1 of the [OFM](https://github.com/0SINTr/ofm)** workflow by performing **GRASS** (Google Recursive Advanced Search & Scrape).
 - Requires a **target** for the OSINT investigation (see **Usage** below).   
 - Ensure you add your API keys (see **API Keys** below) before running the tool.
 
@@ -57,42 +54,6 @@
 - Creates a directory under **-o OUTPUT** directory named ***osint_TargetName*** for each target.
 - Saves all email addresses and URLs from the **GRASS** process to a file **Raw_Data.json**.
 - Also creates a Jinja2 template-based **Final_Report.html** with clean structure and formatting.
-
-## Program Workflow
-
-### Initial Target is an Email or Username
-
-```mermaid
-flowchart TD
-    A[Start: Provide Initial Target] --> B{Determine Target Type}
-    B -->|Name/Company| C["Google Search: 'name' OR inurl:'name'"]
-    C --> D["Remove Duplicate Search Results"]
-    D --> E["Extract Relevant Links (Exclude 'gov')"]
-    E --> F["Scrape Extracted Links using Firecrawl"]
-    F --> G["Extract Emails and URLs from Scraped Data"]
-    G --> H["Save Screenshots (if available)"]
-    H --> I["Update Combined Data"]
-    I --> J["Evaluate URLs for Relevance"]
-    J --> K{Are there Relevant URLs?}
-    K -->|Yes| L["Store Relevant URLs"]
-    K -->|No| M["Store Other URLs"]
-    L --> N["Generate HTML Report"]
-    M --> N["Generate HTML Report"]
-    N --> O["Save Raw Data to JSON"]
-    O --> P["User-Guided Recursion"]
-    P --> Q{Select Emails for Further Investigation}
-    Q -->|Select Emails| R["Recursively Search and Scrape Selected Emails"]
-    Q -->|Skip Recursion| S[End]
-    R --> N
-    S --> T[End]
-
-    %% Styling
-    classDef startEnd fill:#f9f,stroke:#333,stroke-width:2px;
-    class A,T startEnd;
-
-```
-
-
 
 ## API Keys
 
