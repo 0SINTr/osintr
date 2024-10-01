@@ -1,6 +1,6 @@
-from .modules.match_emails import match_emails, is_valid_email
-from .report_generator import generate_html_report
-from .modules.match_urls import evaluate_urls
+from modules.match_emails import match_emails, is_valid_email
+from modules.report_generator import generate_html_report
+from modules.match_urls import evaluate_urls
 from firecrawl import FirecrawlApp
 from colorama import Fore, Style
 from dotenv import load_dotenv
@@ -388,7 +388,7 @@ def main():
     report_directory = check_directory(initial_target, output_directory)
 
     # Generate the HTML report
-    report_template_path = os.path.join('modules', 'report_template.html')
+    report_template_path = os.path.join('templates', 'report_template.html')
     report_output_path = os.path.join(report_directory, 'Final_Report.html')
 
     generate_html_report(combined_data, template_path=report_template_path, output_html_path=report_output_path)
