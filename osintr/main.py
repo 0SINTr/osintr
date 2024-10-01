@@ -67,7 +67,7 @@ def extract_links(unique_data):
     print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + Fore.WHITE + " Links extracted and ready for scraping." + Style.RESET_ALL)
     return scrape_links
 
-# Scarping links with Firecrawl
+# Scraping links with Firecrawl
 def scraped_links(scrape_links):
     print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Starting to scrape links. Moving on if nothing to scrape." + Style.RESET_ALL)
     print(Fore.GREEN + " [" + Fore.WHITE + "!" + Fore.GREEN + "]" + Fore.WHITE + " Some pages or screenshots may fail, don't panic." + Style.RESET_ALL)
