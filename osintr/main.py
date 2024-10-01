@@ -1,6 +1,6 @@
-from osintr.modules.match_emails import match_emails, is_valid_email
-from osintr.modules.report_generator import generate_html_report
-from osintr.modules.match_urls import evaluate_urls
+from modules.match_emails import match_emails, is_valid_email
+from modules.report_generator import generate_html_report
+from modules.match_urls import evaluate_urls
 from firecrawl import FirecrawlApp
 from colorama import Fore, Style
 from dotenv import load_dotenv

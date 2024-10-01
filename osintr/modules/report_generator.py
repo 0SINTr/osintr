@@ -1,10 +1,11 @@
 import os
 import sys
+import importlib.resources
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from colorama import Fore, Style
 from datetime import datetime
 
-def generate_html_report(data, template_path, output_html_path):
+def generate_html_report(data, output_html_path):
     """
     Generates an HTML report from the provided data using a Jinja2 template.
 
@@ -20,32 +21,31 @@ def generate_html_report(data, template_path, output_html_path):
     other_urls = data.get('Other URLs', [])
 
     # Ensure the template_path exists
-    if not os.path.isfile(template_path):
-        print(Fore.RED + f"Error: Template file '{template_path}' does not exist." + Style.RESET_ALL)
-        sys.exit(1)
-
-    # Extract the directory and filename from the template_path
-    template_dir = os.path.dirname(template_path)
-    template_file_name = os.path.basename(template_path)
-
-    # Initialize Jinja2 environment with the template directory
-    env = Environment(loader=FileSystemLoader(searchpath=template_dir))
-
     try:
-        # Load the specified template
-        template = env.get_template(template_file_name)
-    except TemplateNotFound:
-        print(Fore.RED + f"Error: Template '{template_file_name}' not found in directory '{template_dir}'." + Style.RESET_ALL)
-        sys.exit(1)
+        # Use importlib.resources to locate the report_template.html file in the templates directory
+        with importlib.resources.path('osintr.templates', 'report_template.html') as template_file:
+            # Extract the directory and filename from the template_path
+            template_dir = os.path.dirname(template_file)
+            template_file_name = os.path.basename(template_file)
 
-    # Render the template with data
-    rendered_html = template.render(
-        initial_target=initial_target,
-        email_addresses=email_addresses,
-        relevant_urls=relevant_urls,
-        other_urls=other_urls,
-        generation_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    )
+            # Initialize Jinja2 environment with the template directory
+            env = Environment(loader=FileSystemLoader(searchpath=template_dir))
+            template = env.get_template(template_file_name)
+            
+            # Render the template with data
+            rendered_html = template.render(
+                initial_target=initial_target,
+                email_addresses=email_addresses,
+                relevant_urls=relevant_urls,
+                other_urls=other_urls,
+                generation_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
+    except TemplateNotFound:
+        print(Fore.RED + "Error: report_template.html not found." + Style.RESET_ALL)
+        sys.exit(1)
+    except Exception as e:
+        print(Fore.RED + f"An error occurred while generating the report: {e}" + Style.RESET_ALL)
+        sys.exit(1)
 
     # Ensure the output directory exists
     output_dir = os.path.dirname(output_html_path)
