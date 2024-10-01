@@ -41,4 +41,4 @@ def generate_html_report(data, template_path='report_template.html', output_html
     with open(output_html_path, 'w') as f:
         f.write(rendered_html)
     
-    print(Style.BRIGHT + Fore.GREEN + f"\n [+] Relevant data saved to {output_html_path}\n" + Style.RESET_ALL)
+    print(Fore.GREEN + "\n [+] Relevant data saved to " + Style.BRIGHT + f"{output_html_path}" + Style.RESET_ALL)
