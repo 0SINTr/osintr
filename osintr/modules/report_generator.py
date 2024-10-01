@@ -13,7 +13,7 @@ def generate_html_report(data, template_path='report_template.html', output_html
     - output_html_path (str): Path where the generated HTML report will be saved.
     """
     # Extract data
-    initial_target = data.get('initial_target', 'N/A')
+    initial_target = data.get('OSINT Target', 'N/A')
     email_addresses = data.get('Email Addresses', [])
     relevant_urls = data.get('Relevant URLs', [])
     other_urls = data.get('Other URLs', [])
@@ -22,7 +22,7 @@ def generate_html_report(data, template_path='report_template.html', output_html
     template_dir = os.path.dirname(template_path)
     if template_dir == '':
         template_dir = '.'  # Current directory
-    env = Environment(loader=FileSystemLoader(searchpath=os.path.dirname(template_path) or './'))
+    env = Environment(loader=FileSystemLoader(searchpath=template_dir))
     template = env.get_template(os.path.basename(template_path))
     
     # Render the template with data
@@ -41,4 +41,4 @@ def generate_html_report(data, template_path='report_template.html', output_html
     with open(output_html_path, 'w') as f:
         f.write(rendered_html)
     
-    print(Fore.GREEN + "\n [+] Relevant data saved to " + Style.BRIGHT + f"{output_html_path}" + Style.RESET_ALL)
+    print(Fore.GREEN + " [+] Relevant data saved to " + Style.BRIGHT + f"{output_html_path}" + Style.RESET_ALL)

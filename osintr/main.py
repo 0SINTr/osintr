@@ -160,7 +160,7 @@ def process_data(scrape_results, target, directory):
     # Iterating over all image URLs and taking screenshots
     if len(all_image_urls):
         print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Taking screenshots where possible." + Style.RESET_ALL)
-        ss_path = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()), 'screenshots')
+        ss_path = os.path.join(directory, 'screenshots')
         if not os.path.exists(ss_path):
             os.makedirs(ss_path)
         for url in all_image_urls:
@@ -349,12 +349,12 @@ def main():
     # Start recursive search and scrape
     combined_data = recursive_search_and_scrape(initial_target, output_directory, max_depth=max_depth)
 
+    # Add 'OSINT Target' to combined_data
+    combined_data['OSINT Target'] = initial_target
+    
     # Convert sets to lists for final output
     combined_data['Email Addresses'] = list(combined_data['Email Addresses'])
     combined_data['URLs'] = sorted(list(combined_data['URLs']))
-
-    # Add 'initial_target' to combined_data
-    combined_data['initial_target'] = initial_target
 
     # Now, perform URL relevance matching
     if combined_data['URLs']:
@@ -368,6 +368,10 @@ def main():
         combined_data['Relevant URLs'] = relevant_urls
         combined_data['Other URLs'] = irrelevant_urls
 
+        # Remove the 'URLs' key
+        if 'URLs' in combined_data:
+            del combined_data['URLs']
+
         # Display relevant URLs
         if relevant_urls:
             print(Style.BRIGHT + Fore.GREEN + f"\n[+] Relevant URLs found and saved." + Style.RESET_ALL)
@@ -380,14 +384,17 @@ def main():
         combined_data['Relevant URLs'] = []
         # 'URLs' key is already empty or as it was
 
+    # Obtain the report directory once
+    report_directory = check_directory(initial_target, output_directory)
+
     # Generate the HTML report
     report_template_path = os.path.join('modules', 'report_template.html')
-    report_output_path = os.path.join(output_directory, 'Final_Report.html')
+    report_output_path = os.path.join(report_directory, 'Final_Report.html')
 
     generate_html_report(combined_data, template_path=report_template_path, output_html_path=report_output_path)
     
     # Save (raw) combined data to a JSON file
-    output_file = os.path.join(output_directory, 'Raw_Data.json')
+    output_file = os.path.join(report_directory, 'Raw_Data.json')
     with open(output_file, 'w') as f:
         json.dump(combined_data, f, indent=2)
 
