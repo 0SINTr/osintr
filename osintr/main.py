@@ -1,5 +1,5 @@
 from .modules.match_emails import match_emails, is_valid_email
-from .modules.report_generator import generate_html_report
+from .report_generator import generate_html_report
 from .modules.match_urls import evaluate_urls
 from firecrawl import FirecrawlApp
 from colorama import Fore, Style
