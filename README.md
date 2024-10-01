@@ -62,8 +62,6 @@
 
 ### Initial Target is an Email or Username
 
-### Initial Target is an Email or Username
-
 ```mermaid
 flowchart TD
     A[Start: Provide Initial Target] --> B{Determine Target Type}
@@ -85,11 +83,11 @@ flowchart TD
     O --> P["Generate HTML Report"]
     P --> Q["Save Raw Data to JSON"]
     Q --> R[End]
-    
+```
     %% Styling
     classDef startEnd fill:#f9f,stroke:#333,stroke-width:2px;
     class A,R startEnd;
-```
+
 
 
 
