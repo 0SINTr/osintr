@@ -4,8 +4,8 @@ requirements = [x.strip() for x in open("requirements.txt", "r").readlines()]
 
 setup(
     name='osintr',
-    version='0.2.0',
-    description='Gathering open-source data on target based on user input.',
+    version='0.3.0',
+    description='OFM Stage 1 tool for GRASS (Google Recursive Advanced Search & Scrape).',
     author='0SINTr',
     packages=find_packages(),
     install_requires=requirements,
