@@ -32,11 +32,11 @@
         - `john.doe@tests.com` to `john.doe@test.com`
     - Case-insensitive matching:
         - `JoHn.DoE@test.com` to `john.doe@test.com`
-    - Handling dots and plus-addressing:
+    - Handling plus-addressing:
         - `john.doe+dev@test.com` to `john.doe@test.com`
-    - Characters to digits mapping & leet:
+    - Char to digits mapping & leet:
         - `j0hnd03@example.com` to `john.doe@test.com`
-    - Levenshtein fuzzy matching (thr=2):
+    - Levenshtein fuzzy matching:
         - `johnny.doe@test.com` to `john.doe@test.com`
     - Homoglyph matching:
         - `john.doｅ@test.com` to `john.doe@test.com`
