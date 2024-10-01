@@ -58,6 +58,11 @@
 - Saves all email addresses and URLs from the **GRASS** process to a file **Raw_Data.json**.
 - Also creates a Jinja2 template-based **Final_Report.html** with clean structure and formatting.
 
+## Program Workflow
+
+### Initial Target is an Email or Username
+
+```mermaid
 flowchart TD
     A[Start: Provide Initial Target] --> B{Determine Target Type}
     B -->|Email| C[Extract Username and Domain]
@@ -82,6 +87,7 @@ flowchart TD
     %% Styling
     classDef startEnd fill:#f9f,stroke:#333,stroke-width:2px;
     class A,R startEnd;
+
 
 
 ## API Keys
