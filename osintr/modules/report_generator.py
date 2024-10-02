@@ -23,7 +23,7 @@ def generate_html_report(data, output_html_path):
     # Ensure the template_path exists
     try:
         # Use importlib.resources to locate the report_template.html file in the templates directory
-        with importlib.resources.path('templates', 'report_template.html') as template_file:
+        with importlib.resources.path('osintr.templates', 'report_template.html') as template_file:
             # Extract the directory and filename from the template_path
             template_dir = os.path.dirname(template_file)
             template_file_name = os.path.basename(template_file)
