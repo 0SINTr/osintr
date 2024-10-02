@@ -26,7 +26,7 @@
 - The **initial search** might be performed on an **email**, **username**, **person name** or **company**.
 - Goal is to collect at least one **relevant email address** from the initial search, then dig deeper.
 - For each email address it finds **relevant**, it **recursively** performs the **GRASS** process.
-- **Relevancy** is determined via **matches** between found email addresses and the target, using:
+- **Relevance** is determined via **matches** between found email addresses and the target, using:
     - Exact matching:
         - `john.doe@tests.com` to `john.doe@test.com`
     - Case-insensitive matching:
@@ -43,7 +43,7 @@
         - `john.dough@test.com` to `john.doe@test.com`
     - Substring matching:
         - `john.doe@test.com` to `john.doe99@test.com`
-- **URL relevancy** via **matches** between the target and potentially related URLs, using:
+- **URL relevance** is determined via **matches** between the target and potentially related URLs, using:
     - Differentiation between **target** being an email or username, vs. person or company name
     - **Name Entity Recognition (NER)** via **spaCy** tokens for person name or company name matching
     - Stop words and excluded tokens for an improved **scoring system** for URL vs. name matching
