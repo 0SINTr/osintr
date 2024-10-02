@@ -239,18 +239,12 @@ def arg_parsing():
     return target, output_directory, max_depth
 
 # Function for performing GRASS
-def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2, initial_target_type=None, unified_progress_bar=None, depth_progress=None):
+def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2, initial_target_type=None, unified_progress_bar=None):
     """
     Main function that performs recursive searching and scraping based on the initial target type.
     """
-    # Create a progress bar for recursion depth if it does not exist (only for the initial call)
-    if depth == 0 and depth_progress is None:
-        depth_progress = tqdm(total=max_depth, desc="Recursion Depth Progress", unit="level", position=0)
-
     if depth > max_depth:
         print(Fore.YELLOW + f" [!] Maximum recursion depth reached for target '{target}'. Skipping further recursion." + Style.RESET_ALL)
-        if depth == 0 and depth_progress is not None:
-            depth_progress.close()
         return combined_data
 
     if processed_targets is None:
@@ -279,13 +273,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
 
     # Perform the search and scrape process
     results = google_search(target)
-
-    with tqdm(total=len(results), desc="Processing Search Results", unit="result") as search_bar:
-        uniques = remove_duplicates(results)
-        for result in uniques:
-            # Process each unique result
-            search_bar.update(1)
-
+    uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
 
     # If unified_progress_bar is None, create a new one for the first time
@@ -342,11 +330,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         # Recursively process each matched email
         for email in matched_emails:
             if email not in processed_targets and is_valid_email(email):
-                recursive_search_and_scrape(
-                    email, output, processed_targets, combined_data, depth=depth+1, 
-                    max_depth=max_depth, initial_target_type=initial_target_type, 
-                    unified_progress_bar=unified_progress_bar, depth_progress=depth_progress
-                )
+                recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
 
     elif initial_target_type == "name_company":
         # User-guided recursion for company or name targets
@@ -356,26 +340,12 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         selected_emails = [found_emails[idx - 1] for idx in selected_indices if 1 <= idx <= len(found_emails)]
 
         if selected_emails:
-            print(Fore.GREEN + "\n[+] Selected emails to process recursively:" + Style.RESET_ALL)
-            with tqdm(total=len(selected_emails), desc="User-Guided Email Recursion", unit="email") as user_email_bar:
-                for email in selected_emails:
-                    if email not in processed_targets and is_valid_email(email):
-                        recursive_search_and_scrape(
-                            email, output, processed_targets, combined_data, depth=depth+1,
-                            max_depth=max_depth, initial_target_type=initial_target_type,
-                            unified_progress_bar=unified_progress_bar, depth_progress=depth_progress
-                        )
-                        user_email_bar.update(1)
-        else:
-            print(Fore.YELLOW + " [!] No valid emails selected for recursion." + Style.RESET_ALL)
-
-    # Update depth progress if we are exiting this depth level
-    depth_progress.update(1)
+            for email in selected_emails:
+                if email not in processed_targets and is_valid_email(email):
+                    recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
 
     # Close the unified progress bar once all tasks are completed
-    if depth == 0:
-        unified_progress_bar.close()
-        depth_progress.close()
+    unified_progress_bar.close()
 
     return combined_data
 
@@ -399,10 +369,7 @@ def main():
     # Now, perform URL relevance matching
     if combined_data['URLs']:
         print(Style.BRIGHT + Fore.GREEN + f"\n[+] Starting URL relevance matching in collected data." + Style.RESET_ALL)
-        with tqdm(total=len(combined_data['URLs']), desc="Matching Relevant URLs", unit="url") as url_match_bar:
-            relevant_urls_with_scores = evaluate_urls(initial_target, combined_data['URLs'])
-            for url, score in relevant_urls_with_scores:
-                url_match_bar.update(1)
+        relevant_urls_with_scores = evaluate_urls(initial_target, combined_data['URLs'])
         # Adjust the threshold as needed. For example, 50:
         relevant_urls = [url for url, score in relevant_urls_with_scores if score >= 50]
         irrelevant_urls = list(set(combined_data['URLs']) - set(relevant_urls))
