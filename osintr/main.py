@@ -51,7 +51,7 @@ def google_search(target):
                 print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for " + Fore.YELLOW + f"{target}" + Fore.CYAN + ". Skipping further steps." + Style.RESET_ALL)
                 return search_results  # Return empty list
 
-            print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results" + Style.RESET_ALL)
+            print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results." + Style.RESET_ALL)
             with tqdm(total=num_results, unit="result", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as search_bar:
                 for result in results.json()['organic']:
                     search_results.append(result)
@@ -169,7 +169,7 @@ def process_data(scrape_results, target, directory):
             os.makedirs(ss_path)
 
         # Progress bar for saving screenshots
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Saving Screenshots" + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Saving screenshots." + Style.RESET_ALL)
         with tqdm(total=len(all_image_urls), unit="screenshot", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as screenshot_bar:
             for url in all_image_urls:
                 image_path = os.path.join(ss_path, 'ss_' + ''.join(random.choices(string.ascii_lowercase, k=5)) + '.png')
@@ -286,7 +286,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         return combined_data
     
     # Create a new progress bar for each unique scraping task
-    print(Style.BRIGHT + Fore.GREEN + "[+] Scraping URLs and extracting data" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.GREEN + "[+] Scraping URLs and extracting data." + Style.RESET_ALL)
     with tqdm(total=len(scrape_links), unit="url", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as progress_bar:
         # Perform scraping and update the progress bar
         scraped_data = scraped_links(scrape_links, progress_bar=progress_bar)
@@ -427,7 +427,7 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(combined_data, f, indent=2)
 
-    print(Style.BRIGHT + Fore.BLUE + "[+] Raw data saved to " + Fore.YELLOW + f"{output_file}\n" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.BLUE + "[v] Raw data saved to " + Fore.YELLOW + f"{output_file}\n" + Style.RESET_ALL)
 
 if __name__ == '__main__':
     main()
