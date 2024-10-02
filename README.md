@@ -135,19 +135,17 @@ For person or company names use double quotes to enclose the whole name.
 
 See **example workflows** below. 
 Details related to the targets have been **hidden** for obvious reasons.
+Some output was **omitted** for brevity.
 
 * **OSINT target** is **email address** or **username**.
-*[Some output omitted for brevity]*
 
 ![osintr_example1](osintr/docs/example-eu.png)
 
 * **OSINT target** is **person name** or **company name**.
-*[Some output omitted for brevity]*
 
 ![osintr_example2](osintr/docs/example-pc.png)
 
 * Sample **HTML report**.
-*[Some output omitted for brevity]*
 
 ![osintr_report](osintr/docs/report.png)
 
