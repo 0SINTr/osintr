@@ -11,12 +11,12 @@
 
 ## Why OSINTr?
 
-**OSINTr** directly interacts only with high-quality APIs (SerpDev, Firecrawl) at a low cost, bypassing the need for unreliable third-party apps and implicitly **handling common issues** related to parsing, captchas, proxies or other types of usual setbacks. This ensures full control over the code and exclusive focus on the OSINT tasks rather than troubleshooting scraping and crawling hiccups.
+**OSINTr** directly interacts only with high-quality **APIs** (SerpDev, Firecrawl) at a low cost, bypassing the need for unreliable third-party apps or libraries, and implicitly **handling common issues** related to parsing, captchas, proxies or other types of usual setbacks. This ensures full control over the code and exclusive focus on the OSINT tasks rather than troubleshooting scraping and crawling hiccups.
 
 ### Data Collection
 
 **OSINTr** works best on Linux and tackles **Stage 1 of the [OFM](https://github.com/0SINTr/ofm)** workflow by performing **GRASS** (Google Recursive Advanced Search & Scrape).
-- Requires a **target** for the OSINT investigation (see **Usage** below).   
+- Requires a **target** for the **OSINT investigation** (see **Usage** below).   
 - Ensure you add your API keys (see **API Keys** below) before running the tool.
 
 **Automated tasks include:**
@@ -24,9 +24,9 @@
 - Scrapes all found URLs and extracts all **email addresses** and **URLs** from each page.
 - Saves a **full page screenshot** (if possible) of each page in a separate directory.
 - The **initial search** might be performed on an **email**, **username**, **person name** or **company**.
-- Goal is to collect at least one **email address** from the initial search and then dig deeper.
-- For each email address it finds relevant, it **recursively** performs the **GRASS** job.
-- Automatically checks for **matches** between potentially related email addresses, using:
+- Goal is to collect at least one **relevant email address** from the initial search, then dig deeper.
+- For each email address it finds **relevant**, it **recursively** performs the **GRASS** process.
+- **Relevancy** is determined via **matches** between found email addresses and the target, using:
     - Exact matching:
         - `john.doe@tests.com` to `john.doe@test.com`
     - Case-insensitive matching:
@@ -43,25 +43,25 @@
         - `john.dough@test.com` to `john.doe@test.com`
     - Substring matching:
         - `john.doe@test.com` to `john.doe99@test.com`
-- Automatically checks for **matches** between the target and potentially related URLs, using:
+- **URL relevancy** via **matches** between the target and potentially related URLs, using:
     - Differentiation between **target** being an email or username, vs. person or company name
     - **Name Entity Recognition (NER)** via **spaCy** tokens for person name or company name matching
     - Stop words and excluded tokens for an improved **scoring system** for URL vs. name matching
     - Exact or **fuzzy token matching**, adjusted penalty logic, sorting URLs by **relevance score**
-- If the target is **email** or **username**: 
+- If the target is an **email** or **username**: 
     - Recursion is done **automatically** up to a max depth of 1.
-- If the target is **person** or **company name**: 
+- If the target is a **person** or **company name**: 
     - **You pick** the emails to recurse at each level of depth.
 - Currently, the **maximum depth for recursion** is set to 1. Use **--max-depth** to change it.
 - Creates a directory under **-o OUTPUT** directory named ***osint_TargetName*** for each target.
-- Saves all email addresses and URLs from the **GRASS** process to a file **Raw_Data.json**.
+- Saves all **email addresses** and **URLs** from the **GRASS** process to a file **Raw_Data.json**.
 - Also creates a Jinja2 template-based **Final_Report.html** with clean structure and formatting.
 
 ## API Keys
 
 Running **OSINTr** requires API keys for the benefits stated previously. The API keys should reside in your environment **prior** to running **OSINTr**.
 
-**To add the API keys to your environment, edit bashrc or zshrc.**
+**To add the API keys to your environment, edit bashrc (or zshrc).**
 ```plaintext
 vim ~/.bashrc
 export SERPER_API_KEY="<your_key_here>"
@@ -76,7 +76,7 @@ source ~/.bashrc
 
 ## Costs
 
-**OSINTr** aims to use reliable, but affordable APIs:
+**OSINTr** aims to use reliable, affordable APIs:
 
 - **SerperDev**: 2,500 free queries, then pay-as-you-go (50k queries for $50).
 - **Firecrawl**: 500 free credits; $19/mo for 3,000 page scrapes. 
@@ -86,7 +86,7 @@ source ~/.bashrc
 **Preparing**
 - Ensure **Python >=3.10** is installed.
 - Add `/home/<user>/.local/bin` to `PATH`.
-- Edit `~/.zshrc` if that's your default.
+- (Edit `~/.zshrc` if that's your default.)
 
 ```bash
 sudo apt upgrade python3
@@ -101,7 +101,7 @@ source ~/.bashrc
 pipx install git+https://github.com/0SINTr/osintr.git
 ```
 
-After installation, **on the first run**, you will see an output similar to the one below. Don't panic, it's the **spaCy** library downloading its **NER Model**.
+After installation, **on the first run**, you're going to see an output similar to the one below. Don't panic, it's the **spaCy** library downloading its **NER Model**.
 ```
 Downloading 'en_core_web_sm' model...
 Collecting en-core-web-sm==3.7.1
