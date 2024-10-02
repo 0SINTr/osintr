@@ -8,7 +8,7 @@ import re
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
-    print(Style.BRIGHT + Fore.YELLOW + "[i] Downloading 'en_core_web_sm' model ... Hold on.\n")
+    print(Style.BRIGHT + Fore.YELLOW + "[i] Downloading 'en_core_web_sm' model ... Hold on.\n" + Style.RESET_ALL)
     from spacy.cli import download
     download("en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
