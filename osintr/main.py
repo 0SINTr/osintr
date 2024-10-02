@@ -21,7 +21,7 @@ import re
 def check_directory(target, directory):
     directory = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
     if not os.path.exists(path=directory):
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "i" + Fore.GREEN + "]" + " Initializing OSINTr ..." + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.CYAN + "[i] Initializing OSINTr ..." + Style.RESET_ALL)
         os.makedirs(directory)
     else:
         print("\n" + Style.BRIGHT + Fore.CYAN + f"[i] Writing '{target}' data to target directory ..." + Style.RESET_ALL)
@@ -318,7 +318,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
 
     elif initial_target_type == "name_company":
         # User-guided recursion for company or name targets
-        print(Style.BRIGHT + Fore.BLUE + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.YELLOW + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
         selected_indices = input(Style.BRIGHT + Fore.YELLOW + "Your selection: " + Style.RESET_ALL)
         selected_indices = [int(idx.strip()) for idx in selected_indices.split(',') if idx.strip().isdigit()]
         selected_emails = [found_emails[idx - 1] for idx in selected_indices if 1 <= idx <= len(found_emails)]
