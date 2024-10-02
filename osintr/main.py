@@ -1,6 +1,6 @@
-from osintr.modules.match_emails import match_emails, is_valid_email
-from osintr.modules.report_generator import generate_html_report
-from osintr.modules.match_urls import evaluate_urls
+from modules.match_emails import match_emails, is_valid_email
+from modules.report_generator import generate_html_report
+from modules.match_urls import evaluate_urls
 from firecrawl import FirecrawlApp
 from colorama import Fore, Style
 from dotenv import load_dotenv
@@ -279,13 +279,14 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
 
-    # If unified_progress_bar is None, create a new one for the first time
+    # Create or update a unified progress bar
     if unified_progress_bar is None:
-        unified_progress_bar = tqdm(total=len(scrape_links), desc="Scraping URLs and extracting data", unit="url")
-
-    # Update the total count of the progress bar based on new links
-    unified_progress_bar.total += len(scrape_links) - unified_progress_bar.n
-    unified_progress_bar.refresh()
+        # Initialize progress bar for the first time
+        unified_progress_bar = tqdm(total=len(scrape_links), desc=f"Scraping URLs for '{target}'", unit="url")
+    else:
+        # For recursive calls, add the new links to the existing progress bar
+        unified_progress_bar.total += len(scrape_links) - unified_progress_bar.n
+        unified_progress_bar.refresh()
 
     # Perform scraping and update the unified progress bar
     scraped_data = scraped_links(scrape_links, progress_bar=unified_progress_bar)
@@ -320,8 +321,8 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         matched_emails = set()
         print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
 
-        # Create a progress bar for matching emails
-        with tqdm(total=len(found_emails), desc="Matching Emails", unit="email") as email_match_bar:
+        # Create a progress bar for matching emails at this depth level
+        with tqdm(total=len(found_emails), desc=f"Matching Emails (Depth {depth})", unit="email") as email_match_bar:
             for email in found_emails:
                 matches = match_emails(email, found_emails)
                 matched_emails.update(matches)
@@ -347,8 +348,9 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
                 if email not in processed_targets and is_valid_email(email):
                     recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
 
-    # Close the unified progress bar once all tasks are completed
-    unified_progress_bar.close()
+    # Close the unified progress bar only at the initial depth
+    if depth == 0:
+        unified_progress_bar.close()
 
     return combined_data
 
