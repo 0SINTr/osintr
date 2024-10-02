@@ -299,17 +299,26 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     # Automatic recursion for emails or usernames
     if initial_target_type in ["email", "username"]:
         matched_emails = set()
-        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
-
+        
         # Create a progress bar for matching emails
-        with tqdm(total=len(found_emails), desc="Matching Emails", unit="email", ncols=80) as email_match_bar:
+        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
+        with tqdm(total=len(found_emails), unit="email", ncols=80, bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]") as email_match_bar:
             for email in found_emails:
-                matches = match_emails(email, found_emails)
-                matched_emails.update(matches)
+                if email == target or match_emails(target, [email]):
+                    matched_emails.add(email)
                 email_match_bar.update(1)
 
         # Remove already processed emails
         matched_emails -= processed_targets
+
+        # Display only matched emails that will be processed recursively
+        if matched_emails:
+            print(Style.BRIGHT + Fore.CYAN + f"\n[i] Matched emails to be processed further:" + Style.RESET_ALL)
+            for email in matched_emails:
+                print(f"    - {email}")
+        else:
+            print(Fore.CYAN + f"\n[i] No matched emails for further processing." + Style.RESET_ALL)
+            return combined_data  # No matched emails, so stop recursion
 
         # Recursively process each matched email
         for email in matched_emails:
@@ -318,7 +327,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
 
     elif initial_target_type == "name_company":
         # User-guided recursion for company or name targets
-        print(Style.BRIGHT + Fore.YELLOW + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.BLUE + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
         selected_indices = input(Style.BRIGHT + Fore.YELLOW + "Your selection: " + Style.RESET_ALL)
         selected_indices = [int(idx.strip()) for idx in selected_indices.split(',') if idx.strip().isdigit()]
         selected_emails = [found_emails[idx - 1] for idx in selected_indices if 1 <= idx <= len(found_emails)]
