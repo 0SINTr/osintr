@@ -82,13 +82,13 @@ def scraped_links(scrape_links, progress_bar=None):
             scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
             scrape_results.append(scrape_result)
             time.sleep(1)
-
-            # Update the progress bar if provided
-            if progress_bar is not None:
-                progress_bar.update(1)
         except Exception as e:
             tqdm.write(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
             continue
+        
+        # Ensure progress bar is updated even when a link fails
+        if progress_bar is not None:
+            progress_bar.update(1)
 
     return scrape_results
 
@@ -271,7 +271,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
 
     # If unified_progress_bar is None, create a new one for the first time
     if unified_progress_bar is None:
-        unified_progress_bar = tqdm(total=len(scrape_links), desc="Scraping URLs", unit="url")
+        unified_progress_bar = tqdm(total=len(scrape_links), desc="Scraping URLs and extracting data", unit="url")
 
     # Update the total count of the progress bar based on new links
     unified_progress_bar.total += len(scrape_links) - unified_progress_bar.n
