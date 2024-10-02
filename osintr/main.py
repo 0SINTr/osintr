@@ -23,7 +23,7 @@ def check_directory(target, directory):
         print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + f" Initializing OSINTr for target '{target}' and searching Google." + Style.RESET_ALL)
         os.makedirs(directory)
     else:
-        print("\n" + Style.BRIGHT + Fore.YELLOW + "[" + Fore.WHITE + "!" + Fore.YELLOW + "]" + f" Directory for target '{target}' already exists. Continuing..." + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.YELLOW + "[" + Fore.WHITE + "!" + Fore.YELLOW + "]" + f" Writing '{target}' data to target directory ..." + Style.RESET_ALL)
     return directory
 
 # Perform verbatim and inurl Google search on target
