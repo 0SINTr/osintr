@@ -4,6 +4,7 @@ from osintr.modules.match_urls import evaluate_urls
 from firecrawl import FirecrawlApp
 from colorama import Fore, Style
 from dotenv import load_dotenv
+from tqdm import tqdm
 import pandas as pd
 import textwrap
 import argparse
@@ -257,7 +258,15 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     results = google_search(target)
     uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
-    scraped_data = scraped_links(scrape_links)
+
+    # Use tqdm to indicate URL scraping progress
+    print(Style.BRIGHT + Fore.GREEN + f"\n[+] Scraping URLs for target: '{target}'" + Style.RESET_ALL)
+    scraped_data = []
+    with tqdm(total=len(scrape_links), desc=f"Scraping URLs (Depth {depth})", unit="url") as pbar:
+        for scrape_result in scraped_links(scrape_links):
+            scraped_data.append(scrape_result)
+            pbar.update(1)
+
     data_dict = process_data(scraped_data, target, directory)  # Pass 'directory' here
 
     # Update combined data
@@ -287,10 +296,10 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         matched_emails = set()
         print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
         print(Style.BRIGHT + Fore.CYAN + f"[i] Please wait ..." + Style.RESET_ALL)
-
-        # Only match emails against the initial target, not among themselves
-        for email in found_emails:
-            if match_emails(target, [email]):
+        
+        # Use tqdm to track email matching progress
+        for email in tqdm(found_emails, desc="Matching emails", unit="email"):
+            if email == target or match_emails(target, [email]):
                 matched_emails.add(email)
 
         # Remove emails that have already been processed
@@ -305,7 +314,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
             print(Fore.CYAN + f"\n[i] No matched emails for further processing." + Style.RESET_ALL)
 
         # Recursively process each matched email
-        for email in matched_emails:
+        for email in tqdm(matched_emails, desc="Processing matched emails", unit="email"):
             if email not in processed_targets and is_valid_email(email):
                 recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type)
 
@@ -330,12 +339,12 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
             return combined_data
 
         if selected_emails:
-            print(Style.BRIGHT + Fore.GREEN + "\n[+] Selected emails to process recursively:" + Style.RESET_ALL)
+            print(Fore.GREEN + "\n[+] Selected emails to process recursively:" + Style.RESET_ALL)
             for email in selected_emails:
                 print(f"    - {email}")
 
             # Recursively process each selected email
-            for email in selected_emails:
+            for email in tqdm(selected_emails, desc="Processing selected emails", unit="email"):
                 if email not in processed_targets and is_valid_email(email):
                     recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type)
         else:

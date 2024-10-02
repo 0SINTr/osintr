@@ -10,3 +10,4 @@ colorama
 jinja2
 pandas
 spacy
+tqdm
