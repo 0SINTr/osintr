@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/0SINTr/osintr/master/LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org)
-[![Stable Release](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/0SINTr/osintr/releases/tag/v0.2.0)
+[![Stable Release](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/0SINTr/osintr/releases/tag/v0.3.0)
 [![Last Commit](https://img.shields.io/github/last-commit/0SINTr/osintr)](https://github.com/0SINTr/osintr/commits/main)
 
 **OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a **digital footprint** of the target via recursive advanced Google searches via **SerperDev** and **Firecrawl** APIs.
