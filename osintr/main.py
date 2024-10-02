@@ -231,7 +231,7 @@ def arg_parsing():
     return target, output_directory, max_depth
 
 # Function for performing GRASS
-def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2, initial_target_type=None):
+def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2, initial_target_type=None, unified_progress_bar=None):
     """
     Main function that performs recursive searching and scraping based on the initial target type.
     """
@@ -268,9 +268,16 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
 
-    # Create the main unified progress bar for scraping all links in this iteration
-    with tqdm(total=len(scrape_links), desc=f"Scraping URLs (Depth {depth})", unit="url") as url_progress_bar:
-        scraped_data = scraped_links(scrape_links, progress_bar=url_progress_bar)
+    # If unified_progress_bar is None, create a new one for the first time
+    if unified_progress_bar is None:
+        unified_progress_bar = tqdm(total=len(scrape_links), desc="Scraping URLs", unit="url")
+
+    # Update the total count of the progress bar based on new links
+    unified_progress_bar.total += len(scrape_links) - unified_progress_bar.n
+    unified_progress_bar.refresh()
+
+    # Perform scraping and update the unified progress bar
+    scraped_data = scraped_links(scrape_links, progress_bar=unified_progress_bar)
 
     # Process the scraped data and update combined data
     data_dict = process_data(scraped_data, target, directory)
@@ -315,7 +322,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         # Recursively process each matched email
         for email in matched_emails:
             if email not in processed_targets and is_valid_email(email):
-                recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type)
+                recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
 
     elif initial_target_type == "name_company":
         # User-guided recursion for company or name targets
@@ -327,7 +334,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         if selected_emails:
             for email in selected_emails:
                 if email not in processed_targets and is_valid_email(email):
-                    recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type)
+                    recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
 
     return combined_data
 
