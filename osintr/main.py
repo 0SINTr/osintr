@@ -71,23 +71,19 @@ def extract_links(unique_data):
 # Scraping links with Firecrawl
 def scraped_links(scrape_links):
     print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Starting to scrape links. Moving on if nothing to scrape." + Style.RESET_ALL)
-    print(Fore.GREEN + " [" + Fore.WHITE + "!" + Fore.GREEN + "]" + Fore.WHITE + " Some pages or screenshots may fail, don't panic." + Style.RESET_ALL)
+    print(Fore.GREEN + " [" + Fore.WHITE + "!" + Fore.GREEN + "]" + Fore.WHITE + " Some pages or screenshots may fail, don't panic." + Style.RESET_ALL)   
     scrape_results = []
+    for link in scrape_links:
+        try:
+            print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
+            scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
+            scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
+            scrape_results.append(scrape_result)
+            time.sleep(1)
+        except Exception as e:
+            print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
+            continue
 
-    with tqdm(total=len(scrape_links), desc="Scraping URLs", unit="url") as pbar:
-        for link in scrape_links:
-            try:
-                print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
-                scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
-                scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
-                scrape_results.append(scrape_result)
-                time.sleep(1)
-            except Exception as e:
-                print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
-                continue
-            finally:
-                pbar.update(1)  # Update the progress bar for each URL, even if it fails
-                
     return scrape_results
 
 # Extract emails and links from results
@@ -263,7 +259,12 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     results = google_search(target)
     uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
-    scraped_data = scraped_links(scrape_links)
+
+    # Create a separate progress bar for the current depth level
+    with tqdm(total=len(scrape_links), desc=f"Scraping URLs (Depth {depth})", unit="url", leave=True) as url_progress_bar:
+        # Pass the progress bar to the scraped_links function
+        scraped_data = scraped_links(scrape_links, progress_bar=url_progress_bar)
+        
     data_dict = process_data(scraped_data, target, directory)
 
     # Update combined data
