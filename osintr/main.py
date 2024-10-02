@@ -48,7 +48,7 @@ def google_search(target):
             num_results = len(results.json().get('organic', []))
             # Handle case when no search results are found
             if num_results == 0:
-                print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for '{target}'." + Style.RESET_ALL)
+                print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for " + Fore.YELLOW + f"{target}" + Fore.CYAN + "." + Style.RESET_ALL)
                 return search_results  # Return empty list
 
             print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results" + Style.RESET_ALL)
@@ -212,7 +212,7 @@ def arg_parsing():
             '''))
     parser.add_argument('-t', dest='TARGET', help='Target of investigation', required=True)
     parser.add_argument('-o', dest='OUTPUT', help='Directory to save results', required=True)
-    parser.add_argument('--max-depth', dest='DEPTH', type=int, default=2, help='Maximum recursion depth (default: 2)')
+    parser.add_argument('--max-depth', dest='DEPTH', type=int, default=1, help='Maximum recursion depth (default: 1)')
     args = parser.parse_args()
 
     # TARGET argument
@@ -268,7 +268,16 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
 
     # Perform the search and scrape process
     results = google_search(target)
+    if not results:  # No search results found
+        print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for target '{target}'. Skipping further steps." + Style.RESET_ALL)
+        return combined_data  # Stop processing this target
+    
     uniques = remove_duplicates(results)
+    if not uniques:  # Edge case: all results are duplicates and no unique results remain
+        print(Style.BRIGHT + Fore.CYAN + f"[i] No unique results after removing duplicates for target '{target}'." + Style.RESET_ALL)
+        return combined_data
+    
+    # Extract links and continue
     scrape_links = extract_links(uniques)
 
     # Skip progress bar creation if there are no links to scrape
