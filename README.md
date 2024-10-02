@@ -139,12 +139,17 @@ Details related to the targets have been **hidden** for obvious reasons.
 * **OSINT target** is **email address** or **username**.
 *[Some output omitted for brevity]*
 
-![osintr_example](osintr/docs/example-eu.png)
+![osintr_example1](osintr/docs/example-eu.png)
 
 * **OSINT target** is **person name** or **company name**.
 *[Some output omitted for brevity]*
 
-![osintr_example](osintr/docs/example-pc.png)
+![osintr_example2](osintr/docs/example-pc.png)
+
+* Sample **HTML report**.
+*[Some output omitted for brevity]*
+
+![osintr_report](osintr/docs/report.png)
 
 ## Planned Upgrades
 
