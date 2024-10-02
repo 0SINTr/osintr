@@ -231,7 +231,7 @@ def arg_parsing():
     return target, output_directory, max_depth
 
 # Function for performing GRASS
-def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2, initial_target_type=None):
+def recursive_search_and_scrape(target, output, processed_targets=None, combined_data=None, depth=0, max_depth=2, initial_target_type=None, unified_progress_bar=None):
     if depth > max_depth:
         print(Fore.YELLOW + f" [!] Maximum recursion depth reached for target '{target}'. Skipping further recursion." + Style.RESET_ALL)
         return combined_data
