@@ -69,7 +69,7 @@ def extract_links(unique_data):
     return scrape_links
 
 # Scraping links with Firecrawl
-def scraped_links(scrape_links):
+def scraped_links(scrape_links, progress_bar=None):
     print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Starting to scrape links. Moving on if nothing to scrape." + Style.RESET_ALL)
     print(Fore.GREEN + " [" + Fore.WHITE + "!" + Fore.GREEN + "]" + Fore.WHITE + " Some pages or screenshots may fail, don't panic." + Style.RESET_ALL)   
     scrape_results = []
@@ -264,7 +264,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     with tqdm(total=len(scrape_links), desc=f"Scraping URLs (Depth {depth})", unit="url", leave=True) as url_progress_bar:
         # Pass the progress bar to the scraped_links function
         scraped_data = scraped_links(scrape_links, progress_bar=url_progress_bar)
-        
+
     data_dict = process_data(scraped_data, target, directory)
 
     # Update combined data
