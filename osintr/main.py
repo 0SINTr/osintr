@@ -46,11 +46,14 @@ def google_search(target):
         results = requests.request("POST", url, headers=headers, data=payload)
         if results:
             num_results = len(results.json().get('organic', []))
-            print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results" + Style.RESET_ALL)
-            with tqdm(total=num_results, unit="result", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as search_bar:
-                for result in results.json()['organic']:
-                    search_results.append(result)
-                    search_bar.update(1)
+            if num_results > 0:
+                print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results" + Style.RESET_ALL)
+                with tqdm(total=num_results, unit="result", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as search_bar:
+                    for result in results.json()['organic']:
+                        search_results.append(result)
+                        search_bar.update(1)
+            else:
+                tqdm.write(Style.BRIGHT + Fore.CYAN + "[i] No search results found." + Style.RESET_ALL)
     except Exception as e:
         sys.exit(Style.BRIGHT + Fore.RED + f"[-] Quitting. Error during Google search: {str(e)}\n" + Style.RESET_ALL)
 
@@ -81,8 +84,8 @@ def scraped_links(scrape_links, progress_bar=None):
     scrape_results = []
 
     # Only show progress bar if there are links to scrape
-    if len(scrape_links) == 0:
-        print(Style.BRIGHT + Fore.CYAN + "[i] No links to scrape." + Style.RESET_ALL)
+    if not scrape_links:  # >>> CHANGED: Added condition to handle empty scrape_links
+        tqdm.write(Style.BRIGHT + Fore.CYAN + "[i] No links to scrape." + Style.RESET_ALL)
         return scrape_results
 
     # Adjust the progress bar total dynamically if needed
@@ -147,7 +150,8 @@ def process_data(scrape_results, target, directory):
     for scrape_result in scrape_results:
         extracted_data = extract_data(scrape_result)
         image_url = extracted_data[0]
-        all_image_urls.append(image_url)
+        if image_url:
+            all_image_urls.append(image_url)
         emails = extracted_data[1]
         all_emails.extend(emails)
         urls = extracted_data[2]
@@ -170,7 +174,7 @@ def process_data(scrape_results, target, directory):
                 save_screenshot(url, image_path)
                 screenshot_bar.update(1)
     else:
-        pass
+        tqdm.write(Style.BRIGHT + Fore.CYAN + "[i] No screenshots to save." + Style.RESET_ALL)
     
     time.sleep(1)
     tqdm.write("\n" + Style.BRIGHT + Fore.CYAN + f"[i] All Google search data for {target} was saved." + Style.RESET_ALL)
@@ -301,12 +305,15 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         matched_emails = set()
         
         # Create a progress bar for matching emails
-        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
-        with tqdm(total=len(found_emails), unit="email", ncols=80, bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]") as email_match_bar:
-            for email in found_emails:
-                if email == target or match_emails(target, [email]):
-                    matched_emails.add(email)
-                email_match_bar.update(1)
+        if found_emails:
+            tqdm.write(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
+            with tqdm(total=len(found_emails), unit="email", ncols=80, bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]") as email_match_bar:
+                for email in found_emails:
+                    if email == target or match_emails(target, [email]):
+                        matched_emails.add(email)
+                    email_match_bar.update(1)
+        else:
+            tqdm.write(Style.BRIGHT + Fore.CYAN + "[i] No emails found for matching." + Style.RESET_ALL)
 
         # Remove already processed emails
         matched_emails -= processed_targets
