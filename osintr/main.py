@@ -80,6 +80,10 @@ def scraped_links(scrape_links, progress_bar=None):
             scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
             scrape_results.append(scrape_result)
             time.sleep(1)
+
+            # Update the progress bar if provided
+            if progress_bar is not None:
+                progress_bar.update(1)
         except Exception as e:
             print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
             continue
