@@ -33,7 +33,7 @@ def google_search(target):
     query = f"\"{target}\" OR inurl:\"{target}\""
     payload = json.dumps({
     "q": query,
-    "num": 20,
+    "num": 5,
     "autocorrect": False
     })
     headers = {
@@ -254,7 +254,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     # Checking if directory exists and get the path
     directory = check_directory(target, output)
 
-    # Loading env variables
+    # Loading environment variables
     load_dotenv()
     if not all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
         print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " API key(s) not found.\n" + Style.RESET_ALL)
@@ -276,9 +276,10 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     if depth == 0:
         unified_progress_bar.close()
 
+    # Process the scraped data and update combined data
     data_dict = process_data(scraped_data, target, directory)
 
-    # Update combined data
+    # Update combined data with the newly collected emails and URLs
     combined_data['Email Addresses'].update(data_dict.get('Email Addresses', []))
     combined_data['URLs'].update(data_dict.get('URLs', []))
 
@@ -300,64 +301,33 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     else:
         initial_target_type = "email"  # Subsequent targets are emails
 
+    # Automatic recursion for emails or usernames
     if initial_target_type in ["email", "username"]:
-        # **Automatic Recursion:**
         matched_emails = set()
         print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
-        print(Style.BRIGHT + Fore.CYAN + f"[i] Please wait ..." + Style.RESET_ALL)
-        
-        # Use tqdm to track email matching progress
-        for email in tqdm(found_emails, desc="Matching emails", unit="email"):
-            if email == target or match_emails(target, [email]):
-                matched_emails.add(email)
+        for email in found_emails:
+            matches = match_emails(email, found_emails)
+            matched_emails.update(matches)
 
-        # Remove emails that have already been processed
+        # Remove already processed emails
         matched_emails = matched_emails - processed_targets
 
-        # Display matched emails that will be processed recursively
-        if matched_emails:
-            print(Style.BRIGHT + Fore.CYAN + f"\n[i] Matched emails to be processed further:" + Style.RESET_ALL)
-            for email in matched_emails:
-                print(f"    - {email}")
-        else:
-            print(Fore.CYAN + f"\n[i] No matched emails for further processing." + Style.RESET_ALL)
-
         # Recursively process each matched email
-        for email in tqdm(matched_emails, desc="Processing matched emails", unit="email"):
+        for email in matched_emails:
             if email not in processed_targets and is_valid_email(email):
-                recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type)
+                recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
 
     elif initial_target_type == "name_company":
-        # **User-Guided Recursion:**
+        # User-guided recursion for company or name targets
         print(Style.BRIGHT + Fore.CYAN + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
-        print(Fore.CYAN + "    Enter the numbers corresponding to the emails, separated by commas (e.g., 1,3,5). Enter '0' to skip recursion on emails." + Style.RESET_ALL)
-
-        # Capture user input
         selected_indices = input(Style.BRIGHT + Fore.YELLOW + "Your selection: " + Style.RESET_ALL)
-
-        # Process user input
-        try:
-            selected_indices = selected_indices.strip()
-            if selected_indices == '0':
-                print(Fore.YELLOW + " [!] Skipping recursion on emails as per user selection." + Style.RESET_ALL)
-                return combined_data
-            selected_indices = [int(idx.strip()) for idx in selected_indices.split(',')]
-            selected_emails = [found_emails[idx - 1] for idx in selected_indices if 1 <= idx <= len(found_emails)]
-        except (ValueError, IndexError):
-            print(Fore.RED + " [!] Invalid input. Skipping recursion on emails." + Style.RESET_ALL)
-            return combined_data
+        selected_indices = [int(idx.strip()) for idx in selected_indices.split(',') if idx.strip().isdigit()]
+        selected_emails = [found_emails[idx - 1] for idx in selected_indices if 1 <= idx <= len(found_emails)]
 
         if selected_emails:
-            print(Fore.GREEN + "\n[+] Selected emails to process recursively:" + Style.RESET_ALL)
             for email in selected_emails:
-                print(f"    - {email}")
-
-            # Recursively process each selected email
-            for email in tqdm(selected_emails, desc="Processing selected emails", unit="email"):
                 if email not in processed_targets and is_valid_email(email):
-                    recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type)
-        else:
-            print(Fore.YELLOW + " [!] No valid emails selected for recursion." + Style.RESET_ALL)
+                    recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
 
     return combined_data
 
