@@ -70,8 +70,9 @@ def extract_links(unique_data):
 
 # Scraping links with Firecrawl
 def scraped_links(scrape_links, progress_bar=None):
-    print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Starting to scrape links. Moving on if nothing to scrape." + Style.RESET_ALL)
-    print(Fore.GREEN + " [" + Fore.WHITE + "!" + Fore.GREEN + "]" + Fore.WHITE + " Some pages or screenshots may fail, don't panic." + Style.RESET_ALL)   
+    """
+    Scrapes the provided list of URLs and optionally updates a given progress bar.
+    """
     scrape_results = []
     for link in scrape_links:
         try:
@@ -335,6 +336,9 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
             for email in selected_emails:
                 if email not in processed_targets and is_valid_email(email):
                     recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
+
+    # Close the unified progress bar once all tasks are completed
+    unified_progress_bar.close()
 
     return combined_data
 
