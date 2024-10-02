@@ -84,13 +84,14 @@ def scraped_links(scrape_links, progress_bar=None):
 
     for link in scrape_links:
         try:
-            tqdm.write(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
+            #tqdm.write(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
             scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
             scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
             scrape_results.append(scrape_result)
             time.sleep(1)
         except Exception as e:
-            tqdm.write(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
+            pass
+            #tqdm.write(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
         
         # Ensure progress bar is updated even when a link fails
         if progress_bar is not None:
@@ -134,9 +135,10 @@ def save_screenshot(image_url, directory):
         response.raise_for_status() 
         with open(directory, 'wb') as file:
             file.write(response.content)
-        print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Screenshot saved as: " + Style.RESET_ALL + directory)
+        #print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Screenshot saved as: " + Style.RESET_ALL + directory)
     except Exception as e:
-        print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Failed to retrieve image from" + Style.RESET_ALL + f" {image_url}" + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
+        pass
+        #print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Failed to retrieve image from" + Style.RESET_ALL + f" {image_url}" + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
 
 # Process the data and save to dictionary
 def process_data(scrape_results, target, directory):
@@ -174,7 +176,7 @@ def process_data(scrape_results, target, directory):
 
     # Iterating over all image URLs and taking screenshots
     if len(all_image_urls):
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Taking screenshots where possible." + Style.RESET_ALL)
+        #print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Taking screenshots where possible." + Style.RESET_ALL)
         ss_path = os.path.join(directory, 'screenshots')
         if not os.path.exists(ss_path):
             os.makedirs(ss_path)
@@ -182,7 +184,8 @@ def process_data(scrape_results, target, directory):
             image_path = os.path.join(ss_path, 'ss_' + ''.join(random.choices(string.ascii_lowercase, k=5)) + '.png')
             save_screenshot(url, image_path)
     else:
-        print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No screenshots taken." + Style.RESET_ALL)
+        pass
+        #print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No screenshots taken." + Style.RESET_ALL)
 
     print(Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "-" + Fore.WHITE + "]" + Fore.GREEN + " All Google search data was saved." + Style.RESET_ALL)
     return data_dict
