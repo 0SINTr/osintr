@@ -33,7 +33,7 @@ def google_search(target):
     query = f"\"{target}\" OR inurl:\"{target}\""
     payload = json.dumps({
         "q": query,
-        "num": 5,
+        "num": 20,
         "autocorrect": False
     })
     headers = {
