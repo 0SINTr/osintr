@@ -285,11 +285,13 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     if initial_target_type in ["email", "username"]:
         # **Automatic Recursion:**
         matched_emails = set()
-        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and starting recursive search." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
         print(Style.BRIGHT + Fore.CYAN + f"[i] Please wait ..." + Style.RESET_ALL)
+
+        # Only match emails against the initial target, not among themselves
         for email in found_emails:
-            matches = match_emails(email, found_emails)
-            matched_emails.update(matches)
+            if match_emails(target, [email]):
+                matched_emails.add(email)
 
         # Remove emails that have already been processed
         matched_emails = matched_emails - processed_targets
