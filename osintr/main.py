@@ -46,14 +46,16 @@ def google_search(target):
         results = requests.request("POST", url, headers=headers, data=payload)
         if results:
             num_results = len(results.json().get('organic', []))
-            if num_results > 0:
-                print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results" + Style.RESET_ALL)
-                with tqdm(total=num_results, unit="result", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as search_bar:
-                    for result in results.json()['organic']:
-                        search_results.append(result)
-                        search_bar.update(1)
-            else:
-                tqdm.write(Style.BRIGHT + Fore.CYAN + "[i] No search results found." + Style.RESET_ALL)
+            # Handle case when no search results are found
+            if num_results == 0:
+                print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for '{target}'." + Style.RESET_ALL)
+                return search_results  # Return empty list
+
+            print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results" + Style.RESET_ALL)
+            with tqdm(total=num_results, unit="result", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as search_bar:
+                for result in results.json()['organic']:
+                    search_results.append(result)
+                    search_bar.update(1)
     except Exception as e:
         sys.exit(Style.BRIGHT + Fore.RED + f"[-] Quitting. Error during Google search: {str(e)}\n" + Style.RESET_ALL)
 
@@ -90,26 +92,10 @@ def scraped_links(scrape_links, progress_bar=None):
 
     # Adjust the progress bar total dynamically if needed
     if progress_bar is not None:
-        initial_total = len(scrape_links)  # Store initial total
-        progress_bar.total = initial_total  # Set the progress bar total
-        progress_bar.refresh()  # Ensure initial display
+        initial_total = len(scrape_links)
+        progress_bar.total = initial_total
+        progress_bar.refresh()
 
-    # Only create a new progress bar if no external bar is passed and there are items to process
-    if progress_bar is None:  # Only create a new progress bar if no external one is passed
-        with tqdm(total=len(scrape_links), unit="url", ncols=80, bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]") as scrape_bar:
-            for link in scrape_links:
-                try:
-                    scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
-                    scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
-                    scrape_results.append(scrape_result)
-                    time.sleep(1)
-                except Exception:
-                    pass  # Skip failed links
-
-                scrape_bar.update(1)
-            return scrape_results
-
-    # If using an external progress bar 
     for link in scrape_links:
         try:
             scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
@@ -119,7 +105,7 @@ def scraped_links(scrape_links, progress_bar=None):
         except Exception:
             pass  # Skip failed links
 
-        # Ensure progress bar is updated even when a link fails
+        # Update the progress bar even when a link fails
         if progress_bar is not None:
             progress_bar.update(1)
             progress_bar.refresh()  # Force refresh in case of visual lag
@@ -285,6 +271,11 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
 
+    # Skip progress bar creation if there are no links to scrape
+    if len(scrape_links) == 0:
+        print(Style.BRIGHT + Fore.CYAN + f"[i] No links to scrape for target " + Fore.YELLOW + f"{target}" + Fore.CYAN + "." + Style.RESET_ALL)
+        return combined_data
+    
     # Create a new progress bar for each unique scraping task
     print(Style.BRIGHT + Fore.GREEN + "[+] Scraping URLs and extracting data" + Style.RESET_ALL)
     with tqdm(total=len(scrape_links), unit="url", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as progress_bar:
