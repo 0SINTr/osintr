@@ -1,4 +1,5 @@
 from urllib.parse import urlparse
+from colorama import Fore, Style
 from fuzzywuzzy import fuzz
 import spacy
 import re
@@ -7,7 +8,7 @@ import re
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
-    print("Downloading 'en_core_web_sm' model...")
+    print(Style.BRIGHT + Fore.CYAN + "[i] Downloading 'en_core_web_sm' model ... Hold on")
     from spacy.cli import download
     download("en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")

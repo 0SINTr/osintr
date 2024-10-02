@@ -21,10 +21,10 @@ import re
 def check_directory(target, directory):
     directory = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
     if not os.path.exists(path=directory):
-        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + f" Initializing OSINTr for target '{target}' and searching Google." + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "i" + Fore.GREEN + "]" + " Initializing OSINTr ..." + Style.RESET_ALL)
         os.makedirs(directory)
     else:
-        print("\n" + Style.BRIGHT + Fore.YELLOW + "[" + Fore.WHITE + "!" + Fore.YELLOW + "]" + f" Writing '{target}' data to target directory ..." + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.CYAN + f"[i] Writing '{target}' data to target directory ..." + Style.RESET_ALL)
     return directory
 
 # Perform verbatim and inurl Google search on target
@@ -32,31 +32,35 @@ def google_search(target):
     url = "https://google.serper.dev/search"
     query = f"\"{target}\" OR inurl:\"{target}\""
     payload = json.dumps({
-    "q": query,
-    "num": 5,
-    "autocorrect": False
+        "q": query,
+        "num": 5,
+        "autocorrect": False
     })
     headers = {
-    'X-API-KEY': os.getenv('SERPER_API_KEY'),
-    'Content-Type': 'application/json'
+        'X-API-KEY': os.getenv('SERPER_API_KEY'),
+        'Content-Type': 'application/json'
     }
 
     try:
         search_results = []
-        # Submit the query
         results = requests.request("POST", url, headers=headers, data=payload)
         if results:
-            for result in results.json()['organic']:
-                search_results.append(result)
+            num_results = len(results.json().get('organic', []))
+            print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results ..." + Style.RESET_ALL)
+            with tqdm(total=num_results, unit="result", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as search_bar:
+                for result in results.json()['organic']:
+                    search_results.append(result)
+                    search_bar.update(1)
     except Exception as e:
-        sys.exit(Style.BRIGHT + Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + f" Quitting. Error during Google search: {str(e)}\n" + Style.RESET_ALL)
+        sys.exit(Style.BRIGHT + Fore.RED + f"[-] Quitting. Error during Google search: {str(e)}\n" + Style.RESET_ALL)
+
     return search_results
 
 # Remove duplicate search results
 def remove_duplicates(results):
     df = pd.DataFrame(results).drop_duplicates('title')
     unique_data = df.to_dict(orient='records')
-    print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + Fore.WHITE + " Duplicates removed from search results." + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.CYAN + "[i] Duplicates removed from search results." + Style.RESET_ALL)
     return unique_data
 
 # Extracting links from search results
@@ -65,7 +69,7 @@ def extract_links(unique_data):
     for entry in unique_data:
         if 'gov' not in entry['link']:
             scrape_links.append(entry['link'])
-    print(Fore.GREEN + " [" + Fore.WHITE + "+" + Fore.GREEN + "]" + Fore.WHITE + " Links extracted and ready for scraping." + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.CYAN + "[i] Links extracted and ready for scraping.\n" + Style.RESET_ALL)
     return scrape_links
 
 # Scraping links with Firecrawl
@@ -76,6 +80,11 @@ def scraped_links(scrape_links, progress_bar=None):
     """
     scrape_results = []
 
+    # Only show progress bar if there are links to scrape
+    if len(scrape_links) == 0:
+        print(Style.BRIGHT + Fore.CYAN + "[i] No links to scrape." + Style.RESET_ALL)
+        return scrape_results
+
     # Adjust the progress bar total dynamically if needed
     if progress_bar is not None:
         initial_total = len(scrape_links)  # Store initial total
@@ -84,15 +93,13 @@ def scraped_links(scrape_links, progress_bar=None):
 
     for link in scrape_links:
         try:
-            #tqdm.write(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
             scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
             scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
             scrape_results.append(scrape_result)
             time.sleep(1)
-        except Exception as e:
-            pass
-            #tqdm.write(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
-        
+        except Exception:
+            pass  # Skip failed links
+
         # Ensure progress bar is updated even when a link fails
         if progress_bar is not None:
             progress_bar.update(1)
@@ -118,14 +125,6 @@ def extract_data(scrape_result):
     all_urls = scrape_result['links']
 
     return image_url, emails, all_urls
-
-# Check if the target is a valid email address, otherwise it's a username
-def check(target):
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-    if(re.fullmatch(regex, target)):
-        return target
-    else:
-        return None
     
 # Saving screenshots via image URLs
 def save_screenshot(image_url, directory):
@@ -135,10 +134,8 @@ def save_screenshot(image_url, directory):
         response.raise_for_status() 
         with open(directory, 'wb') as file:
             file.write(response.content)
-        #print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Screenshot saved as: " + Style.RESET_ALL + directory)
     except Exception as e:
         pass
-        #print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " Failed to retrieve image from" + Style.RESET_ALL + f" {image_url}" + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
 
 # Process the data and save to dictionary
 def process_data(scrape_results, target, directory):
@@ -146,48 +143,37 @@ def process_data(scrape_results, target, directory):
     all_emails = []
     all_urls = []
     all_image_urls = []
-    # Iterating over search results and extracting data
+
     for scrape_result in scrape_results:
         extracted_data = extract_data(scrape_result)
-        # Image URL
         image_url = extracted_data[0]
         all_image_urls.append(image_url)
-
-        # Extract email addresses
         emails = extracted_data[1]
-        for email in emails:
-            all_emails.append(email)
-
-        # Extract all URLs
+        all_emails.extend(emails)
         urls = extracted_data[2]
-        for url in urls:
-            all_urls.append(url)
-    
-    # Writing emails and URLs to dictionary
-    if len(all_emails) > 0:
-        data_dict['Email Addresses'] = list(set(all_emails))
-    else:
-        data_dict['Email Addresses'] = []
+        all_urls.extend(urls)
 
-    if len(all_urls) > 0:
-        data_dict['URLs'] = list(set(all_urls))
-    else:
-        data_dict['URLs'] = []
+    data_dict['Email Addresses'] = list(set(all_emails)) if all_emails else []
+    data_dict['URLs'] = list(set(all_urls)) if all_urls else []
 
-    # Iterating over all image URLs and taking screenshots
-    if len(all_image_urls):
+    if all_image_urls:
         #print("\n" + Style.BRIGHT + Fore.GREEN + "[" + Fore.WHITE + "*" + Fore.GREEN + "]" + " Taking screenshots where possible." + Style.RESET_ALL)
         ss_path = os.path.join(directory, 'screenshots')
         if not os.path.exists(ss_path):
             os.makedirs(ss_path)
-        for url in all_image_urls:
-            image_path = os.path.join(ss_path, 'ss_' + ''.join(random.choices(string.ascii_lowercase, k=5)) + '.png')
-            save_screenshot(url, image_path)
+
+        # Progress bar for saving screenshots
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Saving Screenshots" + Style.RESET_ALL)
+        with tqdm(total=len(all_image_urls), unit="screenshot", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as screenshot_bar:
+            for url in all_image_urls:
+                image_path = os.path.join(ss_path, 'ss_' + ''.join(random.choices(string.ascii_lowercase, k=5)) + '.png')
+                save_screenshot(url, image_path)
+                screenshot_bar.update(1)
     else:
         pass
-        #print(Fore.WHITE + "[" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + " No screenshots taken." + Style.RESET_ALL)
-
-    print(Style.BRIGHT + Fore.WHITE + "[" + Fore.GREEN + "-" + Fore.WHITE + "]" + Fore.GREEN + " All Google search data was saved." + Style.RESET_ALL)
+    
+    time.sleep(1)
+    tqdm.write("\n" + Style.BRIGHT + Fore.CYAN + f"[i] All Google search data for {target} was saved." + Style.RESET_ALL)
     return data_dict
 
 # Determine the type of the target
@@ -247,7 +233,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     Main function that performs recursive searching and scraping based on the initial target type.
     """
     if depth > max_depth:
-        print(Fore.YELLOW + f" [!] Maximum recursion depth reached for target '{target}'. Skipping further recursion." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f" [i] Maximum recursion depth reached for target '{target}'. Skipping further recursion." + Style.RESET_ALL)
         return combined_data
 
     if processed_targets is None:
@@ -257,7 +243,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
 
     # Check if the target has already been processed
     if target in processed_targets:
-        print(Fore.CYAN + f" [i] Target '{target}' has already been processed. Skipping." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f" [i] Target '{target}' has already been processed. Skipping." + Style.RESET_ALL)
         return combined_data
 
     processed_targets.add(target)
@@ -271,7 +257,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     # Loading environment variables
     load_dotenv()
     if not all([os.getenv('SERPER_API_KEY'), os.getenv('FIRECRAWL_API_KEY')]):
-        print("\n" + Style.BRIGHT + Fore.RED + "[" + Fore.WHITE + "-" + Fore.RED + "]" + " API key(s) not found.\n" + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.RED + "[-] API key(s) not found.\n" + Style.RESET_ALL)
         sys.exit()
 
     # Perform the search and scrape process
@@ -279,17 +265,11 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
 
-    # Create or update a unified progress bar
-    if unified_progress_bar is None:
-        # Initialize progress bar for the first time
-        unified_progress_bar = tqdm(total=len(scrape_links), desc=f"Scraping URLs for '{target}'", unit="url")
-    else:
-        # For recursive calls, add the new links to the existing progress bar
-        unified_progress_bar.total += len(scrape_links) - unified_progress_bar.n
-        unified_progress_bar.refresh()
-
-    # Perform scraping and update the unified progress bar
-    scraped_data = scraped_links(scrape_links, progress_bar=unified_progress_bar)
+    # Create a new progress bar for each unique scraping task
+    print(Style.BRIGHT + Fore.GREEN + "[+] Scraping URLs and extracting data" + Style.RESET_ALL)
+    with tqdm(total=len(scrape_links), unit="url", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as progress_bar:
+        # Perform scraping and update the progress bar
+        scraped_data = scraped_links(scrape_links, progress_bar=progress_bar)
 
     # Process the scraped data and update combined data
     data_dict = process_data(scraped_data, target, directory)
@@ -305,9 +285,9 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         for idx, email in enumerate(found_emails, 1):
             print(f"    {idx}. {email}")
     else:
-        print(Style.BRIGHT + Fore.YELLOW + f"\n[!] No emails found for target '{target}'." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f"\n[i] No emails found for target '{target}'." + Style.RESET_ALL)
         if depth == 0:
-            print(Fore.YELLOW + f" [!] No emails identified during the initial search." + Style.RESET_ALL)
+            print(Style.BRIGHT + Fore.CYAN + " [i] No emails identified during the initial search." + Style.RESET_ALL)
         return combined_data  # No emails to process further
 
     # Determine the type of the initial target
@@ -321,24 +301,24 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         matched_emails = set()
         print(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
 
-        # Create a progress bar for matching emails at this depth level
-        with tqdm(total=len(found_emails), desc=f"Matching Emails (Depth {depth})", unit="email") as email_match_bar:
+        # Create a progress bar for matching emails
+        with tqdm(total=len(found_emails), desc="Matching Emails", unit="email", ncols=80) as email_match_bar:
             for email in found_emails:
                 matches = match_emails(email, found_emails)
                 matched_emails.update(matches)
                 email_match_bar.update(1)
 
         # Remove already processed emails
-        matched_emails = matched_emails - processed_targets
+        matched_emails -= processed_targets
 
         # Recursively process each matched email
         for email in matched_emails:
             if email not in processed_targets and is_valid_email(email):
-                recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
+                recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=None)
 
     elif initial_target_type == "name_company":
         # User-guided recursion for company or name targets
-        print(Style.BRIGHT + Fore.CYAN + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.BLUE + "\n[i] Since the initial target is a name or company, please select which emails to recurse into:" + Style.RESET_ALL)
         selected_indices = input(Style.BRIGHT + Fore.YELLOW + "Your selection: " + Style.RESET_ALL)
         selected_indices = [int(idx.strip()) for idx in selected_indices.split(',') if idx.strip().isdigit()]
         selected_emails = [found_emails[idx - 1] for idx in selected_indices if 1 <= idx <= len(found_emails)]
@@ -346,11 +326,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         if selected_emails:
             for email in selected_emails:
                 if email not in processed_targets and is_valid_email(email):
-                    recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=unified_progress_bar)
-
-    # Close the unified progress bar only at the initial depth
-    if depth == 0:
-        unified_progress_bar.close()
+                    recursive_search_and_scrape(email, output, processed_targets, combined_data, depth=depth+1, max_depth=max_depth, initial_target_type=initial_target_type, unified_progress_bar=None)
 
     return combined_data
 
@@ -373,9 +349,16 @@ def main():
 
     # Now, perform URL relevance matching
     if combined_data['URLs']:
-        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Starting URL relevance matching in collected data." + Style.RESET_ALL)
-        relevant_urls_with_scores = evaluate_urls(initial_target, combined_data['URLs'])
-        # Adjust the threshold as needed. For example, 50:
+        print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Starting URL relevance matching in collected data." + Style.RESET_ALL)
+
+        # Initialize progress bar for URL relevance matching
+        with tqdm(total=len(combined_data['URLs']), unit="url", ncols=80, bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]") as relevance_bar:
+            relevant_urls_with_scores = []
+            for url, score in evaluate_urls(initial_target, combined_data['URLs']):
+                relevant_urls_with_scores.append((url, score))
+                relevance_bar.update(1)
+
+        # Adjust the threshold as needed. For example, 50
         relevant_urls = [url for url, score in relevant_urls_with_scores if score >= 50]
         irrelevant_urls = list(set(combined_data['URLs']) - set(relevant_urls))
 
@@ -389,13 +372,13 @@ def main():
 
         # Display relevant URLs
         if relevant_urls:
-            print(Style.BRIGHT + Fore.GREEN + f"\n[+] Relevant URLs found and saved." + Style.RESET_ALL)
+            print(Style.BRIGHT + Fore.GREEN + "\n[+] Relevant URLs found and saved." + Style.RESET_ALL)
             #for url in relevant_urls:
                 #print(f"    - {url}")
         else:
-            print(Fore.YELLOW + f"\n[!] No relevant URLs identified." + Style.RESET_ALL)
+            print(Style.BRIGHT + Fore.CYAN + "\n[i] No relevant URLs identified." + Style.RESET_ALL)
     else:
-        print(Fore.YELLOW + f"\n[!] No URLs found to match." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + "\n[i] No URLs found to match." + Style.RESET_ALL)
         combined_data['Relevant URLs'] = []
         # 'URLs' key is already empty or as it was
 
@@ -412,7 +395,7 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(combined_data, f, indent=2)
 
-    print(Fore.GREEN + " [+] Raw data saved to " + Style.BRIGHT + f"{output_file}\n" + Style.RESET_ALL)
+    print(Fore.CYAN + "[+] Raw data saved to " + Style.BRIGHT + f"{output_file}\n" + Style.RESET_ALL)
 
 if __name__ == '__main__':
     main()
