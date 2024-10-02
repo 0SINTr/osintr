@@ -75,17 +75,18 @@ def scraped_links(scrape_links, progress_bar=None):
     scrape_results = []
     for link in scrape_links:
         try:
-            print(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
+            # Use tqdm.write to prevent interference with the progress bar
+            tqdm.write(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
             scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
             scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
             scrape_results.append(scrape_result)
             time.sleep(1)
 
-            # Update the progress bar if provided
+            # Update the single progress bar if provided
             if progress_bar is not None:
                 progress_bar.update(1)
         except Exception as e:
-            print(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
+            tqdm.write(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
             continue
 
     return scrape_results
@@ -264,10 +265,16 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     uniques = remove_duplicates(results)
     scrape_links = extract_links(uniques)
 
-    # Create a separate progress bar for the current depth level
-    with tqdm(total=len(scrape_links), desc=f"Scraping URLs (Depth {depth})", unit="url", leave=True) as url_progress_bar:
-        # Pass the progress bar to the scraped_links function
-        scraped_data = scraped_links(scrape_links, progress_bar=url_progress_bar)
+    # Initialize a unified progress bar only once if not already provided
+    if unified_progress_bar is None:
+        unified_progress_bar = tqdm(total=len(scrape_links), desc="Scraping URLs", unit="url")
+
+    # Perform scraping with the unified progress bar
+    scraped_data = scraped_links(scrape_links, progress_bar=unified_progress_bar)
+
+    # Close the progress bar once done
+    if depth == 0:
+        unified_progress_bar.close()
 
     data_dict = process_data(scraped_data, target, directory)
 
