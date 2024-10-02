@@ -7,7 +7,7 @@ setup(
     version='0.3.0',
     author='0SINTr',
     url='https://github.com/0SINTr',
-    description='OFM Stage 1 tool for GRASS (Google Recursive Advanced Search & Scrape).',
+    description='OFM - Stage 1 tool for GRASS (Google Recursive Advanced Search & Scrape).',
     long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
     packages=find_packages(include=['osintr', 'osintr.*']),
