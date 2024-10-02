@@ -21,10 +21,10 @@ import re
 def check_directory(target, directory):
     directory = os.path.join(directory, "osint_data_" + ''.join(char for char in str(target) if char.isalnum()))
     if not os.path.exists(path=directory):
-        print("\n" + Style.BRIGHT + Fore.CYAN + "[i] Initializing OSINTr ..." + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.CYAN + "[i] Putting OSINTr to work." + Style.RESET_ALL)
         os.makedirs(directory)
     else:
-        print("\n" + Style.BRIGHT + Fore.CYAN + f"[i] Writing '{target}' data to target directory ..." + Style.RESET_ALL)
+        print("\n" + Style.BRIGHT + Fore.CYAN + f"[i] Writing " + Fore.YELLOW + f"{target}" + Fore.CYAN + " data to target directory." + Style.RESET_ALL)
     return directory
 
 # Perform verbatim and inurl Google search on target
@@ -84,7 +84,7 @@ def scraped_links(scrape_links, progress_bar=None):
     scrape_results = []
 
     # Only show progress bar if there are links to scrape
-    if not scrape_links:  # >>> CHANGED: Added condition to handle empty scrape_links
+    if len(scrape_links) == 0:
         tqdm.write(Style.BRIGHT + Fore.CYAN + "[i] No links to scrape." + Style.RESET_ALL)
         return scrape_results
 
@@ -94,6 +94,22 @@ def scraped_links(scrape_links, progress_bar=None):
         progress_bar.total = initial_total  # Set the progress bar total
         progress_bar.refresh()  # Ensure initial display
 
+    # Only create a new progress bar if no external bar is passed and there are items to process
+    if progress_bar is None:  # Only create a new progress bar if no external one is passed
+        with tqdm(total=len(scrape_links), unit="url", ncols=80, bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]") as scrape_bar:
+            for link in scrape_links:
+                try:
+                    scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
+                    scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
+                    scrape_results.append(scrape_result)
+                    time.sleep(1)
+                except Exception:
+                    pass  # Skip failed links
+
+                scrape_bar.update(1)
+            return scrape_results
+
+    # If using an external progress bar 
     for link in scrape_links:
         try:
             scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
@@ -177,7 +193,7 @@ def process_data(scrape_results, target, directory):
         tqdm.write(Style.BRIGHT + Fore.CYAN + "[i] No screenshots to save." + Style.RESET_ALL)
     
     time.sleep(1)
-    tqdm.write("\n" + Style.BRIGHT + Fore.CYAN + f"[i] All Google search data for {target} was saved." + Style.RESET_ALL)
+    tqdm.write("\n" + Style.BRIGHT + Fore.CYAN + f"[i] All Google search data for " + Fore.YELLOW + f"{target}" + Fore.CYAN + " was saved." + Style.RESET_ALL)
     return data_dict
 
 # Determine the type of the target
@@ -237,7 +253,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     Main function that performs recursive searching and scraping based on the initial target type.
     """
     if depth > max_depth:
-        print(Style.BRIGHT + Fore.CYAN + f" [i] Maximum recursion depth reached for target '{target}'. Skipping further recursion." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f" [i] Maximum recursion depth reached for target " + Fore.YELLOW + f"{target}" + Fore.CYAN + " - Skipping further recursion." + Style.RESET_ALL)
         return combined_data
 
     if processed_targets is None:
@@ -253,7 +269,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     processed_targets.add(target)
 
     # Indicate which target is being processed
-    print(Style.BRIGHT + Fore.GREEN + f"\n[+] Starting search and scrape for target: '{target}' (Depth: {depth})" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.GREEN + f"\n[+] Starting search and scrape for target: " + Fore.YELLOW + f"{target}" + Fore.GREEN + f" (Depth: {depth})" + Style.RESET_ALL)
 
     # Checking if directory exists and get the path
     directory = check_directory(target, output)
@@ -285,11 +301,11 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     # Display the emails found in this iteration
     found_emails = data_dict.get('Email Addresses', [])
     if found_emails:
-        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Emails found for target '{target}':" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Emails found for target " + Fore.YELLOW + f"{target}" + Fore.GREEN + f":" + Style.RESET_ALL)
         for idx, email in enumerate(found_emails, 1):
             print(f"    {idx}. {email}")
     else:
-        print(Style.BRIGHT + Fore.CYAN + f"\n[i] No emails found for target '{target}'." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.CYAN + f"\n[i] No emails found for target " + Fore.YELLOW + f"{target}" + Fore.CYAN + "." + Style.RESET_ALL)
         if depth == 0:
             print(Style.BRIGHT + Fore.CYAN + " [i] No emails identified during the initial search." + Style.RESET_ALL)
         return combined_data  # No emails to process further
@@ -306,7 +322,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
         
         # Create a progress bar for matching emails
         if found_emails:
-            tqdm.write(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to '{target}' and performing recursive search." + Style.RESET_ALL)
+            tqdm.write(Style.BRIGHT + Fore.GREEN + f"\n[+] Matching relevant emails to " + Fore.YELLOW + f"{target}" + Fore.GREEN + " and performing recursive search." + Style.RESET_ALL)
             with tqdm(total=len(found_emails), unit="email", ncols=80, bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]") as email_match_bar:
                 for email in found_emails:
                     if email == target or match_emails(target, [email]):
@@ -411,7 +427,7 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(combined_data, f, indent=2)
 
-    print(Fore.CYAN + "[+] Raw data saved to " + Style.BRIGHT + f"{output_file}\n" + Style.RESET_ALL)
+    print(Fore.CYAN + "[+] Raw data saved to " + Fore.YELLOW + Style.BRIGHT + f"{output_file}\n" + Style.RESET_ALL)
 
 if __name__ == '__main__':
     main()
