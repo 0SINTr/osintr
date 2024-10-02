@@ -32,7 +32,7 @@ def google_search(target):
     query = f"\"{target}\" OR inurl:\"{target}\""
     payload = json.dumps({
     "q": query,
-    "num": 5,
+    "num": 20,
     "autocorrect": False
     })
     headers = {
@@ -330,7 +330,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
             return combined_data
 
         if selected_emails:
-            print(Fore.GREEN + "\n[+] Selected emails to process recursively:" + Style.RESET_ALL)
+            print(Style.BRIGHT + Fore.GREEN + "\n[+] Selected emails to process recursively:" + Style.RESET_ALL)
             for email in selected_emails:
                 print(f"    - {email}")
 
@@ -362,7 +362,7 @@ def main():
 
     # Now, perform URL relevance matching
     if combined_data['URLs']:
-        print(Fore.GREEN + f"\n[+] Starting URL relevance matching in collected data." + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.GREEN + f"\n[+] Starting URL relevance matching in collected data." + Style.RESET_ALL)
         relevant_urls_with_scores = evaluate_urls(initial_target, combined_data['URLs'])
         # Adjust the threshold as needed. For example, 50:
         relevant_urls = [url for url, score in relevant_urls_with_scores if score >= 50]
