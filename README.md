@@ -45,14 +45,14 @@
         - `john.doe@test.com` to `john.doe99@test.com`
 - Automatically checks for **matches** between the target and potentially related URLs, using:
     - Differentiation between **target** being an email or username, vs. person or company name
-    - **Name Entity Recognition (NER)** via spaCy tokens for person name or company name matching
+    - **Name Entity Recognition (NER)** via **spaCy** tokens for person name or company name matching
     - Stop words and excluded tokens for an improved **scoring system** for URL vs. name matching
     - Exact or **fuzzy token matching**, adjusted penalty logic, sorting URLs by **relevance score**
 - If the target is **email** or **username**: 
-    - Recursion is done **automatically** up to a max depth of 2.
+    - Recursion is done **automatically** up to a max depth of 1.
 - If the target is **person** or **company name**: 
     - **You pick** the emails to recurse at each level of depth.
-- Currently, the **maximum depth for recursion** is set to 2. May increase in the future.
+- Currently, the **maximum depth for recursion** is set to 1. Use **--max-depth** to change it.
 - Creates a directory under **-o OUTPUT** directory named ***osint_TargetName*** for each target.
 - Saves all email addresses and URLs from the **GRASS** process to a file **Raw_Data.json**.
 - Also creates a Jinja2 template-based **Final_Report.html** with clean structure and formatting.
@@ -125,7 +125,7 @@ options:
   -h, --help         show this help message and exit
   -t TARGET          Target of investigation
   -o OUTPUT          Directory to save results
-  --max-depth DEPTH  Maximum recursion depth (default: 2)
+  --max-depth DEPTH  Maximum recursion depth (default: 1)
 
 NOTE!
 For person or company names use double quotes to enclose the whole name.
@@ -154,7 +154,7 @@ Some output was **omitted** for brevity.
 - [x] Filtering crawled URLs by relevance.
 - [x] Better formating for the JSON data.
 - [x] Adding HTML-based final reporting.
-- [ ] Improved, better-structured output.
+- [x] Improved, better-structured output.
 - [ ] Google images, maps, places, reviews.
 
 ## Disclaimer

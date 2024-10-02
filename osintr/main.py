@@ -48,7 +48,7 @@ def google_search(target):
             num_results = len(results.json().get('organic', []))
             # Handle case when no search results are found
             if num_results == 0:
-                print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for " + Fore.YELLOW + f"{target}" + Fore.CYAN + "." + Style.RESET_ALL)
+                print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for " + Fore.YELLOW + f"{target}" + Fore.CYAN + ". Skipping further steps." + Style.RESET_ALL)
                 return search_results  # Return empty list
 
             print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results" + Style.RESET_ALL)
@@ -269,7 +269,7 @@ def recursive_search_and_scrape(target, output, processed_targets=None, combined
     # Perform the search and scrape process
     results = google_search(target)
     if not results:  # No search results found
-        print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for target '{target}'. Skipping further steps." + Style.RESET_ALL)
+        #print(Style.BRIGHT + Fore.CYAN + f"[i] No search results found for target '{target}'. Skipping further steps." + Style.RESET_ALL)
         return combined_data  # Stop processing this target
     
     uniques = remove_duplicates(results)
@@ -427,7 +427,7 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(combined_data, f, indent=2)
 
-    print(Fore.CYAN + "[+] Raw data saved to " + Fore.YELLOW + Style.BRIGHT + f"{output_file}\n" + Style.RESET_ALL)
+    print(Style.BRIGHT + Fore.BLUE + "[+] Raw data saved to " + Fore.YELLOW + f"{output_file}\n" + Style.RESET_ALL)
 
 if __name__ == '__main__':
     main()

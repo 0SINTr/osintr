@@ -56,7 +56,7 @@ def generate_html_report(data, output_html_path):
     try:
         with open(output_html_path, 'w', encoding='utf-8') as f:
             f.write(rendered_html)
-        print(Fore.CYAN + "\n[+] Relevant data saved to " + Fore.YELLOW + Style.BRIGHT + f"{output_html_path}" + Style.RESET_ALL)
+        print(Style.BRIGHT + Fore.BLUE + "\n[+] Relevant data saved to " + Fore.YELLOW + f"{output_html_path}" + Style.RESET_ALL)
     except Exception as e:
         print(Style.BRIGHT + Fore.RED + f"[-] Error writing report to '{output_html_path}': {e}" + Style.RESET_ALL)
         sys.exit(1)
