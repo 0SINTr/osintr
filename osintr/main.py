@@ -46,7 +46,7 @@ def google_search(target):
         results = requests.request("POST", url, headers=headers, data=payload)
         if results:
             num_results = len(results.json().get('organic', []))
-            print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results ..." + Style.RESET_ALL)
+            print("\n" + Style.BRIGHT + Fore.GREEN + "[+] Processing Google search results" + Style.RESET_ALL)
             with tqdm(total=num_results, unit="result", bar_format="{l_bar}{bar} | {n_fmt}/{total_fmt} [{elapsed}]", ncols=80) as search_bar:
                 for result in results.json()['organic']:
                     search_results.append(result)
