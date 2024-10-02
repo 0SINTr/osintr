@@ -72,11 +72,18 @@ def extract_links(unique_data):
 def scraped_links(scrape_links, progress_bar=None):
     """
     Scrapes the provided list of URLs and optionally updates a given progress bar.
+    If the number of links changes dynamically, adjusts the total count of the progress bar.
     """
     scrape_results = []
+
+    # Adjust the progress bar total dynamically if needed
+    if progress_bar is not None:
+        initial_total = len(scrape_links)  # Store initial total
+        progress_bar.total = initial_total  # Set the progress bar total
+        progress_bar.refresh()  # Ensure initial display
+
     for link in scrape_links:
         try:
-            # Use tqdm.write to prevent interference with the progress bar
             tqdm.write(Fore.WHITE + " [" + Fore.GREEN + "+" + Fore.WHITE + "]" + Fore.GREEN + " Scraping " + Style.RESET_ALL + link)
             scraper = FirecrawlApp(api_key=os.getenv('FIRECRAWL_API_KEY'))
             scrape_result = scraper.scrape_url(link, params={'formats': ['markdown', 'links', 'screenshot@fullPage']})
@@ -84,11 +91,11 @@ def scraped_links(scrape_links, progress_bar=None):
             time.sleep(1)
         except Exception as e:
             tqdm.write(Fore.WHITE + " [" + Fore.RED + "-" + Fore.WHITE + "]" + Fore.RED + ' Scraping not allowed for ' + Style.RESET_ALL + link + Style.BRIGHT + Fore.RED + " - skipping" + Style.RESET_ALL)
-            continue
         
         # Ensure progress bar is updated even when a link fails
         if progress_bar is not None:
             progress_bar.update(1)
+            progress_bar.refresh()  # Force refresh in case of visual lag
 
     return scrape_results
 
