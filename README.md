@@ -131,17 +131,17 @@ NOTE!
 For person or company names use double quotes to enclose the whole name.
 ```
 
-## Screenshots
+## Examples
 
 See **example workflows** below. 
 Details related to the targets have been **hidden** for obvious reasons.
 Some output was **omitted** for brevity.
 
-* **OSINT target** is **email address** or **username**.
+* **OSINT target** is an **email address** or **username**.
 
 ![osintr_example1](osintr/docs/example-eu.png)
 
-* **OSINT target** is **person name** or **company name**.
+* **OSINT target** is a **person name** or **company name**.
 
 ![osintr_example2](osintr/docs/example-pc.png)
 
