@@ -219,25 +219,30 @@ def evaluate_urls(name, urls):
 
     return results
 
-# Example usage with different inputs
-inputs = ["johndoe@example.com", "johndoe123", "Open AI", "Elon Musk"]
-urls = [
-    "https://johndoe.com/",
-    "https://example.com/john-doe-profile",
-    "https://www.notrelatedsite.com",
-    "https://github.com/johndoe123",
-    "https://example.com/contact/jdoe",
-    "https://linkedin.com/in/john-doe",
-    "https://openai.com/research/",
-    "https://openai-company.com/about",
-    "https://en.wikipedia.org/wiki/OpenAI",
-    "https://anotherexample.com/ceo-of-open-ai",
-    "https://www.spacex.com",
-]
+def main():
+    """Main function to execute the URL matching."""
+    # Example usage with different inputs
+    inputs = ["johndoe@example.com", "johndoe123", "Open AI", "Elon Musk"]
+    urls = [
+        "https://johndoe.com/",
+        "https://example.com/john-doe-profile",
+        "https://www.notrelatedsite.com",
+        "https://github.com/johndoe123",
+        "https://example.com/contact/jdoe",
+        "https://linkedin.com/in/john-doe",
+        "https://openai.com/research/",
+        "https://openai-company.com/about",
+        "https://en.wikipedia.org/wiki/OpenAI",
+        "https://anotherexample.com/ceo-of-open-ai",
+        "https://www.spacex.com",
+    ]
 
-# Run the evaluation for each input
-for name in inputs:
-    print(f"\nEvaluating URLs related to: {name}\n")
-    related_urls = evaluate_urls(name, urls)
-    for url, score in related_urls:
-        print(f"URL: {url} - Relevance Score: {score}")
+    # Run the evaluation for each input
+    for name in inputs:
+        print(f"\nEvaluating URLs related to: {name}\n")
+        related_urls = evaluate_urls(name, urls)
+        for url, score in related_urls:
+            print(f"URL: {url} - Relevance Score: {score}")
+
+if __name__ == '__main__':
+    main()
