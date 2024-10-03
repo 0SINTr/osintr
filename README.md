@@ -145,7 +145,7 @@ Some output was **omitted** for brevity.
 
 ![osintr_example2](osintr/docs/example-pc.png)
 
-* Sample **HTML report**.
+* Sample **Final_Report.html** report.
 
 ![osintr_report](osintr/docs/report.png)
 
