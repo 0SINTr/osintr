@@ -170,7 +170,7 @@ Some output was **omitted** for brevity.
 - [SerperDev API docs](https://serper.dev/)
 - [Firecrawl API docs](https://docs.firecrawl.dev/introduction)
 
-## 📧 Contact for Professional Collaborations
+## 📧 Professional Collaborations
 
 - **Email Address**:  
   Please direct your inquiries to **sintr.0@pm.me**.
