@@ -9,11 +9,11 @@
 
 **OSINTr** helps you build a strong foundation for any OSINT investigation by quickly creating a **digital footprint** of the target via recursive advanced Google searches via **SerperDev** and **Firecrawl** APIs.
 
-## Why OSINTr?
+## 🕵️ Why OSINTr?
 
 **OSINTr** directly interacts only with high-quality **APIs** (SerpDev, Firecrawl) at a low cost, bypassing the need for unreliable third-party apps or libraries, and implicitly **handling common issues** related to parsing, captchas, proxies or other types of usual setbacks. This ensures full control over the code and exclusive focus on the OSINT tasks rather than troubleshooting scraping and crawling hiccups.
 
-### Data Collection
+### 🔎 Data Collection
 
 **OSINTr** works best on Linux and tackles **Stage 1 of the [OFM](https://github.com/0SINTr/ofm)** workflow by performing **GRASS** (Google Recursive Advanced Search & Scrape).
 - Requires a **target** for the **OSINT investigation** (see **Usage** below).   
@@ -57,7 +57,7 @@
 - Saves all **email addresses** and **URLs** from the **GRASS** process to a file **Raw_Data.json**.
 - Also creates a Jinja2 template-based **Final_Report.html** with clean structure and formatting.
 
-## API Keys
+## 🔑 API Keys
 
 Running **OSINTr** requires API keys for the benefits stated previously. The API keys should reside in your environment **prior** to running **OSINTr**.
 
@@ -74,14 +74,14 @@ source ~/.bashrc
 - **SerperDev**: [Get your key here](https://serper.dev/)
 - **Firecrawl**: [Get your key here](https://www.firecrawl.dev/)
 
-## Costs
+## 💰 Costs
 
 **OSINTr** aims to use reliable, affordable APIs:
 
 - **SerperDev**: 2,500 free queries, then pay-as-you-go (50k queries for $50).
 - **Firecrawl**: 500 free credits; $19/mo for 3,000 page scrapes. 
 
-## Installation
+## 🛠️ Installation
 
 **Preparing**
 - Ensure **Python >=3.10** is installed.
@@ -109,7 +109,7 @@ Collecting en-core-web-sm==3.7.1
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.8/12.8 MB 25.7 MB/s eta 0:00:00
 ```
 
-## Usage
+## ⛑️ Usage
 
 ```console
 $ osintr -h
@@ -131,7 +131,7 @@ NOTE!
 For person or company names use double quotes to enclose the whole name.
 ```
 
-## Examples
+## 📷 Examples
 
 See **example workflows** below. 
 Details related to the targets have been **hidden** for obvious reasons.
@@ -149,7 +149,7 @@ Some output was **omitted** for brevity.
 
 ![osintr_report](osintr/docs/report.png)
 
-## Planned Upgrades
+## ♻️ Planned Upgrades
 
 - [x] Filtering crawled URLs by relevance.
 - [x] Better formating for the JSON data.
@@ -157,15 +157,27 @@ Some output was **omitted** for brevity.
 - [x] Improved, better-structured output.
 - [ ] Google images, maps, places, reviews.
 
-## Disclaimer
+## ⚠️ Disclaimer
 
 - **OSINTr** is designed for **passive**, **non-intrusive** OSINT tasks.
 - Any illegal or unethical use of the tool is **your** responsibility.
 - See **LICENSE** for more details on rights, permissions, and liability.
 
-## Support
+## 📄 Support
 
 **API documentation**:
 
 - [SerperDev API docs](https://serper.dev/)
 - [Firecrawl API docs](https://docs.firecrawl.dev/introduction)
+
+## 📧 Contact for Professional Collaborations
+
+- **Email Address**:  
+  Please direct your inquiries to **sintr.0@pm.me**.
+
+- **Important Guidelines**:  
+  - Use a **professional email** or a **ProtonMail** address.
+  - Keep your message **concise** and written in **English**.
+
+- **Security Notice**:  
+  Emails with **links** or **attachments** will be ignored for security reasons.
