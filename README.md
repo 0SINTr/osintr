@@ -161,7 +161,9 @@ Some output was **omitted** for brevity.
 
 - **OSINTr** is designed for **passive**, **non-intrusive** OSINT tasks.
 - Any illegal or unethical use of the tool is **your** responsibility.
-- See **LICENSE** for more details on rights, permissions, and liability.
+
+## 📜 License
+**osintr** is licensed under the [GNU GENERAL PUBLIC LICENSE Version 3](https://github.com/0SINTr/osintr/blob/main/LICENSE.md).
 
 ## 📄 Support
 
